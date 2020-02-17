@@ -1,0 +1,6 @@
+-poprawic minimape, dodac podazanie za graczem
+-poprawic generowanie planet, odstep od kamery z minimapy!!!
+-dodac losowosc wielkosci planet
+
+
+-dodac grawitacje
