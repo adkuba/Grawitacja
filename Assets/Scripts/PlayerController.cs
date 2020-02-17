@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     public Rigidbody rb;
 
     // Start is called before the first frame update
+    //UWAGA NA RAZIE ZAKOMENTOWALEM RZECZY ZWIAZANE Z PLANETAMI BO MUSZE ZROBIC GENERATOR PLANET
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -47,16 +48,17 @@ public class PlayerController : MonoBehaviour
 
 
         //ograniczenie max predkosci
-        if(targetForceSteer.x < 2 && targetForceSteer.y < 2 && targetForceSteer.x > -2 && targetForceSteer.y > -2)
+        //mniejsze ograniczenie na skrecanie
+        if(targetForceSteer.x < 5 && targetForceSteer.y < 2 && targetForceSteer.x > -5 && targetForceSteer.y > -2)
         {
             if (Input.GetKey("right"))
             {
-                targetForceSteer += new Vector3(1, 0, 0);
+                targetForceSteer += new Vector3(5, 0, 0);
             }
 
             if (Input.GetKey("left"))
             {
-                targetForceSteer += new Vector3(-1, 0, 0);
+                targetForceSteer += new Vector3(-5, 0, 0);
             }
 
             if (Input.GetKey("up"))
@@ -110,36 +112,3 @@ public class PlayerController : MonoBehaviour
     }
 
 }
-
-/*
- * UWAGA NA RAZIE ZAKOMENTOWALEM RZECZY ZWIAZANE Z PLANETAMI BO MUSZE ZROBIC GENERATOR PLANET
- * 
- * -------
- * Robie to za pomoca force a nie za pomoca zwyklego zmieniania pozycji! tak jak z grawitacja
- * DOPRACOWAC TEN MECHANIZM
- * oprocz prawo lewo dodatkowy guzik boost jesli wejdziemy na orbite
- *
- * 
- * 
- * 
- * 
- * STARY KOD:
- * 
- * //transform.position = Vector3.SmoothDamp(transform.position, target, ref velocity, smoothTime);
-
-        //if(smoothTime != 1F)
-        //{
-          //  smoothTime += (1F - smoothTime) * 0.2F;
-        //}
- * 
- * //target = transform.position + new Vector3(-1, 0, 0);
-            //smoothTime = 0.2F;
-            //rb.AddForce(-5, 0, 0);
-
-    //rb.AddForce(5, 0, 0);
-            //target = transform.position + new Vector3(1, 0, 0);
-            //smoothTime = 0.2F;
-
-
-
- */

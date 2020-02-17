@@ -33,7 +33,8 @@ public class CameraController : MonoBehaviour
             if (checkPlanetsNumber())
             {
                 GameObject a = Instantiate(planetPrefab) as GameObject;
-                a.transform.position = generatePlanetPosition(transform.position.x - screenBounds.x * 3f, transform.position.x + screenBounds.x * 3f, transform.position.y + screenBounds.y * 1.2f, transform.position.y + screenBounds.y * 4);
+                a.transform.localScale = generatePlanetSize();
+                a.transform.position = generatePlanetPosition(transform.position.x - screenBounds.x * 1.5f, transform.position.x + screenBounds.x * 1.5f, transform.position.y + screenBounds.y * 1.2f, transform.position.y + screenBounds.y * 2, a.transform.localScale.x);
                 if (a.transform.position == Vector3.zero)
                 {
                     Destroy(a);
@@ -43,7 +44,8 @@ public class CameraController : MonoBehaviour
             if (checkPlanetsNumber())
             {
                 GameObject b = Instantiate(planetPrefab) as GameObject;
-                b.transform.position = generatePlanetPosition(transform.position.x - screenBounds.x * 3f, transform.position.x + screenBounds.x * 3f, transform.position.y - screenBounds.y * 1.2f, transform.position.y - screenBounds.y * 4);
+                b.transform.localScale = generatePlanetSize();
+                b.transform.position = generatePlanetPosition(transform.position.x - screenBounds.x * 1.5f, transform.position.x + screenBounds.x * 1.5f, transform.position.y - screenBounds.y * 1.2f, transform.position.y - screenBounds.y * 2, b.transform.localScale.x);
                 if (b.transform.position == Vector3.zero)
                 {
                     Destroy(b);
@@ -57,7 +59,8 @@ public class CameraController : MonoBehaviour
             if (checkPlanetsNumber())
             {
                 GameObject a = Instantiate(planetPrefab) as GameObject;
-                a.transform.position = generatePlanetPosition(transform.position.x - screenBounds.x * 3f, transform.position.x - screenBounds.x * 1.2f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+                a.transform.localScale = generatePlanetSize();
+                a.transform.position = generatePlanetPosition(transform.position.x - screenBounds.x * 1.5f, transform.position.x - screenBounds.x * 1.2f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y, a.transform.localScale.x);
                 if (a.transform.position == Vector3.zero)
                 {
                     Destroy(a);
@@ -67,7 +70,8 @@ public class CameraController : MonoBehaviour
             if (checkPlanetsNumber())
             {
                 GameObject b = Instantiate(planetPrefab) as GameObject;
-                b.transform.position = generatePlanetPosition(transform.position.x + screenBounds.x * 1.2f, transform.position.x + screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+                b.transform.localScale = generatePlanetSize();
+                b.transform.position = generatePlanetPosition(transform.position.x + screenBounds.x * 1.2f, transform.position.x + screenBounds.x * 1.5f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y, b.transform.localScale.x);
                 if (b.transform.position == Vector3.zero)
                 {
                     Destroy(b);
@@ -95,12 +99,12 @@ public class CameraController : MonoBehaviour
         return false;
     }
 
-    private bool checkPlanetDistance(Vector2 planetToCheck)
+    private bool checkPlanetDistance(Vector2 planetToCheck, float size)
     {
         foreach (GameObject planet in planets)
         {
             //14 to odleglosc taka ze dwie planety musza byc oddalone od siebie o 7 (o jedna planete)
-            if (Vector2.Distance(new Vector2(planet.transform.position.x, planet.transform.position.y), planetToCheck) <= 21f)
+            if (Vector2.Distance(new Vector2(planet.transform.position.x, planet.transform.position.y), planetToCheck) - size - planet.transform.localScale.x  <= 21f)
             {
                 return true; //zwraca true zeby do while sie kontynuowal bo trzeba jeszcze raz wygenerowac wspolrzedne
             }
@@ -108,7 +112,7 @@ public class CameraController : MonoBehaviour
         return false; //false zeby wyjsc z while jesli jest ok
     }
 
-    private Vector2 generatePlanetPosition(float minx, float maxx, float miny, float maxy)
+    private Vector2 generatePlanetPosition(float minx, float maxx, float miny, float maxy, float size)
     {
         int steps = 0;
         Vector2 position;
@@ -116,7 +120,7 @@ public class CameraController : MonoBehaviour
         {
             position = new Vector2(Random.Range(minx, maxx), Random.Range(miny, maxy));
             steps++;
-        } while (checkPlanetDistance(position) && steps < 10); //max 10 prob znalezienia pozycji
+        } while (checkPlanetDistance(position, size) && steps < 10); //max 10 prob znalezienia pozycji
 
         if (steps == 10) //jesli nie udalo sie znalezc, tbh moze byc sytuacja ze uda sie znalzc akurat w 10 kroku ale jebac
         {
@@ -125,20 +129,23 @@ public class CameraController : MonoBehaviour
 
         return position;
     }
+
+    //generowanie wielkosci z roznym prawdopodobienstwem
+    private Vector3 generatePlanetSize()
+    {
+        float rand = Random.value;
+        float size;
+        if (rand <= .8f)
+        {
+            size = Random.Range(6f, 8f);
+            return new Vector3(size, size, size);
+        }
+        if (rand <= .95f)
+        {
+            size = Random.Range(8f, 10f);
+            return new Vector3(size, size, size);
+        }
+        size = Random.Range(10f, 15f);
+        return new Vector3(size, size, size);
+    }
 }
-
-
-/*
- * GENEROWANIE DZIALA CALKIEM OK - DOPRACOWAC JESZCZE ZEBY ROZGRYWKA BYLA PLYNNA!
- * może powiekszyc obszar w ktorym moga generowac sie planety?
- * more work 
- * 
- * -------
- * Jak ma sie odbywac generowanie obiektow?
- * NA RAZIE JEST TROCHE SKETCHY ALE DOBRY POCZATEK
- * 
- * moze: musi byc jakies ograniczenie max liczby planet
- * generujemy jesli jest mniej niz ten limit losowo w "otoczce" wokol kamery - poza widocznym obszarem!
- * co iles sekund
- * 
- */

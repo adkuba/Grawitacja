@@ -1,6 +1,49 @@
--poprawic minimape, dodac podazanie za graczem
--poprawic generowanie planet, odstep od kamery z minimapy!!!
--dodac losowosc wielkosci planet
+TODO
+
+-dodac grawitacje, w player controller dodac wyliczenie
+-wyglad pozniej
+
+------
+DONE
+
+OK dodac losowosc wielkosci planet!!!
+OK wskaznik gdzie jest najblizsza planeta NIE oddalilem troche widok i jest ok
+
+------
+POMYSLY
+
+generator dziala nawe spoko, dopracowac go jeszcze jak dodam grawitacje!
+animacje to musze stworzyc duzo plikow z "poruszonymi" roznie obiektami i w unity mozna robic reszte
+
+------
+OPIS commitow
+
+first: generowanie obiektow ok, bez losowej wielkosci
+przyrost2: dodana losowosc wielkosci, prototyp wygladu pola grawitacyjnego
 
 
--dodac grawitacje
+------
+STARE Z PLIKOW
+
+/*
+ * GENEROWANIE DZIALA CALKIEM OK - DOPRACOWAC JESZCZE ZEBY ROZGRYWKA BYLA PLYNNA!
+ * może powiekszyc obszar w ktorym moga generowac sie planety?
+ * more work 
+ * 
+ * -------
+ * Jak ma sie odbywac generowanie obiektow?
+ * NA RAZIE JEST TROCHE SKETCHY ALE DOBRY POCZATEK
+ * 
+ * moze: musi byc jakies ograniczenie max liczby planet
+ * generujemy jesli jest mniej niz ten limit losowo w "otoczce" wokol kamery - poza widocznym obszarem!
+ * co iles sekund
+ * 
+ */
+
+/*
+ * -------
+ * Robie to za pomoca force a nie za pomoca zwyklego zmieniania pozycji! tak jak z grawitacja
+ * DOPRACOWAC TEN MECHANIZM
+ * oprocz prawo lewo dodatkowy guzik boost jesli wejdziemy na orbite
+ */
+
