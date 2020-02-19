@@ -8,23 +8,32 @@ public class PlayerController : MonoBehaviour
     private Vector3 targetForce = Vector3.zero;
     private Vector3 targetForceSteer = Vector3.zero;
     private Vector3 planetForce = Vector3.zero;
-    private GameObject attractedTo;
-    private float strengthOfAttraction = 5F;
+    private GameObject[] planets;
+    private int atractedTo = -1;
     public Rigidbody rb;
 
     // Start is called before the first frame update
-    //UWAGA NA RAZIE ZAKOMENTOWALEM RZECZY ZWIAZANE Z PLANETAMI BO MUSZE ZROBIC GENERATOR PLANET
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-       // attractedTo = GameObject.FindGameObjectWithTag("Planet");
         rb.velocity = new Vector3(0, 15, 0); //predkosc poczatkowa w gore
     }
 
     // Update is called once per frame
     void Update()
     {
-        //rb.velocity = new Vector3(15, 15, 0); //predkosc poczatkowa w gore
+        //sprawdzanie planet
+        atractedTo = -1;
+        planets = GameObject.FindGameObjectsWithTag("Planet");
+        foreach (GameObject planet in planets)
+        {
+            if (Vector3.Distance(transform.position, planet.transform.position) < planet.transform.localScale.x) //jesli odległość jest mniejsza niz promien
+            {
+                atractedTo = Array.IndexOf(planets, planet);
+                break;
+            }
+        }
+
         //obrot obiektu
         float coordinate = steer(rb.velocity.x, rb.velocity.y);
         Quaternion rotation = Quaternion.Euler(0, 0, 0);
@@ -67,13 +76,14 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        /*
+        
         //dodajemy sile od planety
-        float dist = Vector3.Distance(transform.position, attractedTo.transform.position);
-        if (dist < 8F)
+        if (atractedTo != -1)
         {
-            planetForce = attractedTo.transform.position - transform.position;
-            targetForce = planetForce * strengthOfAttraction / dist; //  SILA przyciagania jest wieksza wraz ze zmniejszeniem sie dystansu
+            planetForce = planets[atractedTo].transform.position - transform.position;
+            //SILA przyciagania jest wieksza wraz ze zmniejszeniem sie dystansu
+            float strengthOfAttraction = planets[atractedTo].transform.localScale.x * 2f / 3f;
+            targetForce = planetForce * strengthOfAttraction / Vector3.Distance(transform.position, planets[atractedTo].transform.position);
 
         } else //jak jestesmy poza dzialaniem planety to wyciszamy sile planety
         {
@@ -82,7 +92,7 @@ public class PlayerController : MonoBehaviour
                 targetForce -= targetForce * 0.02F;
             }
         }
-        */
+
 
         rb.AddForce(targetForce); //stosujemy sile
         rb.AddRelativeForce(targetForceSteer); //SILA RELATYWNY KIERUNEK, teraz nie musze obliczac tych katow i wgl
@@ -96,8 +106,6 @@ public class PlayerController : MonoBehaviour
         {
             rb.velocity -= rb.velocity * 0.001F;
         }
-
-
     }
 
     private float steer(float x1, float y1) //kat, TO MUSI BYC Z VELOCITY WYLICZANE
