@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         scoreGameObject = GameObject.FindGameObjectWithTag("Score");
         fuelGameObject = GameObject.FindGameObjectWithTag("Fuel");
+        rb.velocity = new Vector3(0, 5, 0);
     }
 
     // Update is called once per frame
