@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Planet
   - Pointer
+  - Score
+  - Fuel
   layers:
   - Default
   - TransparentFX

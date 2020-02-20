@@ -11,23 +11,39 @@ public class PlayerController : MonoBehaviour
     private GameObject[] planets;
     private int atractedTo = -1;
     public Rigidbody rb;
+    private float usedFuel = 0;
+    private GameObject scoreGameObject;
+    private GameObject fuelGameObject;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.velocity = new Vector3(0, 15, 0); //predkosc poczatkowa w gore
+        scoreGameObject = GameObject.FindGameObjectWithTag("Score");
+        fuelGameObject = GameObject.FindGameObjectWithTag("Fuel");
     }
 
     // Update is called once per frame
     void Update()
     {
+        //paliwo
+        float force = Vector3.Distance(Vector3.zero, targetForceSteer);
+        if (force > 0.01f) //jesli dziala sila
+        {
+            usedFuel += force * Time.deltaTime;
+        }
+        fuelGameObject.GetComponent<UnityEngine.UI.Text>().text = Convert.ToInt32(usedFuel).ToString();
+
+        //wynik
+        int score = Convert.ToInt32(Vector3.Distance(Vector3.zero, transform.position));
+        scoreGameObject.GetComponent<UnityEngine.UI.Text>().text = score.ToString();
+
         //sprawdzanie planet
         atractedTo = -1;
         planets = GameObject.FindGameObjectsWithTag("Planet");
         foreach (GameObject planet in planets)
         {
-            if (Vector3.Distance(transform.position, planet.transform.position) < planet.transform.localScale.x) //jesli odległość jest mniejsza niz promien
+            if (Vector3.Distance(transform.position, planet.transform.position) < planet.transform.localScale.x * 3f / 2f) //jesli odległość jest mniejsza niz promien grawitacji
             {
                 atractedTo = Array.IndexOf(planets, planet);
                 break;
@@ -74,6 +90,11 @@ public class PlayerController : MonoBehaviour
             {
                 targetForceSteer += new Vector3(0, 1, 0); //DODAC OGRANICZENIE NA ILOSC PALIWA!
             }
+
+            if (Input.GetKey("down"))
+            {
+                targetForceSteer += new Vector3(0, -11, 0); //DODAC OGRANICZENIE NA ILOSC PALIWA!
+            }
         }
 
         
@@ -82,30 +103,32 @@ public class PlayerController : MonoBehaviour
         {
             planetForce = planets[atractedTo].transform.position - transform.position;
             //SILA przyciagania jest wieksza wraz ze zmniejszeniem sie dystansu
-            float strengthOfAttraction = planets[atractedTo].transform.localScale.x * 2f / 3f;
+            float strengthOfAttraction = planets[atractedTo].transform.localScale.x * 0.8f;
             targetForce = planetForce * strengthOfAttraction / Vector3.Distance(transform.position, planets[atractedTo].transform.position);
+        
 
-        } else //jak jestesmy poza dzialaniem planety to wyciszamy sile planety
+        } else //jak jestesmy poza dzialaniem planety to wylaczamy sile planety
         {
-            if (Vector3.Distance(targetForce, Vector3.zero) > 0)
+            if (Vector3.Distance(targetForce, Vector3.zero) > 0.0001f)
             {
-                targetForce -= targetForce * 0.02F;
+                targetForce -= targetForce * 0.02F; //Vector3.zero;
             }
         }
 
+        //wyciszamy ogolna predkosc i sile ze sterowania
+        if (Vector3.Distance(targetForceSteer, Vector3.zero) > 0.0001f)
+        {
+            targetForceSteer -= targetForceSteer * 0.02F;
+        }
+        if (Vector3.Distance(rb.velocity, Vector3.zero) > 25) //predkosc wyciszamy tylko do pewnego momentu
+        {
+            rb.velocity -= rb.velocity * 0.0012F;
+        }
 
         rb.AddForce(targetForce); //stosujemy sile
         rb.AddRelativeForce(targetForceSteer); //SILA RELATYWNY KIERUNEK, teraz nie musze obliczac tych katow i wgl
 
-        //wyciszamy ogolna predkosc i sile ze sterowania zawsze!
-        if (Vector3.Distance(targetForceSteer, Vector3.zero) > 0)
-        {
-            targetForceSteer -= targetForceSteer * 0.02F;
-        }
-        if (Vector3.Distance(rb.velocity, Vector3.zero) > 0)
-        {
-            rb.velocity -= rb.velocity * 0.001F;
-        }
+        
     }
 
     private float steer(float x1, float y1) //kat, TO MUSI BYC Z VELOCITY WYLICZANE

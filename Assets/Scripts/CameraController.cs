@@ -21,7 +21,7 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(0, 0, -10);
+        transform.position = GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(0, 0, -90);
         planets = GameObject.FindGameObjectsWithTag("Planet"); //wszystkie planety
     }
 
@@ -29,12 +29,12 @@ public class CameraController : MonoBehaviour
     {
         for(int i=0; i<2; i++) //gora i dol
         {
-            //jest 1.2f zeby nie tworzyl sie na widoku
+            //jest 1.6f zeby nie tworzyl sie na widoku
             if (checkPlanetsNumber())
             {
                 GameObject a = Instantiate(planetPrefab) as GameObject;
                 a.transform.localScale = generatePlanetSize();
-                a.transform.position = generatePlanetPosition(transform.position.x - screenBounds.x * 1.5f, transform.position.x + screenBounds.x * 1.5f, transform.position.y + screenBounds.y * 1.2f, transform.position.y + screenBounds.y * 2, a.transform.localScale.x);
+                a.transform.position = generatePlanetPosition(transform.position.x - screenBounds.x * 3f, transform.position.x + screenBounds.x * 3f, transform.position.y + screenBounds.y * 1.6f, transform.position.y + screenBounds.y * 4, a.transform.localScale.x);
                 if (a.transform.position == Vector3.zero)
                 {
                     Destroy(a);
@@ -45,7 +45,7 @@ public class CameraController : MonoBehaviour
             {
                 GameObject b = Instantiate(planetPrefab) as GameObject;
                 b.transform.localScale = generatePlanetSize();
-                b.transform.position = generatePlanetPosition(transform.position.x - screenBounds.x * 1.5f, transform.position.x + screenBounds.x * 1.5f, transform.position.y - screenBounds.y * 1.2f, transform.position.y - screenBounds.y * 2, b.transform.localScale.x);
+                b.transform.position = generatePlanetPosition(transform.position.x - screenBounds.x * 3f, transform.position.x + screenBounds.x * 3f, transform.position.y - screenBounds.y * 1.6f, transform.position.y - screenBounds.y * 4, b.transform.localScale.x);
                 if (b.transform.position == Vector3.zero)
                 {
                     Destroy(b);
@@ -55,12 +55,12 @@ public class CameraController : MonoBehaviour
         }
         for (int i=0; i<1; i++) //prawo lewo
         {
-            //jest 1.2f zeby nie tworzyl sie na widoku
+            //jest 1.6f zeby nie tworzyl sie na widoku
             if (checkPlanetsNumber())
             {
                 GameObject a = Instantiate(planetPrefab) as GameObject;
                 a.transform.localScale = generatePlanetSize();
-                a.transform.position = generatePlanetPosition(transform.position.x - screenBounds.x * 1.5f, transform.position.x - screenBounds.x * 1.2f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y, a.transform.localScale.x);
+                a.transform.position = generatePlanetPosition(transform.position.x - screenBounds.x * 3f, transform.position.x - screenBounds.x * 1.6f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y, a.transform.localScale.x);
                 if (a.transform.position == Vector3.zero)
                 {
                     Destroy(a);
@@ -71,7 +71,7 @@ public class CameraController : MonoBehaviour
             {
                 GameObject b = Instantiate(planetPrefab) as GameObject;
                 b.transform.localScale = generatePlanetSize();
-                b.transform.position = generatePlanetPosition(transform.position.x + screenBounds.x * 1.2f, transform.position.x + screenBounds.x * 1.5f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y, b.transform.localScale.x);
+                b.transform.position = generatePlanetPosition(transform.position.x + screenBounds.x * 1.6f, transform.position.x + screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y, b.transform.localScale.x);
                 if (b.transform.position == Vector3.zero)
                 {
                     Destroy(b);
@@ -103,8 +103,7 @@ public class CameraController : MonoBehaviour
     {
         foreach (GameObject planet in planets)
         {
-            //14 to odleglosc taka ze dwie planety musza byc oddalone od siebie o 7 (o jedna planete)
-            if (Vector2.Distance(new Vector2(planet.transform.position.x, planet.transform.position.y), planetToCheck) - size - planet.transform.localScale.x  <= 21f)
+            if (Vector2.Distance(new Vector2(planet.transform.position.x, planet.transform.position.y), planetToCheck) - size - planet.transform.localScale.x  <= 57f)
             {
                 return true; //zwraca true zeby do while sie kontynuowal bo trzeba jeszcze raz wygenerowac wspolrzedne
             }
@@ -137,15 +136,15 @@ public class CameraController : MonoBehaviour
         float size;
         if (rand <= .8f)
         {
-            size = Random.Range(6f, 8f);
+            size = Random.Range(12f, 14f);
             return new Vector3(size, size, size);
         }
         if (rand <= .95f)
         {
-            size = Random.Range(8f, 10f);
+            size = Random.Range(14f, 16f);
             return new Vector3(size, size, size);
         }
-        size = Random.Range(10f, 15f);
+        size = Random.Range(16f, 19f);
         return new Vector3(size, size, size);
     }
 }

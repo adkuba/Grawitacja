@@ -1,13 +1,16 @@
 TODO
 
--dopracować grawitację, musi byc wieksza sila, wieksze pole dzialania, jakis boost jak wychodzi z grawitacji?
-plus latwiejsze wchodzenie na orbite bo ciagle trzeba klikac
+-dopracować paliwo
 -wyglad
 -mam jakis blad czasami ze obiekt zostal juz usuniety a ja chce do niego uzyskac dostep
 
 ------
 DONE
 
+OK dodac kolizje i paliwo
+OK oswietlenie planety musi zalezec od jej wielkosci! dostosowac to w kodzie, dlaczego sa takie bugi w oswietleniu - musialem ustawic swiatla na important
+OK dopracować generator, wieksze planety i wiekszy obszar generowania
+OK slonce to spot light nad planeta
 OK dodac losowosc wielkosci planet!!!
 OK wskaznik gdzie jest najblizsza planeta NIE oddalilem troche widok i jest ok
 OK dodac grawitacje, w player controller dodac wyliczenie
@@ -15,7 +18,8 @@ OK dodac grawitacje, w player controller dodac wyliczenie
 ------
 POMYSLY
 
-generator dziala nawe spoko, dopracowac go jeszcze jak dodam grawitacje!
+wyglad tej gry bedzie wazny
+dodac jakies przeszkody bo teraz jak nie wyciszam predkosci zawsze to mozna daleko zaleciec nie robiac nic
 animacje to musze stworzyc duzo plikow z "poruszonymi" roznie obiektami i w unity mozna robic reszte
 niektore planety to beda slonca i beda generowaly mocniejsze swiatlo!
 
@@ -25,9 +29,15 @@ OPIS commitow
 first: generowanie obiektow ok, bez losowej wielkosci
 przyrost2: dodana losowosc wielkosci, prototyp wygladu pola grawitacyjnego
 przyrost3: dodana otoczka grawitacji, tło, zainstalowalem pro builder tam zrobic model 3d gracza, dodana grawitacja
+przyrost4: pomysł ze słońcem, zmiana koncepcji gry asysta grawitacyjna jest niemozliwa bo planety musza sie poruszac,
+	zostawic grawitacje tak jak teraz jest, paliwo zbieramy na zamieszkanych planetach, pozniej pojawiaja sie przeszkody (moze asteroidy),
+	musimy doleciec jak najdalej nadal, dopracowany generator, dodana kolizja, poczatek systemu paliwo, wyciszanie pradkosci tylko powyzej jakiegos poziomu!!!!
 
 ------
-STARE Z PLIKOW
+STARE
+
+moze zrobic tak ze jesli kat nalotu na planete nie jest zbyt duzy to wchodzimy na orbite(moze wtedy gdy nie celujemy czubkiem na planete)! a zeby wyjsc klikamy guzik boost
+wtedy musze dodac "autopilot" ktory automatycznie wchodzi na orbite, rozgrywka jest plynna, jesli nie trafimy to handycap nie działa
 
 /*
  * GENEROWANIE DZIALA CALKIEM OK - DOPRACOWAC JESZCZE ZEBY ROZGRYWKA BYLA PLYNNA!

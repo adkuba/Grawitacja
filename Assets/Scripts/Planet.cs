@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Planet : MonoBehaviour
 {
@@ -12,20 +13,28 @@ public class Planet : MonoBehaviour
     void Start()
     {
         //wylicza szerokość i wysokość kamery
-        //screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z)); // o kurwa to sie jednak zmienia z czasem
         screenBounds = new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize);
     }
 
     // Update is called once per frame
     void Update()
     {
-        widthBounds = new Vector2(Camera.main.transform.position.x - screenBounds.x * 1.5f, Camera.main.transform.position.x + screenBounds.x * 1.5f);
-        heightBounds = new Vector2(Camera.main.transform.position.y - screenBounds.y * 2f, Camera.main.transform.position.y + screenBounds.y * 2f);
+        widthBounds = new Vector2(Camera.main.transform.position.x - screenBounds.x * 3f, Camera.main.transform.position.x + screenBounds.x * 3f);
+        heightBounds = new Vector2(Camera.main.transform.position.y - screenBounds.y * 4f, Camera.main.transform.position.y + screenBounds.y * 4f);
         //*2 zeby bylo opoznienie, 1.5 bo szerokosc jest wieksza niz 
 
         if (transform.position.x < widthBounds.x || transform.position.x > widthBounds.y || transform.position.y < heightBounds.x || transform.position.y > heightBounds.y)
         {
             Destroy(this.gameObject);
+        }
+    }
+
+    //kolizja
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Player")
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
 }
