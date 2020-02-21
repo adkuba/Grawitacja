@@ -23,12 +23,6 @@ Najwazniejsze punkty <br>
 - Ta liczba po lewej to wynik, jest zalezny od odleglosci od punktu startowego
 - Sterowanie za pomoca strzalek
 
-# Opis commitow
-- <b>first:</b> generowanie obiektow ok, bez losowej wielkosci
-- <b>przyrost2:</b> dodana losowosc wielkosci, prototyp wygladu pola grawitacyjnego
-- <b>przyrost3:</b> dodana otoczka grawitacji, tło, zainstalowalem pro builder tam zrobic model 3d gracza, dodana grawitacja
-- <b>przyrost4:</b> pomysł ze słońcem, zmiana koncepcji gry asysta grawitacyjna jest niemozliwa bo planety musza sie poruszac, zostawic grawitacje tak jak teraz jest, paliwo zbieramy na zamieszkanych planetach, pozniej pojawiaja sie przeszkody (moze asteroidy), musimy doleciec jak najdalej nadal, dopracowany generator, dodana kolizja, poczatek systemu paliwo, wyciszanie pradkosci tylko powyzej jakiegos poziomu!!!!
-- <b>przyrost5:</b> podwojne tło, porzadki
 
 # TODOs done
 - OK dodac kolizje i paliwo
