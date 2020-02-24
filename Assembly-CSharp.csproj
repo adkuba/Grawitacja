@@ -55,10 +55,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\AsteroidControler.cs" />
      <Compile Include="Assets\Scripts\BGController.cs" />
      <Compile Include="Assets\Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\Planet.cs" />
-     <Compile Include="Assets\Scripts\PlanetLightController.cs" />
      <Compile Include="Assets\Scripts\PlayerController.cs" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>D:/Documents/2020/Unity/Grawitacja/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

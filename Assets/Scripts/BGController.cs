@@ -18,7 +18,7 @@ public class BGController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = player.transform.position + new Vector3(0, 0, 10);
+        transform.position = player.transform.position + new Vector3(0, 0, 40);
 
         Vector2 offset = new Vector2(player.transform.position.x * scrollSpeed, player.transform.position.y * scrollSpeed);
 
