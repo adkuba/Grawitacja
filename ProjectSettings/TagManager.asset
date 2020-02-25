@@ -9,6 +9,7 @@ TagManager:
   - Score
   - Fuel
   - Asteroid
+  - Sun
   layers:
   - Default
   - TransparentFX

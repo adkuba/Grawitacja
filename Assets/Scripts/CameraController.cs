@@ -9,10 +9,14 @@ public class CameraController : MonoBehaviour
 {
     public GameObject planetPrefab;
     public GameObject asteroidPrefab;
+    public GameObject sunPrefab;
     private Vector2 screenBounds;
     private GameObject[] planets;
     private GameObject[] asteroids;
+    private GameObject[] suns;
     public int maxPlanets = 5;
+    public int maxSuns = 4;
+    public float sunRespawn = 10f;
     public float respawn = 3f;
     public int maxAsteroids = 4;
     public float asteroidsRespawn = 10f;
@@ -24,14 +28,27 @@ public class CameraController : MonoBehaviour
         planets = GameObject.FindGameObjectsWithTag("Planet"); //musze miec bo na starcie mam zawsze jedna planete, usunac ja pozniej
         StartCoroutine(planetWave());
         StartCoroutine(asteroidWave());
+        StartCoroutine(sunWave());
     }
 
     // Update is called once per frame
     void Update()
     {
         transform.position = GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(0, 0, -90);
+        float playerSpeed = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody>().velocity.magnitude;
+        Camera.main.orthographicSize = playerSpeed * 0.28f + 16f;
         planets = GameObject.FindGameObjectsWithTag("Planet"); //wszystkie planety
         asteroids = GameObject.FindGameObjectsWithTag("Asteroid");
+        suns = GameObject.FindGameObjectsWithTag("Sun");
+    }
+
+    IEnumerator sunWave()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(sunRespawn);
+            spawnSuns();
+        }
     }
 
     IEnumerator planetWave()
@@ -49,6 +66,24 @@ public class CameraController : MonoBehaviour
         {
             yield return new WaitForSeconds(asteroidsRespawn);
             spawnAsteroids();
+        }
+    }
+
+    private void spawnSuns()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            //gora
+            generateSun(transform.position.x - screenBounds.x * 6f, transform.position.x + screenBounds.x * 6f, transform.position.y + screenBounds.y * 3f, transform.position.y + screenBounds.y * 8);
+            //dol
+            generateSun(transform.position.x - screenBounds.x * 6f, transform.position.x + screenBounds.x * 6f, transform.position.y - screenBounds.y * 3f, transform.position.y - screenBounds.y * 8);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            //lewo
+            generateSun(transform.position.x - screenBounds.x * 6f, transform.position.x - screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+            //prawo
+            generateSun(transform.position.x + screenBounds.x * 3f, transform.position.x + screenBounds.x * 6f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
         }
     }
 
@@ -154,6 +189,30 @@ public class CameraController : MonoBehaviour
             }
 
             asteroids = GameObject.FindGameObjectsWithTag("Asteroid");
+        }
+    }
+
+    private void generateSun(float minx, float maxx, float miny, float maxy)
+    {
+        if (checkObjectsNumber(suns, maxSuns))
+        {
+            //nowy obiekt
+            GameObject sun = Instantiate(sunPrefab) as GameObject;
+
+            //rozmiar na razie staly
+            //generowanie pozycji
+            Vector2 xrange = new Vector2(minx, maxx);
+            Vector2 yrange = new Vector2(miny, maxy);
+            Vector3 position = generateObjectPosition(xrange, yrange, sun.transform.localScale.x, suns, 100);
+            sun.transform.position = position + new Vector3(0, 0, 15);
+
+            //jesli nie udalo sie wygenerowac pozycji wczesniej to niszczymy obiekt
+            if (sun.transform.position == Vector3.zero)
+            {
+                Destroy(sun);
+            }
+
+            suns = GameObject.FindGameObjectsWithTag("Sun");
         }
     }
 
