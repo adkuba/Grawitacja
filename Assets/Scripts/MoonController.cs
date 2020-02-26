@@ -13,6 +13,6 @@ public class MoonController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.RotateAround(transform.parent.position, Vector3.up, 30 * Time.deltaTime);
+        transform.RotateAround(transform.parent.position, new Vector3(0, 0, 1), 30 * Time.deltaTime);
     }
 }

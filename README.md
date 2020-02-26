@@ -7,7 +7,7 @@ Paliwo bedzie mozna zatankowac przy niektorych losowych planetach. <br>
 - dopracowac system paliwa, mam juz wyliczanie ile zostalo zuzyte, liczba po prawej, dodac tankowanie przy niektorych losowych planetach, lepszy graficzny wskaznik zuzycia
 - dodac ekran startowy z zapamietanym najlepszym wynikiem
 - mam bardzo rzadko jakis blad czasami ze obiekt zostal juz usuniety a ja chce do niego uzyskac dostep
-- dopracowac grafike
+- dopracowac grafike, kontroler oswietlenia!, generowanie obiektow
 
 # Do pomyslenia
 ## Wersja druga gry
@@ -15,8 +15,8 @@ Mozna dodac system zbierania monet, dzieki nim bedziemy mogli wynajmowac na dany
 
 ## Styl graficzny
 Zrealizowac te punkty
-- W tle grafika z gwiazdami, na ciemnym tle, skupiska gwiazd, mglawice, gwiazdy poruszaja sie tworzac efekt paralax (dodaje glebie), gwiazdy raczej w formie rombow z poswiata. Jak nocne niebo troche bardziej rysunkowy styl.
-- Dwa typy planet - jedna jak sferyczne lustro z ciemnymi ksiezycami, druga ze stala tekstura i "mgla". Ksiezyce i mgla to granica dzialania grawitacji, lustro dodaje glebi, mgla klimatu.
+- W tle grafika z gwiazdami, na ciemnym tle, skupiska gwiazd, mglawice, gwiazdy poruszaja sie tworzac efekt paralax (dodaje glebie), gwiazdy raczej w formie rombow z poswiata. Jak nocne niebo troche bardziej rysunkowy styl. JEDYNA TEKSTURA JAKA MUSZE STWORZYC WLASCIWIE
+- Dwa typy planet - jedna jak sferyczne lustro z ciemnymi ksiezycami, druga z "mgla". Ksiezyce i mgla to granica dzialania grawitacji, lustro dodaje glebi, mgla klimatu.
 - Od slonc w tle efekt lens flare, dodaje klimat
 - Na biezacym widoku dodanie pojawiajacych sie malych swiecacych punktow rozmieszczonych roznie w 3d, czesc z nich moze sie poruszac jak komety, dodanie efektu glebi i klimat.
 - Asteroidy lekko rozmyte bo sa najblizej kamery - efekt depth of field
