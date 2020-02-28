@@ -6,8 +6,9 @@ Paliwo bedzie mozna zatankowac przy niektorych losowych planetach. <br>
 # TODO
 - dopracowac system paliwa, mam juz wyliczanie ile zostalo zuzyte, liczba po prawej, dodac tankowanie przy niektorych losowych planetach, lepszy graficzny wskaznik zuzycia
 - dodac ekran startowy z zapamietanym najlepszym wynikiem
-- mam bardzo rzadko jakis blad czasami ze obiekt zostal juz usuniety a ja chce do niego uzyskac dostep
-- dopracowac grafike, kontroler oswietlenia!, generowanie obiektow
+- dopracowac grafike, kontroler oswietlenia!(jak bedzie slonce w niestandardowym kolorze to wygasza swiatla), generowanie obiektow - rozne planety i slonca, tekstura na tlo, jak zrobie teksture to juz koniec graficznej pracy
+- ulepszyc sterowanie jest chyba ok
+
 
 # Do pomyslenia
 ## Wersja druga gry
@@ -18,7 +19,7 @@ Zrealizowac te punkty
 - W tle grafika z gwiazdami, na ciemnym tle, skupiska gwiazd, mglawice, gwiazdy poruszaja sie tworzac efekt paralax (dodaje glebie), gwiazdy raczej w formie rombow z poswiata. Jak nocne niebo troche bardziej rysunkowy styl. JEDYNA TEKSTURA JAKA MUSZE STWORZYC WLASCIWIE
 - Dwa typy planet - jedna jak sferyczne lustro z ciemnymi ksiezycami, druga z "mgla". Ksiezyce i mgla to granica dzialania grawitacji, lustro dodaje glebi, mgla klimatu.
 - Od slonc w tle efekt lens flare, dodaje klimat
-- Na biezacym widoku dodanie pojawiajacych sie malych swiecacych punktow rozmieszczonych roznie w 3d, czesc z nich moze sie poruszac jak komety, dodanie efektu glebi i klimat.
+- Dodanie komet?
 - Asteroidy lekko rozmyte bo sa najblizej kamery - efekt depth of field
 - Menu glowne w tle ma przyciemniony blur sceny gry z jasnymi napisami
 
@@ -30,3 +31,4 @@ Najwazniejsze punkty w dzialaniu gry
 - Planety, asteroidy, slonca generuja sie w otoczce wokol kamery z losowa wielkoscia, od wielkosci zalezy sila grawitacji
 - Ta liczba po lewej to wynik, jest zalezny od odleglosci od punktu startowego
 - Sterowanie za pomoca strzalek
+- Statek sterowany za pomoca napedu grawitacyjnego, iskry/ogien z tyl zle wygladaly

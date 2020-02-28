@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -75,16 +76,23 @@ public class PlayerController : MonoBehaviour
 
         //ograniczenie max predkosci
         //mniejsze ograniczenie na skrecanie
-        if(targetForceSteer.x < 5 && targetForceSteer.y < 2 && targetForceSteer.x > -5 && targetForceSteer.y > -2)
+        if(targetForceSteer.x < 10 && targetForceSteer.y < 2 && targetForceSteer.x > -10 && targetForceSteer.y > -2) //sila do w boki - y moze byc wieksza
         {
             if (Input.GetKey("right"))
             {
-                targetForceSteer += new Vector3(5, 0, 0);
+                targetForceSteer += new Vector3(1, -0.1f, 0); //odejmuje lekko z predkosci
             }
 
             if (Input.GetKey("left"))
             {
-                targetForceSteer += new Vector3(-5, 0, 0);
+                targetForceSteer += new Vector3(-1, -0.1f, 0); //odejmuje lekko z predkosci
+                /*
+                double radians = Math.Atan2(rb.velocity.y, rb.velocity.x);
+                double len = rb.velocity.magnitude;
+                radians += (Math.PI / 180); //dodaje jeden stopnia
+                rb.velocity = new Vector2((float)(Math.Cos(radians) * len), (float)(Math.Sin(radians) * len));
+                usedFuel += 2 * Time.deltaTime; //zuzywam paliwo
+                */
             }
 
             if (Input.GetKey("up"))
@@ -102,6 +110,11 @@ public class PlayerController : MonoBehaviour
         //dodajemy sile od planety
         if (atractedTo != -1)
         {
+            bool tank = planets[atractedTo].GetComponent<Planet>().fuel;
+            if (tank && usedFuel > 0)
+            {
+                usedFuel -= 0.01f; //tankuje
+            }
             planetForce = planets[atractedTo].transform.position - transform.position;
             //SILA przyciagania jest wieksza wraz ze zmniejszeniem sie dystansu
             float strengthOfAttraction = planets[atractedTo].transform.localScale.x * 0.8f;
@@ -143,4 +156,9 @@ public class PlayerController : MonoBehaviour
         return (float)alfa;
     }
 
+    //kolizja
+    void OnCollisionEnter(Collision collision)
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
 }

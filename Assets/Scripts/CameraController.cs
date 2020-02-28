@@ -238,10 +238,13 @@ public class CameraController : MonoBehaviour
             steps++;
             foreach (GameObject gObject in objectsTable)
             {
-                if (Vector2.Distance(new Vector2(gObject.transform.position.x, gObject.transform.position.y), position) - size - gObject.transform.localScale.x <= minDistance)
+                if (gObject != null)
                 {
-                    foundBad = true;
-                    break;
+                    if (Vector2.Distance(new Vector2(gObject.transform.position.x, gObject.transform.position.y), position) - size - gObject.transform.localScale.x <= minDistance)
+                    {
+                        foundBad = true;
+                        break;
+                    }
                 }
             }
             //znalezlismy dobra pozycje
