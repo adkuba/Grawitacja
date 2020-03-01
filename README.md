@@ -4,10 +4,10 @@ Planety maja grawitacje, statkiem bedzie mozna sterowac prawo lewo i do przodu. 
 Paliwo bedzie mozna zatankowac przy niektorych losowych planetach. <br>
 
 # TODO
-- dopracowac system paliwa, mam juz wyliczanie ile zostalo zuzyte, liczba po prawej, dodac tankowanie przy niektorych losowych planetach, lepszy graficzny wskaznik zuzycia
+- dopracowac system paliwa, mam juz wyliczanie ile zostalo zuzyte, liczba po prawej, lepszy graficzny wskaznik zuzycia np pulpit na srodku na dole ekranu z wyswietlona odlegloscia i iloscia paliwa
 - dodac ekran startowy z zapamietanym najlepszym wynikiem
-- dopracowac grafike, kontroler oswietlenia!(jak bedzie slonce w niestandardowym kolorze to wygasza swiatla), generowanie obiektow - rozne planety i slonca, tekstura na tlo, jak zrobie teksture to juz koniec graficznej pracy
-- ulepszyc sterowanie jest chyba ok
+- dopracowac grafike, kontroler oswietlenia?, generowanie obiektow dopracowac slonca za blisko!, tekstura na tlo, jak zrobie teksture to juz koniec graficznej pracy
+- dodac dzwiek te dwa specjalne plus lofi co jakis czas sciszone, znalezc copyright free albo do artysty napisac! folder dziwieki
 
 
 # Do pomyslenia
@@ -16,10 +16,9 @@ Mozna dodac system zbierania monet, dzieki nim bedziemy mogli wynajmowac na dany
 
 ## Styl graficzny
 Zrealizowac te punkty
-- W tle grafika z gwiazdami, na ciemnym tle, skupiska gwiazd, mglawice, gwiazdy poruszaja sie tworzac efekt paralax (dodaje glebie), gwiazdy raczej w formie rombow z poswiata. Jak nocne niebo troche bardziej rysunkowy styl. JEDYNA TEKSTURA JAKA MUSZE STWORZYC WLASCIWIE
-- Dwa typy planet - jedna jak sferyczne lustro z ciemnymi ksiezycami, druga z "mgla". Ksiezyce i mgla to granica dzialania grawitacji, lustro dodaje glebi, mgla klimatu.
+- W tle grafika z gwiazdami, na ciemnym tle, skupiska gwiazd, mglawice, gwiazdy poruszaja sie tworzac efekt paralax (dodaje glebie). Jak nocne niebo troche bardziej rysunkowy styl. JEDYNA TEKSTURA JAKA MUSZE STWORZYC WLASCIWIE
+- Typy planet - odbice, ksiezyce, iskry. Ksiezyce i iskry to granica dzialania grawitacji, lustro dodaje glebi, iskry klimatu.
 - Od slonc w tle efekt lens flare, dodaje klimat
-- Dodanie komet?
 - Asteroidy lekko rozmyte bo sa najblizej kamery - efekt depth of field
 - Menu glowne w tle ma przyciemniony blur sceny gry z jasnymi napisami
 
@@ -29,6 +28,5 @@ Najwazniejsze punkty w dzialaniu gry
 - Gracz ma ograniczenie max predkosci, powyzej takiej predkosci zostaje ona wyciszana
 - Dzialajaca sila na playera jest wyciszana zawsze
 - Planety, asteroidy, slonca generuja sie w otoczce wokol kamery z losowa wielkoscia, od wielkosci zalezy sila grawitacji
-- Ta liczba po lewej to wynik, jest zalezny od odleglosci od punktu startowego
 - Sterowanie za pomoca strzalek
-- Statek sterowany za pomoca napedu grawitacyjnego, iskry/ogien z tyl zle wygladaly
+- Statek sterowany za pomoca napedu grawitacyjnego bez iskry/ogien z tyl (zle wygladaly)
