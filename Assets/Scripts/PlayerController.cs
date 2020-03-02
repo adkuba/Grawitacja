@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     private float usedFuel = 0;
     private GameObject scoreGameObject;
     private GameObject fuelGameObject;
+    private float yAngle = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -53,6 +54,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //obrot obiektu
+        transform.Rotate(new Vector3(0, 1, 0) * 30 * Time.deltaTime);
         float coordinate = steer(rb.velocity.x, rb.velocity.y);
         Quaternion rotation = Quaternion.Euler(0, 0, 0);
         if (rb.velocity.x > 0 && rb.velocity.y > 0)
@@ -71,21 +73,22 @@ public class PlayerController : MonoBehaviour
         {
             rotation = Quaternion.Euler(0, 0, coordinate - 90f);
         }
-            transform.rotation = rotation;
+
+        transform.rotation = rotation;
 
 
         //ograniczenie max predkosci
         //mniejsze ograniczenie na skrecanie
-        if(targetForceSteer.x < 10 && targetForceSteer.y < 2 && targetForceSteer.x > -10 && targetForceSteer.y > -2) //sila do w boki - y moze byc wieksza
+        if(targetForceSteer.x < 100 && targetForceSteer.y < 5 && targetForceSteer.x > -100 && targetForceSteer.y > -5) //sila do w boki - y moze byc wieksza
         {
             if (Input.GetKey("right"))
             {
-                targetForceSteer += new Vector3(1, -0.1f, 0); //odejmuje lekko z predkosci
+                targetForceSteer += new Vector3(50 * Time.deltaTime, 0, 0); //kluczowe deltaTime
             }
 
             if (Input.GetKey("left"))
             {
-                targetForceSteer += new Vector3(-1, -0.1f, 0); //odejmuje lekko z predkosci
+                targetForceSteer += new Vector3(-50 * Time.deltaTime, 0, 0); //kluczowe deltaTime
                 /*
                 double radians = Math.Atan2(rb.velocity.y, rb.velocity.x);
                 double len = rb.velocity.magnitude;
@@ -97,12 +100,12 @@ public class PlayerController : MonoBehaviour
 
             if (Input.GetKey("up"))
             {
-                targetForceSteer += new Vector3(0, 1, 0); //DODAC OGRANICZENIE NA ILOSC PALIWA!
+                targetForceSteer += new Vector3(0, 10 * Time.deltaTime, 0);
             }
 
             if (Input.GetKey("down"))
             {
-                targetForceSteer += new Vector3(0, -11, 0); //DODAC OGRANICZENIE NA ILOSC PALIWA!
+                targetForceSteer += new Vector3(0, -10 * Time.deltaTime, 0);
             }
         }
 

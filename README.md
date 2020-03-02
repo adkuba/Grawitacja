@@ -4,10 +4,11 @@ Planety maja grawitacje, statkiem bedzie mozna sterowac prawo lewo i do przodu. 
 Paliwo bedzie mozna zatankowac przy niektorych losowych planetach. <br>
 
 # TODO
-- dopracowac system paliwa, mam juz wyliczanie ile zostalo zuzyte, liczba po prawej, lepszy graficzny wskaznik zuzycia np pulpit na srodku na dole ekranu z wyswietlona odlegloscia i iloscia paliwa
+- dopracowac system paliwa, mam juz wyliczanie ile zostalo zuzyte, liczba po prawej, lepszy graficzny wskaznik zuzycia np pulpit na srodku na dole ekranu z wyswietlona odlegloscia i iloscia paliwa, wiecej zuzycia paliwa przy przyspieszeniach do przodu
 - dodac ekran startowy z zapamietanym najlepszym wynikiem
-- dopracowac grafike, kontroler oswietlenia?, generowanie obiektow dopracowac slonca za blisko!, tekstura na tlo, jak zrobie teksture to juz koniec graficznej pracy
+- dopracowac grafike, kontroler oswietlenia?, generowanie obiektow dopracowac slonca za blisko!, tekstura na tlo, jak zrobie teksture to juz koniec graficznej pracy, przy teksturze dodac szumy, noise
 - dodac dzwiek te dwa specjalne plus lofi co jakis czas sciszone, znalezc copyright free albo do artysty napisac! folder dziwieki
+- dopracowac zeby player obracal sie wokol wlasnej osi tylko jak naciskam klawisz i skrecam
 
 
 # Do pomyslenia
@@ -28,5 +29,5 @@ Najwazniejsze punkty w dzialaniu gry
 - Gracz ma ograniczenie max predkosci, powyzej takiej predkosci zostaje ona wyciszana
 - Dzialajaca sila na playera jest wyciszana zawsze
 - Planety, asteroidy, slonca generuja sie w otoczce wokol kamery z losowa wielkoscia, od wielkosci zalezy sila grawitacji
-- Sterowanie za pomoca strzalek
+- Sterowanie za pomoca strzalek, dodawanie sily zaleznej od czasu! z czasem jest coraz silniej im dluzej trzymamy
 - Statek sterowany za pomoca napedu grawitacyjnego bez iskry/ogien z tyl (zle wygladaly)
