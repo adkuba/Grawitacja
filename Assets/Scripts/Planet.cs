@@ -25,9 +25,28 @@ public class Planet : MonoBehaviour
             fuel = true;
         }
         //musze teraz okreslic co bedzie dodatkowo przy planecie
+        rand = Random.value;
+        bool sparksK = false;
+        bool moonK = false;
+        bool find = false;
+        if (rand <= .4f && !find)
+        {
+            moonK = true;
+            find = true;
+        }
+        if (rand <= .8f && !find)
+        {
+            sparksK = true;
+            find = true;
+        }
+        if (rand <= .9 && !find)
+        {
+            sparksK = true;
+            moonK = true;
+        }
         //wielkosc i kolor sparkles
         sparks = transform.GetChild(0).GetComponent<ParticleSystem>();
-        float sSize = transform.localScale.x * 0.1f - 0.2f;
+        float sSize = transform.localScale.x * 0.14f - 0.2f;
         sparks.transform.localScale = new Vector3(sSize, sSize, sSize); //odpowiedni rozmiar
         int index = Random.Range(0, materials.Length);
         sparks.GetComponent<ParticleSystemRenderer>().trailMaterial = materials[index]; //losowy kolor
@@ -35,13 +54,22 @@ public class Planet : MonoBehaviour
         float moonSize = Random.Range(0.2f, 0.4f);
         moon = transform.GetChild(2).gameObject;
         moon.transform.localScale = new Vector3(moonSize, moonSize, moonSize);
+        //usuwanie
+        if (!moonK)
+        {
+            Destroy(transform.GetChild(2).gameObject);
+        }
+        if (!sparksK)
+        {
+            Destroy(transform.GetChild(0).gameObject);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        widthBounds = new Vector2(Camera.main.transform.position.x - screenBounds.x * 3f, Camera.main.transform.position.x + screenBounds.x * 3f);
-        heightBounds = new Vector2(Camera.main.transform.position.y - screenBounds.y * 4f, Camera.main.transform.position.y + screenBounds.y * 4f);
+        widthBounds = new Vector2(Camera.main.transform.position.x - screenBounds.x * 7f, Camera.main.transform.position.x + screenBounds.x * 7f);
+        heightBounds = new Vector2(Camera.main.transform.position.y - screenBounds.y * 9f, Camera.main.transform.position.y + screenBounds.y * 9f);
         //*2 zeby bylo opoznienie, 1.5 bo szerokosc jest wieksza niz 
 
         if (transform.position.x < widthBounds.x || transform.position.x > widthBounds.y || transform.position.y < heightBounds.x || transform.position.y > heightBounds.y)

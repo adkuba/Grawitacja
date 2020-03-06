@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 /*kontroler kamery
  *generator planet i asteroidow
@@ -14,7 +15,7 @@ public class CameraController : MonoBehaviour
     private GameObject[] planets;
     private GameObject[] asteroids;
     private GameObject[] suns;
-    public int maxPlanets = 5;
+    public int maxPlanets = 9;
     public int maxSuns = 4;
     public float sunRespawn = 10f;
     public float respawn = 3f;
@@ -73,17 +74,17 @@ public class CameraController : MonoBehaviour
     {
         for (int i = 0; i < 2; i++)
         {
-            //gora
-            generateSun(transform.position.x - screenBounds.x * 6f, transform.position.x + screenBounds.x * 6f, transform.position.y + screenBounds.y * 3f, transform.position.y + screenBounds.y * 8);
+            //gora 4 oznacza do jakiego miejsca spawnie slonca
+            generateSun(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y + screenBounds.y * 4f, transform.position.y + screenBounds.y * 9);
             //dol
-            generateSun(transform.position.x - screenBounds.x * 6f, transform.position.x + screenBounds.x * 6f, transform.position.y - screenBounds.y * 3f, transform.position.y - screenBounds.y * 8);
+            generateSun(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y * 4f, transform.position.y - screenBounds.y * 9);
         }
         for (int i = 0; i < 1; i++)
         {
             //lewo
-            generateSun(transform.position.x - screenBounds.x * 6f, transform.position.x - screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+            generateSun(transform.position.x - screenBounds.x * 7f, transform.position.x - screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
             //prawo
-            generateSun(transform.position.x + screenBounds.x * 3f, transform.position.x + screenBounds.x * 6f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+            generateSun(transform.position.x + screenBounds.x * 3f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
         }
     }
 
@@ -110,17 +111,17 @@ public class CameraController : MonoBehaviour
         //jest 1.6f zeby nie tworzyl sie na widoku
         for (int i = 0; i < 2; i++)
         {
-            //generujemy na gorze
-            generatePlanet(transform.position.x - screenBounds.x * 3f, transform.position.x + screenBounds.x * 3f, transform.position.y + screenBounds.y * 1.6f, transform.position.y + screenBounds.y * 4);
+            //generujemy na gorze 4 oznacza do jakiego momentu generuje
+            generatePlanet(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y + screenBounds.y * 4f, transform.position.y + screenBounds.y * 9);
             //generujemy na dole
-            generatePlanet(transform.position.x - screenBounds.x * 3f, transform.position.x + screenBounds.x * 3f, transform.position.y - screenBounds.y * 1.6f, transform.position.y - screenBounds.y * 4);
+            generatePlanet(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y * 4f, transform.position.y - screenBounds.y * 9);
         }
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 2; i++)
         {
-            //generujemy na lewo
-            generatePlanet(transform.position.x - screenBounds.x * 3f, transform.position.x - screenBounds.x * 1.6f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+            //generujemy na lewo 3 oznacza do jakiego miejsca generuje
+            generatePlanet(transform.position.x - screenBounds.x * 7f, transform.position.x - screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
             //generujemy na prawo
-            generatePlanet(transform.position.x + screenBounds.x * 1.6f, transform.position.x + screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+            generatePlanet(transform.position.x + screenBounds.x * 3f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
         }
     }
 
@@ -155,7 +156,7 @@ public class CameraController : MonoBehaviour
             //generowanie pozycji
             Vector2 xrange = new Vector2(minx, maxx);
             Vector2 yrange = new Vector2(miny, maxy);
-            planet.transform.position = generateObjectPosition(xrange, yrange, planet.transform.localScale.x, planets, 57);
+            planet.transform.position = generateObjectPosition(xrange, yrange, planet.transform.localScale.x, planets, 100);
 
             //jesli nie udalo sie wygenerowac pozycji wczesniej to niszczymy obiekt
             if (planet.transform.position == Vector3.zero)
@@ -179,15 +180,15 @@ public class CameraController : MonoBehaviour
             //generowanie pozycji
             Vector2 xrange = new Vector2(minx, maxx);
             Vector2 yrange = new Vector2(miny, maxy);
-            Vector3 position = generateObjectPosition(xrange, yrange, asteroid.transform.localScale.x, asteroids, 30);
-            asteroid.transform.position = position + new Vector3(0, 0, -70);
-
+            Vector3 position = generateObjectPosition(xrange, yrange, asteroid.transform.localScale.x, asteroids.Concat(planets).ToArray(), 40);
+           
             //jesli nie udalo sie wygenerowac pozycji wczesniej to niszczymy obiekt
             if (asteroid.transform.position == Vector3.zero)
             {
                 Destroy(asteroid);
             }
 
+            asteroid.transform.position = position; //+ new Vector3(0, 0, -70);
             asteroids = GameObject.FindGameObjectsWithTag("Asteroid");
         }
     }
@@ -203,7 +204,7 @@ public class CameraController : MonoBehaviour
             //generowanie pozycji
             Vector2 xrange = new Vector2(minx, maxx);
             Vector2 yrange = new Vector2(miny, maxy);
-            Vector3 position = generateObjectPosition(xrange, yrange, sun.transform.localScale.x, suns, 100);
+            Vector3 position = generateObjectPosition(xrange, yrange, sun.transform.localScale.x, suns, 60);
             sun.transform.position = position + new Vector3(0, 0, 15);
 
             //jesli nie udalo sie wygenerowac pozycji wczesniej to niszczymy obiekt

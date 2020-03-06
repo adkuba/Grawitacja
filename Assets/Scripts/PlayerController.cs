@@ -11,11 +11,11 @@ public class PlayerController : MonoBehaviour
     private Vector3 planetForce = Vector3.zero;
     private GameObject[] planets;
     private int atractedTo = -1;
+    private int lastAtracttedTo = -1;
     public Rigidbody rb;
     private float usedFuel = 0;
     private GameObject scoreGameObject;
     private GameObject fuelGameObject;
-    private float yAngle = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -23,7 +23,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         scoreGameObject = GameObject.FindGameObjectWithTag("Score");
         fuelGameObject = GameObject.FindGameObjectWithTag("Fuel");
-        rb.velocity = new Vector3(0, 5, 0);
+        rb.velocity = new Vector3(0, 20, 0);
     }
 
     // Update is called once per frame
@@ -42,11 +42,12 @@ public class PlayerController : MonoBehaviour
         scoreGameObject.GetComponent<UnityEngine.UI.Text>().text = score.ToString();
 
         //sprawdzanie planet
+        lastAtracttedTo = atractedTo;
         atractedTo = -1;
         planets = GameObject.FindGameObjectsWithTag("Planet");
         foreach (GameObject planet in planets)
         {
-            if (Vector3.Distance(transform.position, planet.transform.position) < planet.transform.localScale.x * 3f / 2f) //jesli odległość jest mniejsza niz promien grawitacji
+            if (Vector3.Distance(transform.position, planet.transform.position) < planet.transform.localScale.x * 2f) //jesli odległość jest mniejsza niz promien grawitacji, grawiacja to 2x planeta
             {
                 atractedTo = Array.IndexOf(planets, planet);
                 break;
@@ -83,32 +84,19 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetKey("right"))
             {
-                targetForceSteer += new Vector3(50 * Time.deltaTime, 0, 0); //kluczowe deltaTime
+                targetForceSteer += new Vector3(70 * Time.deltaTime, 0, 0); //kluczowe deltaTime
             }
 
             if (Input.GetKey("left"))
             {
-                targetForceSteer += new Vector3(-50 * Time.deltaTime, 0, 0); //kluczowe deltaTime
-                /*
-                double radians = Math.Atan2(rb.velocity.y, rb.velocity.x);
-                double len = rb.velocity.magnitude;
-                radians += (Math.PI / 180); //dodaje jeden stopnia
-                rb.velocity = new Vector2((float)(Math.Cos(radians) * len), (float)(Math.Sin(radians) * len));
-                usedFuel += 2 * Time.deltaTime; //zuzywam paliwo
-                */
-            }
-
-            if (Input.GetKey("up"))
-            {
-                targetForceSteer += new Vector3(0, 10 * Time.deltaTime, 0);
-            }
-
-            if (Input.GetKey("down"))
-            {
-                targetForceSteer += new Vector3(0, -10 * Time.deltaTime, 0);
+                targetForceSteer += new Vector3(-70 * Time.deltaTime, 0, 0); //kluczowe deltaTime
             }
         }
 
+        if (lastAtracttedTo != atractedTo && lastAtracttedTo != -1) //wlasnie wyszlismy z pola planety trzba dodac boosta
+        {
+            targetForceSteer += new Vector3(0, 25, 0); //uzaleznic od wielkosci planety i jakiegos minimalnego czasu przebywania w polu planety
+        }
         
         //dodajemy sile od planety
         if (atractedTo != -1)
@@ -120,7 +108,7 @@ public class PlayerController : MonoBehaviour
             }
             planetForce = planets[atractedTo].transform.position - transform.position;
             //SILA przyciagania jest wieksza wraz ze zmniejszeniem sie dystansu
-            float strengthOfAttraction = planets[atractedTo].transform.localScale.x * 0.8f;
+            float strengthOfAttraction = planets[atractedTo].transform.localScale.x * 1f;
             targetForce = planetForce * strengthOfAttraction / Vector3.Distance(transform.position, planets[atractedTo].transform.position);
         
 
@@ -135,11 +123,14 @@ public class PlayerController : MonoBehaviour
         //wyciszamy ogolna predkosc i sile ze sterowania
         if (Vector3.Distance(targetForceSteer, Vector3.zero) > 0.0001f)
         {
-            targetForceSteer -= targetForceSteer * 0.02F;
+            targetForceSteer -= targetForceSteer * 0.025f;
         }
-        if (Vector3.Distance(rb.velocity, Vector3.zero) > 25) //predkosc wyciszamy tylko do pewnego momentu
+        if (Vector3.Distance(rb.velocity, Vector3.zero) > 20) //predkosc wyciszamy tylko do pewnego momentu
         {
-            rb.velocity -= rb.velocity * 0.0012F;
+            rb.velocity -= rb.velocity * 0.0013F;
+        } else if (Vector3.Distance(rb.velocity, Vector3.zero) < 15) //predkosc nigdy nie moze byc mniejsza niz 15
+        {
+            targetForceSteer += new Vector3(0, 0.8f, 0); //przyspieszam
         }
 
         rb.AddForce(targetForce); //stosujemy sile
