@@ -12,10 +12,14 @@ public class PlayerController : MonoBehaviour
     private GameObject[] planets;
     private int atractedTo = -1;
     private int lastAtracttedTo = -1;
+    private float lastAtracttedToSize = -1;
     public Rigidbody rb;
     private float usedFuel = 0;
     private GameObject scoreGameObject;
     private GameObject fuelGameObject;
+    private GameObject boostGameObject;
+    private float orbitTime = 0;
+    private float fromLastBoost = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -23,6 +27,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         scoreGameObject = GameObject.FindGameObjectWithTag("Score");
         fuelGameObject = GameObject.FindGameObjectWithTag("Fuel");
+        boostGameObject = GameObject.FindGameObjectWithTag("Boost");
         rb.velocity = new Vector3(0, 20, 0);
     }
 
@@ -78,24 +83,51 @@ public class PlayerController : MonoBehaviour
         transform.rotation = rotation;
 
 
+        //pokazywanie czasu kiedy mogeuzyc boosta
+        float boostPassedTime = Time.time - fromLastBoost;
+        if (boostPassedTime <= 10)
+        {
+            boostGameObject.GetComponent<UnityEngine.UI.Text>().text = Convert.ToInt32(boostPassedTime).ToString();
+        }
         //ograniczenie max predkosci
         //mniejsze ograniczenie na skrecanie
         if(targetForceSteer.x < 100 && targetForceSteer.y < 5 && targetForceSteer.x > -100 && targetForceSteer.y > -5) //sila do w boki - y moze byc wieksza
         {
-            if (Input.GetKey("right"))
+            if (Input.GetKey("right") && Input.GetKey("left")) //duzy boost do przodu
+            {
+                if (boostPassedTime > 10) //co 10s mozna zastosowac duzego boosta
+                {
+                    targetForceSteer += new Vector3(0, 25, 0);
+                    fromLastBoost = Time.time;
+                    usedFuel += 40; //dodatkowy koszt boosta
+                }
+            }
+            else if (Input.GetKey("right"))
             {
                 targetForceSteer += new Vector3(70 * Time.deltaTime, 0, 0); //kluczowe deltaTime
             }
 
-            if (Input.GetKey("left"))
+            else if (Input.GetKey("left"))
             {
                 targetForceSteer += new Vector3(-70 * Time.deltaTime, 0, 0); //kluczowe deltaTime
             }
         }
 
+        //wejscie wyjscie z orbity
+        if (lastAtracttedTo != atractedTo && lastAtracttedTo == -1) //wlasnie wchodzimy do pola
+        {
+            orbitTime = Time.time;
+            lastAtracttedToSize = planets[atractedTo].transform.localScale.x; //zapisuje wielkosc ostatnio odwiedzanej planety
+        }
+
         if (lastAtracttedTo != atractedTo && lastAtracttedTo != -1) //wlasnie wyszlismy z pola planety trzba dodac boosta
         {
-            targetForceSteer += new Vector3(0, 25, 0); //uzaleznic od wielkosci planety i jakiegos minimalnego czasu przebywania w polu planety
+            if (Time.time - orbitTime > 4f) //jezeli czas orbity wiekszy niz 4s
+            {
+                targetForceSteer += new Vector3(0, 2, 0) * lastAtracttedToSize; //boost zalezny od wielkosci planety
+                //uwaga to dolicza sie do zuzycia paliwa ale jest tego malo wiec w razie czego mozna dodac cos do paliwa zeby zrekompensowac
+            }
+            orbitTime = 0;
         }
         
         //dodajemy sile od planety

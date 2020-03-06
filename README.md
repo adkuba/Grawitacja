@@ -9,6 +9,7 @@ Mozna dodac system zbierania monet, dzieki nim bedziemy mogli wynajmowac na dany
 
 ## Styl graficzny
 Zrealizowac te punkty
+- Kolor materiału planety może się zmieniać
 - W tle grafika z gwiazdami, na ciemnym tle, skupiska gwiazd, mglawice, gwiazdy poruszaja sie tworzac efekt paralax (dodaje glebie).
 - Typy planet - odbice, ksiezyce, iskry. Ksiezyce i iskry to granica dzialania grawitacji, lustro dodaje glebi, iskry klimatu.
 - Od slonc w tle efekt lens flare, dodaje klimat
@@ -20,4 +21,4 @@ Najwazniejsze punkty w dzialaniu gry
 - System jest oparty na dodawaniu force do playera, czy to od planet czy od sterowania.
 - Gracz ma stala predkosc, powyzej niej zwalnia automatycznie, ponizej przyspiesza
 - Planety, asteroidy, slonca generuja sie w otoczce wokol kamery z losowa wielkoscia, od wielkosci zalezy sila grawitacji
-- Sterowanie za pomoca strzalek, dodawanie sily zaleznej od czasu! z czasem jest coraz silniej im dluzej trzymam
+- Sterowanie za pomoca strzalek, dodawanie sily zaleznej od czasu! z czasem jest coraz silniej im dluzej trzymam, jak klikne jedna i druga strzalke to jest boost moge go robic co jakis czas
