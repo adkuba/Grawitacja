@@ -19,7 +19,8 @@ public class PlayerController : MonoBehaviour
     private GameObject fuelGameObject;
     private GameObject boostGameObject;
     private float orbitTime = 0;
-    private float fromLastBoost = 0;
+    private float fromLastBoost;
+    public float fuelTank = 250f; //max ilosc paliwa
 
     // Start is called before the first frame update
     void Start()
@@ -29,6 +30,7 @@ public class PlayerController : MonoBehaviour
         fuelGameObject = GameObject.FindGameObjectWithTag("Fuel");
         boostGameObject = GameObject.FindGameObjectWithTag("Boost");
         rb.velocity = new Vector3(0, 20, 0);
+        fromLastBoost = Time.time;
     }
 
     // Update is called once per frame
@@ -40,7 +42,14 @@ public class PlayerController : MonoBehaviour
         {
             usedFuel += force * Time.deltaTime;
         }
-        fuelGameObject.GetComponent<UnityEngine.UI.Text>().text = Convert.ToInt32(usedFuel).ToString();
+        float percent = (fuelTank - usedFuel) * 100 / fuelTank;
+        if (percent <= 0)
+        {
+            //wylaczam efekt silnika plus zabezpieczam sie przed minusowymi procentami ktore moga powstac
+            transform.GetChild(1).gameObject.SetActive(false);
+            percent = 0;
+        }
+        fuelGameObject.GetComponent<UnityEngine.UI.Text>().text = Convert.ToInt32(percent).ToString() + "%"; //wyswietlam ilosc POZOSTALEGO paliwa w procentach
 
         //wynik
         int score = Convert.ToInt32(Vector3.Distance(Vector3.zero, transform.position));
@@ -89,17 +98,17 @@ public class PlayerController : MonoBehaviour
         {
             boostGameObject.GetComponent<UnityEngine.UI.Text>().text = Convert.ToInt32(boostPassedTime).ToString();
         }
-        //ograniczenie max predkosci
+        //ograniczenie max predkosci, można sterować jesli mamy paliwo
         //mniejsze ograniczenie na skrecanie
-        if(targetForceSteer.x < 100 && targetForceSteer.y < 5 && targetForceSteer.x > -100 && targetForceSteer.y > -5) //sila do w boki - y moze byc wieksza
+        if(targetForceSteer.x < 100 && targetForceSteer.y < 5 && targetForceSteer.x > -100 && targetForceSteer.y > -5 && usedFuel < fuelTank) //sila do w boki - y moze byc wieksza
         {
             if (Input.GetKey("right") && Input.GetKey("left")) //duzy boost do przodu
             {
-                if (boostPassedTime > 10) //co 10s mozna zastosowac duzego boosta
+                if (boostPassedTime > 10 && usedFuel + 100 <= fuelTank) //co 10s mozna zastosowac duzego boosta
                 {
                     targetForceSteer += new Vector3(0, 25, 0);
                     fromLastBoost = Time.time;
-                    usedFuel += 40; //dodatkowy koszt boosta
+                    usedFuel += 100; //dodatkowy koszt boosta
                 }
             }
             else if (Input.GetKey("right"))
@@ -122,6 +131,9 @@ public class PlayerController : MonoBehaviour
 
         if (lastAtracttedTo != atractedTo && lastAtracttedTo != -1) //wlasnie wyszlismy z pola planety trzba dodac boosta
         {
+            //wylaczam efekt tankowania
+            transform.GetChild(0).gameObject.SetActive(false);
+
             if (Time.time - orbitTime > 4f) //jezeli czas orbity wiekszy niz 4s
             {
                 targetForceSteer += new Vector3(0, 2, 0) * lastAtracttedToSize; //boost zalezny od wielkosci planety
@@ -136,7 +148,12 @@ public class PlayerController : MonoBehaviour
             bool tank = planets[atractedTo].GetComponent<Planet>().fuel;
             if (tank && usedFuel > 0)
             {
-                usedFuel -= 0.01f; //tankuje
+                transform.GetChild(0).gameObject.SetActive(true); //dodaje efekt tankowania
+                transform.GetChild(1).gameObject.SetActive(true); //upewniam sie ze efekt silnika jest wlaczony (moze zdarzyc sie ze zatankuje po wylaczeniu silnika)
+                usedFuel -= 0.15f; //tankuje
+            } else if (usedFuel <= 0)
+            {
+                transform.GetChild(0).gameObject.SetActive(false); //pelny bak wylaczam efekt tankowania
             }
             planetForce = planets[atractedTo].transform.position - transform.position;
             //SILA przyciagania jest wieksza wraz ze zmniejszeniem sie dystansu
@@ -153,14 +170,14 @@ public class PlayerController : MonoBehaviour
         }
 
         //wyciszamy ogolna predkosc i sile ze sterowania
-        if (Vector3.Distance(targetForceSteer, Vector3.zero) > 0.0001f)
+        if (targetForceSteer.magnitude > 0.0001f)
         {
             targetForceSteer -= targetForceSteer * 0.025f;
         }
-        if (Vector3.Distance(rb.velocity, Vector3.zero) > 20) //predkosc wyciszamy tylko do pewnego momentu
+        if (rb.velocity.magnitude > 20 && percent > 0) //predkosc wyciszamy tylko do pewnego momentu, dziala jezeli mamy paliwo!
         {
             rb.velocity -= rb.velocity * 0.0013F;
-        } else if (Vector3.Distance(rb.velocity, Vector3.zero) < 15) //predkosc nigdy nie moze byc mniejsza niz 15
+        } else if (rb.velocity.magnitude < 15 && percent > 0) //predkosc nigdy nie moze byc mniejsza niz 15
         {
             targetForceSteer += new Vector3(0, 0.8f, 0); //przyspieszam
         }
@@ -168,7 +185,16 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(targetForce); //stosujemy sile
         rb.AddRelativeForce(targetForceSteer); //SILA RELATYWNY KIERUNEK, teraz nie musze obliczac tych katow i wgl
 
-        
+
+        //jesli nie mamy paliwa to wyciszamy ruch
+        if (percent <= 0) 
+        {
+            rb.velocity -= rb.velocity * 0.002f;
+            if (rb.velocity.magnitude < 2f) //jesli sie zatrzymalismy to koniec gry
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            }
+        }
     }
 
     private float steer(float x1, float y1) //kat, TO MUSI BYC Z VELOCITY WYLICZANE
@@ -187,4 +213,5 @@ public class PlayerController : MonoBehaviour
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+
 }
