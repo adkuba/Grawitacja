@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using static System.Math;
 
 /*kontroler kamery
  *generator planet i asteroidow
@@ -19,12 +20,16 @@ public class CameraController : MonoBehaviour
     public int maxSuns = 4;
     public float sunRespawn = 10f;
     public float respawn = 3f;
-    public int maxAsteroids = 4;
-    public float asteroidsRespawn = 10f;
+    public int maxAsteroids = 10;
+    public float asteroidsRespawn = 5f;
+    private float timeFromLastMovement;
+    private GameObject player;
 
     // Start is called before the first frame update
     void Start()
     {
+        timeFromLastMovement = Time.time;
+        player = GameObject.FindGameObjectWithTag("Player");
         screenBounds = new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize);
         planets = GameObject.FindGameObjectsWithTag("Planet"); //musze miec bo na starcie mam zawsze jedna planete, usunac ja pozniej
         StartCoroutine(planetWave());
@@ -35,12 +40,56 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(0, 0, -90);
-        float playerSpeed = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody>().velocity.magnitude;
+        transform.position = player.transform.position + new Vector3(0, 0, -90);
+        float playerSpeed = player.GetComponent<Rigidbody>().velocity.magnitude;
         Camera.main.orthographicSize = playerSpeed * 0.28f + 16f;
         planets = GameObject.FindGameObjectsWithTag("Planet"); //wszystkie planety
         asteroids = GameObject.FindGameObjectsWithTag("Asteroid");
         suns = GameObject.FindGameObjectsWithTag("Sun");
+
+        if (Input.GetKey("right") || Input.GetKey("left")) //jesli kliknelismy
+        {
+            timeFromLastMovement = Time.time;
+        }
+        if (Time.time - timeFromLastMovement > 8) //jeli nic nie kliknelismy od 8s
+        {
+            //to probujemy wygenerowac asteroide przed ryjem
+            //minx maxx miny maxy
+            Vector4 spawn = new Vector4(player.transform.position.x, player.transform.position.x, player.transform.position.y, player.transform.position.y);
+            float vx = player.GetComponent<Rigidbody>().velocity.x;
+            float vy = player.GetComponent<Rigidbody>().velocity.y;
+            float vc = player.GetComponent<Rigidbody>().velocity.magnitude;
+            float c = screenBounds.magnitude + 10;
+
+            float cos = Abs(vx) / vc;
+            float sin = Abs(vy) / vc;
+
+            if (vy > 0)
+            {
+                if (vx > 0) //pierwsza cw
+                {
+                    //okno 30x30
+                    spawn += new Vector4(c * cos + 5, c * cos + 35, sin * c + 5, sin * c + 35);
+                } else //druga
+                {
+                    //y dodatnie, x ujemne
+                    spawn += new Vector4( (-c) * cos - 5, (-c) * cos - 35, sin * c + 5, sin * c + 35);
+                }
+            } else
+            {
+                if (vx > 0) //czwarta
+                {
+                    //y ujemne x dodatnie
+                    spawn += new Vector4( c * cos + 5, c * cos + 35, sin * (-c) - 5, sin * (-c) - 35);
+
+                } else //trzecia
+                {
+                    //y ujmne x ujemne
+                    spawn += new Vector4( (-c) * cos - 5, (-c) * cos - 35, sin * (-c) - 5, sin * (-c) - 35);
+                }
+            }
+            generateAsteroid(spawn.x, spawn.y, spawn.z, spawn.w);
+        }
     }
 
     IEnumerator sunWave()
@@ -72,56 +121,98 @@ public class CameraController : MonoBehaviour
 
     private void spawnSuns()
     {
-        for (int i = 0; i < 2; i++)
+        Vector4 gora = new Vector4(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y + screenBounds.y * 4f, transform.position.y + screenBounds.y * 9);
+        Vector4 dol = new Vector4(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y * 4f, transform.position.y - screenBounds.y * 9);
+        Vector4 lewo = new Vector4(transform.position.x - screenBounds.x * 7f, transform.position.x - screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+        Vector4 prawo = new Vector4(transform.position.x + screenBounds.x * 3f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+        int startLen = suns.Length;
+        for (int i = 0; i < maxSuns - startLen; i++) //probuje stworzyc slonca tyle razy ile moge jeszcze utworzyc slonc
         {
-            //gora 4 oznacza do jakiego miejsca spawnie slonca
-            generateSun(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y + screenBounds.y * 4f, transform.position.y + screenBounds.y * 9);
-            //dol
-            generateSun(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y * 4f, transform.position.y - screenBounds.y * 9);
-        }
-        for (int i = 0; i < 1; i++)
-        {
-            //lewo
-            generateSun(transform.position.x - screenBounds.x * 7f, transform.position.x - screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
-            //prawo
-            generateSun(transform.position.x + screenBounds.x * 3f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+            //losowo wybieram polowke w ktorej bede tworzyl obiekt
+            float cwiatrka = Random.value;
+            if (cwiatrka <= .25f) //na gorze
+            {
+                generateSun(gora.x, gora.y, gora.z, gora.w);
+
+            }
+            else if (cwiatrka <= .5f) //na dole
+            {
+                generateSun(dol.x, dol.y, dol.z, dol.w);
+
+            }
+            else if (cwiatrka <= .75f) // na lewo
+            {
+                generateSun(lewo.x, lewo.y, lewo.z, lewo.w);
+
+            }
+            else //na prawo
+            {
+                generateSun(prawo.x, prawo.y, prawo.z, prawo.w);
+            }
         }
     }
 
     private void spawnAsteroids()
     {
-        for (int i = 0; i < 2; i++)
+        Vector4 gora = new Vector4(transform.position.x - screenBounds.x * 3f, transform.position.x + screenBounds.x * 3f, transform.position.y + screenBounds.y * 1.6f, transform.position.y + screenBounds.y * 4);
+        Vector4 dol = new Vector4(transform.position.x - screenBounds.x * 3f, transform.position.x + screenBounds.x * 3f, transform.position.y - screenBounds.y * 1.6f, transform.position.y - screenBounds.y * 4);
+        Vector4 lewo = new Vector4(transform.position.x - screenBounds.x * 3f, transform.position.x - screenBounds.x * 1.6f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+        Vector4 prawo = new Vector4(transform.position.x + screenBounds.x * 1.6f, transform.position.x + screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+        int startLen = asteroids.Length;
+        for (int i = 0; i < maxAsteroids - startLen; i++) //probuje stworzyc asteroidy tyle razy ile moge jeszcze je utworzyc
         {
-            //gora
-            generateAsteroid(transform.position.x - screenBounds.x * 3f, transform.position.x + screenBounds.x * 3f, transform.position.y + screenBounds.y * 1.6f, transform.position.y + screenBounds.y * 4);
-            //dol
-            generateAsteroid(transform.position.x - screenBounds.x * 3f, transform.position.x + screenBounds.x * 3f, transform.position.y - screenBounds.y * 1.6f, transform.position.y - screenBounds.y * 4);
-        }
-        for (int i = 0; i < 1; i++)
-        {
-            //lewo
-            generateAsteroid(transform.position.x - screenBounds.x * 3f, transform.position.x - screenBounds.x * 1.6f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
-            //prawo
-            generateAsteroid(transform.position.x + screenBounds.x * 1.6f, transform.position.x + screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+            //losowo wybieram polowke w ktorej bede tworzyl obiekt
+            float cwiatrka = Random.value;
+            if (cwiatrka <= .25f) //na gorze
+            {
+                generateAsteroid(gora.x, gora.y, gora.z, gora.w);
+
+            }
+            else if (cwiatrka <= .5f) //na dole
+            {
+                generateAsteroid(dol.x, dol.y, dol.z, dol.w);
+
+            }
+            else if (cwiatrka <= .75f) // na lewo
+            {
+                generateAsteroid(lewo.x, lewo.y, lewo.z, lewo.w);
+
+            }
+            else //na prawo
+            {
+                generateAsteroid(prawo.x, prawo.y, prawo.z, prawo.w);
+            }
         }
     }
 
     private void spawnPlanets()
     {
         //jest 1.6f zeby nie tworzyl sie na widoku
-        for (int i = 0; i < 2; i++)
+        Vector4 gora = new Vector4(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y + screenBounds.y * 4f, transform.position.y + screenBounds.y * 9);
+        Vector4 dol = new Vector4(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y * 4f, transform.position.y - screenBounds.y * 9);
+        Vector4 lewo = new Vector4(transform.position.x - screenBounds.x * 7f, transform.position.x - screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+        Vector4 prawo = new Vector4(transform.position.x + screenBounds.x * 3f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+        int startLen = planets.Length;
+        for (int i = 0; i < maxPlanets - startLen; i++) //probuje stworzyc planety tyle razy ile moge jeszcze utworzyc planety
         {
-            //generujemy na gorze 4 oznacza do jakiego momentu generuje
-            generatePlanet(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y + screenBounds.y * 4f, transform.position.y + screenBounds.y * 9);
-            //generujemy na dole
-            generatePlanet(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y * 4f, transform.position.y - screenBounds.y * 9);
-        }
-        for (int i = 0; i < 2; i++)
-        {
-            //generujemy na lewo 3 oznacza do jakiego miejsca generuje
-            generatePlanet(transform.position.x - screenBounds.x * 7f, transform.position.x - screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
-            //generujemy na prawo
-            generatePlanet(transform.position.x + screenBounds.x * 3f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+            //losowo wybieram polowke w ktorej bede tworzyl obiekt
+            float cwiatrka = Random.value;
+            if (cwiatrka <= .25f) //na gorze
+            {
+                generatePlanet(gora.x, gora.y, gora.z, gora.w);
+
+            } else if (cwiatrka <= .5f) //na dole
+            {
+                generatePlanet(dol.x, dol.y, dol.z, dol.w);
+
+            } else if (cwiatrka <= .75f) // na lewo
+            {
+                generatePlanet(lewo.x, lewo.y, lewo.z, lewo.w);
+
+            } else //na prawo
+            {
+                generatePlanet(prawo.x, prawo.y, prawo.z, prawo.w);
+            }
         }
     }
 
@@ -156,7 +247,7 @@ public class CameraController : MonoBehaviour
             //generowanie pozycji
             Vector2 xrange = new Vector2(minx, maxx);
             Vector2 yrange = new Vector2(miny, maxy);
-            planet.transform.position = generateObjectPosition(xrange, yrange, planet.transform.localScale.x, planets, 100);
+            planet.transform.position = generateObjectPosition(xrange, yrange, planet.transform.localScale.x, planets, 90);
 
             //jesli nie udalo sie wygenerowac pozycji wczesniej to niszczymy obiekt
             if (planet.transform.position == Vector3.zero)
@@ -180,7 +271,7 @@ public class CameraController : MonoBehaviour
             //generowanie pozycji
             Vector2 xrange = new Vector2(minx, maxx);
             Vector2 yrange = new Vector2(miny, maxy);
-            Vector3 position = generateObjectPosition(xrange, yrange, asteroid.transform.localScale.x, asteroids.Concat(planets).ToArray(), 40);
+            Vector3 position = generateObjectPosition(xrange, yrange, asteroid.transform.localScale.x, asteroids.Concat(planets).ToArray(), 30);
            
             //jesli nie udalo sie wygenerowac pozycji wczesniej to niszczymy obiekt
             if (asteroid.transform.position == Vector3.zero)
@@ -204,7 +295,7 @@ public class CameraController : MonoBehaviour
             //generowanie pozycji
             Vector2 xrange = new Vector2(minx, maxx);
             Vector2 yrange = new Vector2(miny, maxy);
-            Vector3 position = generateObjectPosition(xrange, yrange, sun.transform.localScale.x, suns, 60);
+            Vector3 position = generateObjectPosition(xrange, yrange, sun.transform.localScale.x, suns, 100);
             sun.transform.position = position + new Vector3(0, 0, 15);
 
             //jesli nie udalo sie wygenerowac pozycji wczesniej to niszczymy obiekt
