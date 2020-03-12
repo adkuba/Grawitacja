@@ -22,3 +22,15 @@ Najwazniejsze punkty w dzialaniu gry
 - Gracz ma stala predkosc, powyzej niej zwalnia automatycznie, ponizej przyspiesza
 - Planety, asteroidy, slonca generuja sie w otoczce wokol kamery z losowa wielkoscia, od wielkosci zalezy sila grawitacji
 - Sterowanie za pomoca strzalek, dodawanie sily zaleznej od czasu! z czasem jest coraz silniej im dluzej trzymam, jak klikne jedna i druga strzalke to jest boost moge go robic co jakis czas
+
+# Kokpit-grafika 
+Opis:
+- Wskaźnik paliwa (czerwone koło) [po prawej]:
+    - Wymiary: (145 px) x (145 px)
+    - Kolor: 864564  (RGB)
+- Wskaźnik przyspieszenia (kremowe koło) [po lewej]:
+    - Wymiary: (145 px) x (145 px)
+    - Kolor: f1d1c4 (RGB)
+- Wskaźnik odległości [na środku]:
+    - Czcionka: OCR A Extended
+    - Rozmiar: 90 pt
