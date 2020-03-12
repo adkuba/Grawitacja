@@ -40,9 +40,8 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //wielkosc kamery w player controller
         transform.position = player.transform.position + new Vector3(0, 0, -90);
-        float playerSpeed = player.GetComponent<Rigidbody>().velocity.magnitude;
-        Camera.main.orthographicSize = playerSpeed * 0.28f + 16f;
         planets = GameObject.FindGameObjectsWithTag("Planet"); //wszystkie planety
         asteroids = GameObject.FindGameObjectsWithTag("Asteroid");
         suns = GameObject.FindGameObjectsWithTag("Sun");

@@ -21,10 +21,14 @@ public class PlayerController : MonoBehaviour
     private float orbitTime = 0;
     private float fromLastBoost;
     public float fuelTank = 250f; //max ilosc paliwa
+    private bool exiting = false;
+    private int score = 0;
+    private int highscore;
 
     // Start is called before the first frame update
     void Start()
     {
+        highscore = PlayerPrefs.GetInt("highscore", 0); // nazwa i default value
         rb = GetComponent<Rigidbody>();
         scoreGameObject = GameObject.FindGameObjectWithTag("Score");
         fuelGameObject = GameObject.FindGameObjectWithTag("Fuel");
@@ -52,7 +56,7 @@ public class PlayerController : MonoBehaviour
         fuelGameObject.GetComponent<UnityEngine.UI.Text>().text = Convert.ToInt32(percent).ToString() + "%"; //wyswietlam ilosc POZOSTALEGO paliwa w procentach
 
         //wynik
-        int score = Convert.ToInt32(Vector3.Distance(Vector3.zero, transform.position));
+        score = Convert.ToInt32(Vector3.Distance(Vector3.zero, transform.position));
         scoreGameObject.GetComponent<UnityEngine.UI.Text>().text = score.ToString();
 
         //sprawdzanie planet
@@ -68,29 +72,34 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        //obrot obiektu
-        transform.Rotate(new Vector3(0, 1, 0) * 30 * Time.deltaTime);
-        float coordinate = steer(rb.velocity.x, rb.velocity.y);
-        Quaternion rotation = Quaternion.Euler(0, 0, 0);
-        if (rb.velocity.x > 0 && rb.velocity.y > 0)
+        //obrot obiektu i kamera
+        if (!exiting)
         {
-            rotation = Quaternion.Euler(0, 0, coordinate - 90f);
-        } 
-        else if (rb.velocity.x < 0 && rb.velocity.y > 0)
-        {
-            rotation = Quaternion.Euler(0, 0, 90f - coordinate);
-        }
-        else if (rb.velocity.x < 0 && rb.velocity.y < 0)
-        {
-            rotation = Quaternion.Euler(0, 0, -coordinate + 90f);
-        }
-        else if (rb.velocity.x > 0 && rb.velocity.y < 0)
-        {
-            rotation = Quaternion.Euler(0, 0, coordinate - 90f);
-        }
+            //ustalamy wielkosc kamery
+            Camera.main.orthographicSize = rb.velocity.magnitude * 0.28f + 16f;
 
-        transform.rotation = rotation;
+            float coordinate = steer(rb.velocity.x, rb.velocity.y);
+            Quaternion rotation = Quaternion.Euler(0, 0, 0);
+            if (rb.velocity.x > 0 && rb.velocity.y > 0)
+            {
+                rotation = Quaternion.Euler(0, 0, coordinate - 90f);
+            }
+            else if (rb.velocity.x < 0 && rb.velocity.y > 0)
+            {
+                rotation = Quaternion.Euler(0, 0, 90f - coordinate);
+            }
+            else if (rb.velocity.x < 0 && rb.velocity.y < 0)
+            {
+                rotation = Quaternion.Euler(0, 0, -coordinate + 90f);
+            }
+            else if (rb.velocity.x > 0 && rb.velocity.y < 0)
+            {
+                rotation = Quaternion.Euler(0, 0, coordinate - 90f);
+            }
 
+            transform.rotation = rotation;
+        }
+ 
 
         //pokazywanie czasu kiedy mogeuzyc boosta
         float boostPassedTime = Time.time - fromLastBoost;
@@ -211,7 +220,20 @@ public class PlayerController : MonoBehaviour
     //kolizja
     void OnCollisionEnter(Collision collision)
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        rb.isKinematic = true;
+        exiting = true;
+        //zapisywanie highscore
+        if (score > highscore)
+        {
+            highscore = score;
+            PlayerPrefs.SetInt("highscore", highscore);
+        }
+        StartCoroutine(ExitingCoroutine());
     }
 
+    IEnumerator ExitingCoroutine()
+    {
+        yield return new WaitForSeconds(1);
+        SceneManager.LoadScene("Menu");
+    }
 }
