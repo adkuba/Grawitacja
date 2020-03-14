@@ -21,9 +21,13 @@ public class PlayerController : MonoBehaviour
     private float orbitTime = 0;
     private float fromLastBoost;
     public float fuelTank = 250f; //max ilosc paliwa
-    private bool exiting = false;
+    private bool exiting;
     private int score = 0;
     private int highscore;
+    public GameObject spawn;
+    private float timeFromSpawn;
+    private Vector3 desiredScale;
+    public GameObject playerShell;
 
     // Start is called before the first frame update
     void Start()
@@ -33,13 +37,49 @@ public class PlayerController : MonoBehaviour
         scoreGameObject = GameObject.FindGameObjectWithTag("Score");
         fuelGameObject = GameObject.FindGameObjectWithTag("Fuel");
         boostGameObject = GameObject.FindGameObjectWithTag("Boost");
-        rb.velocity = new Vector3(0, 20, 0);
         fromLastBoost = Time.time;
+        timeFromSpawn = Time.time;
+        transform.localScale = new Vector3(0.0028f, 0.0094f, 0.0016f);
+
+        exiting = true;
+        spawn.GetComponent<ParticleSystem>().Play(); //odtwarzamy efekt spawn
+        StartCoroutine(StartingCoroutine());
+        desiredScale = new Vector3(0.28f, 0.94f, 0.16f);
     }
 
     // Update is called once per frame
     void Update()
     {
+        Vector3 scale = transform.localScale;
+        if (Vector3.Distance(scale, desiredScale) > 0.1 ) //rozmiar playera jest zły
+        {
+            transform.GetChild(1).gameObject.SetActive(false); //wylaczam silnik
+            if (scale.x < desiredScale.x) //playera trzeba zwiekszyc
+            {
+                transform.localScale *= 1.05f;
+
+            } else //playera trzeba zmniejszyc
+            {
+                transform.localScale *= .95f;
+            }
+        } else
+        {
+            //potencjalny zamulacz kodu bo sie ciagle wywoluje
+            if (!exiting)
+            {
+                transform.GetChild(1).gameObject.SetActive(true); //wlaczam silnik
+
+            } else
+            {
+                playerShell.SetActive(false);
+            }
+        }
+
+
+        if (exiting) //to musze miec dla efektu start (nie chce miec sterowania przez pierwsza sekunde) zmienic nazyw zmiennych! 
+        {
+            timeFromSpawn = Time.time;
+        }
         //paliwo
         float force = Vector3.Distance(Vector3.zero, targetForceSteer);
         if (force > 0.01f) //jesli dziala sila
@@ -109,7 +149,8 @@ public class PlayerController : MonoBehaviour
         }
         //ograniczenie max predkosci, można sterować jesli mamy paliwo
         //mniejsze ograniczenie na skrecanie
-        if(targetForceSteer.x < 100 && targetForceSteer.y < 5 && targetForceSteer.x > -100 && targetForceSteer.y > -5 && usedFuel < fuelTank) //sila do w boki - y moze byc wieksza
+        //sila do w boki - y moze byc wieksza
+        if (targetForceSteer.x < 100 && targetForceSteer.y < 5 && targetForceSteer.x > -100 && targetForceSteer.y > -5 && usedFuel < fuelTank && Time.time - timeFromSpawn > 1) 
         {
             if (Input.GetKey("right") && Input.GetKey("left")) //duzy boost do przodu
             {
@@ -155,7 +196,7 @@ public class PlayerController : MonoBehaviour
         if (atractedTo != -1)
         {
             bool tank = planets[atractedTo].GetComponent<Planet>().fuel;
-            if (tank && usedFuel > 0)
+            if (tank && usedFuel > 0 && !exiting)
             {
                 transform.GetChild(0).gameObject.SetActive(true); //dodaje efekt tankowania
                 transform.GetChild(1).gameObject.SetActive(true); //upewniam sie ze efekt silnika jest wlaczony (moze zdarzyc sie ze zatankuje po wylaczeniu silnika)
@@ -186,7 +227,7 @@ public class PlayerController : MonoBehaviour
         if (rb.velocity.magnitude > 20 && percent > 0) //predkosc wyciszamy tylko do pewnego momentu, dziala jezeli mamy paliwo!
         {
             rb.velocity -= rb.velocity * 0.0013F;
-        } else if (rb.velocity.magnitude < 15 && percent > 0) //predkosc nigdy nie moze byc mniejsza niz 15
+        } else if (rb.velocity.magnitude < 15 && percent > 0 && !exiting) //predkosc nigdy nie moze byc mniejsza niz 15, jezeli mamy paliwo i nie odtwarzamy spawn
         {
             targetForceSteer += new Vector3(0, 0.8f, 0); //przyspieszam
         }
@@ -201,6 +242,7 @@ public class PlayerController : MonoBehaviour
             rb.velocity -= rb.velocity * 0.002f;
             if (rb.velocity.magnitude < 2f) //jesli sie zatrzymalismy to koniec gry
             {
+                //Tutaj dodac end sequence
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             }
         }
@@ -228,12 +270,21 @@ public class PlayerController : MonoBehaviour
             highscore = score;
             PlayerPrefs.SetInt("highscore", highscore);
         }
+        spawn.GetComponent<ParticleSystem>().Play(); //odtwarzamy efekt spawn
         StartCoroutine(ExitingCoroutine());
     }
 
     IEnumerator ExitingCoroutine()
     {
-        yield return new WaitForSeconds(1);
+        desiredScale = new Vector3(0.0028f, 0.0094f, 0.0016f);
+        yield return new WaitForSeconds(1.5f);
         SceneManager.LoadScene("Menu");
+    }
+
+    IEnumerator StartingCoroutine()
+    {
+        yield return new WaitForSeconds(0.5f); //czekamy az spawn sie odtworzy
+        exiting = false;
+        yield break; //wychodzimy z coroutine
     }
 }

@@ -6,6 +6,10 @@ public class MenuBG : MonoBehaviour
 {
     private Canvas canvas;
     private Vector2 canvasSize;
+    public GameObject infoText;
+    public GameObject tapText;
+    public GameObject highscoreText;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -35,10 +39,24 @@ public class MenuBG : MonoBehaviour
         {
             mousex = canvasSize.x;
         }
-        //przetworzenie wartosci na zakres od -5 do 5 oraz -3 do 3
-        //pozniej to powinno byc jakos zwiazane od aspect ratio
-        float posx = (mousex / canvasSize.x) * 10 - 5;
-        float posy = (mousey / canvasSize.y) * 6 - 3;
-        transform.position = new Vector3(posx + canvas.transform.position.x, posy + canvas.transform.position.y, 0);
+        //przetworzenie wartosci na zakres od -5 do 5
+        //pozniej to powinno byc jakos zwiazane od aspect ratio ??? chyba nie
+        float BGposx = (mousex / canvasSize.x) * 10 - 5;
+        float BGposy = (mousey / canvasSize.y) * 10 - 5;
+        transform.position = new Vector3(BGposx + canvas.transform.position.x, BGposy + canvas.transform.position.y, 0);
+        
+        //zakres -8 8
+        float Iposx = (mousex / canvasSize.x) * 16 - 8;
+        float Iposy = (mousey / canvasSize.y) * 16 - 8;
+        
+        float Hposx = (mousex / canvasSize.x) * 16 - 8;
+        float Hposy = (mousey / canvasSize.y) * 16 - 8;
+
+        float Tposx = (mousex / canvasSize.x) * 16 - 8;
+        float Tposy = (mousey / canvasSize.y) * 16 - 8;
+
+        infoText.transform.position = new Vector3(Iposx + canvas.transform.position.x + 333, Iposy + canvas.transform.position.y + 175, 0);
+        highscoreText.transform.position = new Vector3(Hposx + canvas.transform.position.x - 231, Hposy + canvas.transform.position.y + 175, 0);
+        tapText.transform.position = new Vector3(Tposx + canvas.transform.position.x, Tposy + canvas.transform.position.y - 105, 0);
     }
 }
