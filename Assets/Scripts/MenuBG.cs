@@ -9,12 +9,19 @@ public class MenuBG : MonoBehaviour
     public GameObject infoText;
     public GameObject tapText;
     public GameObject highscoreText;
+    private RectTransform infoTextRect;
+    private RectTransform tapTextRect;
+    private RectTransform highscoreTextRect;
 
     // Start is called before the first frame update
     void Start()
     {
         canvas = FindObjectOfType<Canvas>();
         canvasSize = new Vector2(canvas.GetComponent<RectTransform>().rect.width, canvas.GetComponent<RectTransform>().rect.height);
+
+        infoTextRect = infoText.GetComponent<RectTransform>();
+        tapTextRect = tapText.GetComponent<RectTransform>();
+        highscoreTextRect = highscoreText.GetComponent<RectTransform>();
     }
 
     // Update is called once per frame
@@ -55,8 +62,8 @@ public class MenuBG : MonoBehaviour
         float Tposx = (mousex / canvasSize.x) * 16 - 8;
         float Tposy = (mousey / canvasSize.y) * 16 - 8;
 
-        infoText.transform.position = new Vector3(Iposx + canvas.transform.position.x + 333, Iposy + canvas.transform.position.y + 175, 0);
-        highscoreText.transform.position = new Vector3(Hposx + canvas.transform.position.x - 231, Hposy + canvas.transform.position.y + 175, 0);
-        tapText.transform.position = new Vector3(Tposx + canvas.transform.position.x, Tposy + canvas.transform.position.y - 105, 0);
+        infoTextRect.anchoredPosition = new Vector3(Iposx - 70, Iposy - 50, 0);
+        highscoreTextRect.anchoredPosition = new Vector3(Hposx + 70, Hposy - 50, 0);
+        tapTextRect.anchoredPosition = new Vector3(Tposx, Tposy + 100, 0);
     }
 }

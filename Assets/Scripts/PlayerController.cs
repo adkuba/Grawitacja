@@ -89,8 +89,7 @@ public class PlayerController : MonoBehaviour
         float percent = (fuelTank - usedFuel) * 100 / fuelTank;
         if (percent <= 0)
         {
-            //wylaczam efekt silnika plus zabezpieczam sie przed minusowymi procentami ktore moga powstac
-            transform.GetChild(1).gameObject.SetActive(false);
+            //zabezpieczam sie przed minusowymi procentami ktore moga powstac
             percent = 0;
         }
         fuelGameObject.GetComponent<UnityEngine.UI.Text>().text = Convert.ToInt32(percent).ToString() + "%"; //wyswietlam ilosc POZOSTALEGO paliwa w procentach
@@ -116,7 +115,16 @@ public class PlayerController : MonoBehaviour
         if (!exiting)
         {
             //ustalamy wielkosc kamery
-            Camera.main.orthographicSize = rb.velocity.magnitude * 0.28f + 16f;
+            float cameraSize = rb.velocity.magnitude * 0.28f + 16f;
+            if (cameraSize < 20) //min
+            {
+                cameraSize = 20;
+            }
+            if (cameraSize > 30) //max
+            {
+                cameraSize = 30;
+            }
+            Camera.main.orthographicSize = cameraSize;
 
             float coordinate = steer(rb.velocity.x, rb.velocity.y);
             Quaternion rotation = Quaternion.Euler(0, 0, 0);
@@ -224,10 +232,10 @@ public class PlayerController : MonoBehaviour
         {
             targetForceSteer -= targetForceSteer * 0.025f;
         }
-        if (rb.velocity.magnitude > 20 && percent > 0) //predkosc wyciszamy tylko do pewnego momentu, dziala jezeli mamy paliwo!
+        if (rb.velocity.magnitude > 20 && usedFuel < fuelTank) //predkosc wyciszamy tylko do pewnego momentu, dziala jezeli mamy paliwo!
         {
             rb.velocity -= rb.velocity * 0.0013F;
-        } else if (rb.velocity.magnitude < 15 && percent > 0 && !exiting) //predkosc nigdy nie moze byc mniejsza niz 15, jezeli mamy paliwo i nie odtwarzamy spawn
+        } else if (rb.velocity.magnitude < 15 && usedFuel < fuelTank && !exiting) //predkosc nigdy nie moze byc mniejsza niz 15, jezeli mamy paliwo i nie odtwarzamy spawn
         {
             targetForceSteer += new Vector3(0, 0.8f, 0); //przyspieszam
         }
@@ -237,13 +245,15 @@ public class PlayerController : MonoBehaviour
 
 
         //jesli nie mamy paliwa to wyciszamy ruch
-        if (percent <= 0) 
+        if (usedFuel > fuelTank) 
         {
+            //wylaczam efekt silnika
+            transform.GetChild(1).gameObject.SetActive(false);
+
             rb.velocity -= rb.velocity * 0.002f;
-            if (rb.velocity.magnitude < 2f) //jesli sie zatrzymalismy to koniec gry
+            if (rb.velocity.magnitude < 7) //jesli sie zatrzymalismy to koniec gry
             {
-                //Tutaj dodac end sequence
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                endSequence();
             }
         }
     }
@@ -263,6 +273,12 @@ public class PlayerController : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         rb.isKinematic = true;
+        endSequence();
+    }
+
+    //wykonujemy na koniec
+    void endSequence()
+    {
         exiting = true;
         //zapisywanie highscore
         if (score > highscore)
@@ -270,7 +286,11 @@ public class PlayerController : MonoBehaviour
             highscore = score;
             PlayerPrefs.SetInt("highscore", highscore);
         }
-        spawn.GetComponent<ParticleSystem>().Play(); //odtwarzamy efekt spawn
+        //odtwarzamy efekt spawn
+        if (!spawn.GetComponent<ParticleSystem>().isPlaying) //aaaaa to jest zajebiscie wazne, opis w #18!!!!
+        {
+            spawn.GetComponent<ParticleSystem>().Play();
+        }
         StartCoroutine(ExitingCoroutine());
     }
 
