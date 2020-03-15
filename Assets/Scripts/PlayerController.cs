@@ -28,11 +28,23 @@ public class PlayerController : MonoBehaviour
     private float timeFromSpawn;
     private Vector3 desiredScale;
     public GameObject playerShell;
+    private bool hsAnimationComp = false; //highScoreAnimationCompleted
+    public GameObject cockpitImage;
+    private RectTransform cockpitImageRect;
+
+    //animacje
+    private float waitAnimation = 0;
+    private bool cockpitUp = false;
+    private bool textUp = false;
+    private bool textDown = false;
+    private bool cockpitDown = false;
 
     // Start is called before the first frame update
     void Start()
     {
+        PlayerPrefs.SetInt("highscore", 10); //UWAGA TYMCZASOWO ZAWSZE USTAWIAM HIGHSCORE
         highscore = PlayerPrefs.GetInt("highscore", 0); // nazwa i default value
+
         rb = GetComponent<Rigidbody>();
         scoreGameObject = GameObject.FindGameObjectWithTag("Score");
         fuelGameObject = GameObject.FindGameObjectWithTag("Fuel");
@@ -40,6 +52,7 @@ public class PlayerController : MonoBehaviour
         fromLastBoost = Time.time;
         timeFromSpawn = Time.time;
         transform.localScale = new Vector3(0.0028f, 0.0094f, 0.0016f);
+        cockpitImageRect = cockpitImage.GetComponent<RectTransform>();
 
         exiting = true;
         spawn.GetComponent<ParticleSystem>().Play(); //odtwarzamy efekt spawn
@@ -107,6 +120,67 @@ public class PlayerController : MonoBehaviour
         } else //boost jest wiekszy niz 10s
         {
             boostGameObject.GetComponent<UnityEngine.UI.Image>().fillAmount = 1;
+        }
+
+
+        //animacja highscore, wywoluje sie dopoki nie skonczymy animacji
+        //wywola sie tylko raz!
+        if (score > highscore && !hsAnimationComp)
+        {
+            if (!cockpitUp) //jesli jeszcze nie podnioslem kokpitu
+            {
+                if (cockpitImageRect.anchoredPosition.y < -10)
+                {
+                    cockpitImageRect.anchoredPosition += new Vector2(0, 30 * Time.deltaTime);
+
+                } else
+                {
+                    cockpitUp = true;
+                }
+            }
+            
+            if (!textUp && cockpitUp) //jesli jeszcze nie podnioslem tekstu ale kokpit jest juz podniesiony
+            {
+                if (scoreGameObject.GetComponent<UnityEngine.UI.Text>().fontSize < 32)
+                {
+                    scoreGameObject.GetComponent<UnityEngine.UI.Text>().fontSize += 1;
+                    waitAnimation = Time.time;
+
+                } else
+                {
+                    textUp = true;
+                }
+            }
+
+            if (!textDown && cockpitUp && textUp && Time.time - waitAnimation > 1) //dodatkowo czekamy sekunde
+            {
+                if (scoreGameObject.GetComponent<UnityEngine.UI.Text>().fontSize > 23)
+                {
+                    scoreGameObject.GetComponent<UnityEngine.UI.Text>().fontSize -= 1;
+
+                } else
+                {
+                    textDown = true;
+                }
+            }
+
+            if (!cockpitDown && cockpitUp && textUp && textDown)
+            {
+                if (cockpitImageRect.anchoredPosition.y > -25)
+                {
+                    cockpitImageRect.anchoredPosition -= new Vector2(0, 30 * Time.deltaTime);
+
+                } else
+                {
+                    cockpitDown = true;
+                }
+            }
+
+            //koniec animacji
+            if (cockpitUp && textUp && textDown && cockpitDown)
+            {
+                hsAnimationComp = true;
+            }
         }
 
 
@@ -291,6 +365,7 @@ public class PlayerController : MonoBehaviour
         {
             highscore = score;
             PlayerPrefs.SetInt("highscore", highscore);
+            PlayerPrefs.SetInt("highscoreChanged", 1);
         }
         //odtwarzamy efekt spawn
         if (!spawn.GetComponent<ParticleSystem>().isPlaying) //aaaaa to jest zajebiscie wazne, opis w #18!!!!

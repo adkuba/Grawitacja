@@ -4659,6 +4659,7 @@ MonoBehaviour:
   fuelTank: 200
   spawn: {fileID: 1864367643}
   playerShell: {fileID: 19986435}
+  cockpitImage: {fileID: 1445309077}
 --- !u!54 &307079290
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -10048,7 +10049,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-1556
+  m_Name: pb_Mesh-1410
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -10211,7 +10212,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh15130
+  m_Name: pb_Mesh14378
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -15144,7 +15145,7 @@ GameObject:
   - component: {fileID: 1445309080}
   - component: {fileID: 1445309079}
   m_Layer: 5
-  m_Name: Cocpit
+  m_Name: Cockpit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15169,7 +15170,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: -24.6}
+  m_AnchoredPosition: {x: 0, y: -25}
   m_SizeDelta: {x: 1496, y: 514}
   m_Pivot: {x: 0.5, y: 0.000000063329935}
 --- !u!114 &1445309079
