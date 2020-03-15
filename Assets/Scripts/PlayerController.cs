@@ -92,11 +92,23 @@ public class PlayerController : MonoBehaviour
             //zabezpieczam sie przed minusowymi procentami ktore moga powstac
             percent = 0;
         }
-        fuelGameObject.GetComponent<UnityEngine.UI.Text>().text = Convert.ToInt32(percent).ToString() + "%"; //wyswietlam ilosc POZOSTALEGO paliwa w procentach
 
-        //wynik
-        score = Convert.ToInt32(Vector3.Distance(Vector3.zero, transform.position));
+
+        //wynik, paliwo, boost
+        //fillAmount od 0 do 1
+        fuelGameObject.GetComponent<UnityEngine.UI.Image>().fillAmount = percent / 100;
+        score = Convert.ToInt32(Vector3.Distance(Vector3.zero, transform.position) * 0.1f);
         scoreGameObject.GetComponent<UnityEngine.UI.Text>().text = score.ToString();
+        float boostPassedTime = Time.time - fromLastBoost;
+        if (boostPassedTime < 10)
+        {
+            boostGameObject.GetComponent<UnityEngine.UI.Image>().fillAmount = boostPassedTime / 10;
+
+        } else //boost jest wiekszy niz 10s
+        {
+            boostGameObject.GetComponent<UnityEngine.UI.Image>().fillAmount = 1;
+        }
+
 
         //sprawdzanie planet
         lastAtracttedTo = atractedTo;
@@ -149,12 +161,6 @@ public class PlayerController : MonoBehaviour
         }
  
 
-        //pokazywanie czasu kiedy mogeuzyc boosta
-        float boostPassedTime = Time.time - fromLastBoost;
-        if (boostPassedTime <= 10)
-        {
-            boostGameObject.GetComponent<UnityEngine.UI.Text>().text = Convert.ToInt32(boostPassedTime).ToString();
-        }
         //ograniczenie max predkosci, można sterować jesli mamy paliwo
         //mniejsze ograniczenie na skrecanie
         //sila do w boki - y moze byc wieksza
