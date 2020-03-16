@@ -11,6 +11,9 @@ TagManager:
   - Asteroid
   - Sun
   - Boost
+  - AdYes
+  - AdNo
+  - AdManager
   layers:
   - Default
   - TransparentFX

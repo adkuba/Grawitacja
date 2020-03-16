@@ -31,6 +31,12 @@ public class PlayerController : MonoBehaviour
     private bool hsAnimationComp = false; //highScoreAnimationCompleted
     public GameObject cockpitImage;
     private RectTransform cockpitImageRect;
+    private GameObject adManager;
+    private GameObject adYes;
+    private GameObject adNo;
+    private bool adYesClicked = false;
+    private bool adNoClicked = false;
+    private bool waitForAd = false;
 
     //animacje
     private float waitAnimation = 0;
@@ -58,6 +64,13 @@ public class PlayerController : MonoBehaviour
         spawn.GetComponent<ParticleSystem>().Play(); //odtwarzamy efekt spawn
         StartCoroutine(StartingCoroutine());
         desiredScale = new Vector3(0.28f, 0.94f, 0.16f);
+
+        adManager = GameObject.FindGameObjectWithTag("AdManager");
+        adYes = GameObject.FindGameObjectWithTag("AdYes");
+        adYes.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(AdYesButtonClicked);
+        adNo = GameObject.FindGameObjectWithTag("AdNo");
+        adNo.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(AdNoButtonClicked);
+        adManager.SetActive(false);
     }
 
     // Update is called once per frame
@@ -82,7 +95,7 @@ public class PlayerController : MonoBehaviour
             {
                 transform.GetChild(1).gameObject.SetActive(true); //wlaczam silnik
 
-            } else
+            } else if (!waitForAd)
             {
                 playerShell.SetActive(false);
             }
@@ -336,6 +349,24 @@ public class PlayerController : MonoBehaviour
                 endSequence();
             }
         }
+
+        //jesli wychodzimy i kliknelismy ktorys z guzikow
+        //DODAC OGRANICZENIE NA ILOSC KLIKANIA REKLAM - np tylko jedna w sesji
+        if (exiting)
+        {
+            if (adNoClicked)
+            {
+                //konczymy gre
+                waitForAd = false;
+                adManager.SetActive(false);
+                endSequenceFinal();
+            }
+            if (adYesClicked)
+            {
+                adManager.SetActive(false);
+                print("musze wyswietlic reklame");
+            }
+        }
     }
 
     private float steer(float x1, float y1) //kat, TO MUSI BYC Z VELOCITY WYLICZANE
@@ -352,14 +383,24 @@ public class PlayerController : MonoBehaviour
     //kolizja
     void OnCollisionEnter(Collision collision)
     {
-        rb.isKinematic = true;
         endSequence();
     }
 
     //wykonujemy na koniec
     void endSequence()
     {
+        //zatrzymujemy playera
         exiting = true;
+        rb.isKinematic = true;
+        waitForAd = true; //zeby nie wylaczal sie shell przy zmienianiu rozmiaru playera
+
+        //wybor czy wyswietlamy reklame
+        adManager.SetActive(true);
+    }
+
+    //finalne wychodzenie
+    void endSequenceFinal()
+    {
         //zapisywanie highscore
         if (score > highscore)
         {
@@ -387,5 +428,16 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(0.5f); //czekamy az spawn sie odtworzy
         exiting = false;
         yield break; //wychodzimy z coroutine
+    }
+
+    //lisener dla buttonow od reklam
+    void AdYesButtonClicked()
+    {
+        adYesClicked = true;
+    }
+
+    void AdNoButtonClicked()
+    {
+        adNoClicked = true;
     }
 }

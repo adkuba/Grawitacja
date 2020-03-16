@@ -68,6 +68,7 @@
      <Compile Include="Assets\Scripts\PointersController.cs" />
      <Compile Include="Assets\Scripts\ShellRotation.cs" />
      <Compile Include="Assets\Scripts\SunController.cs" />
+     <None Include="Assets\UnityAds\link.xml" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>D:/Documents/2020/Unity/Grawitacja/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
  </Reference>
@@ -295,6 +296,12 @@
  </Reference>
  <Reference Include="UnityEngine.XRModule">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2019.3.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.XRModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Advertisements.Editor">
+ <HintPath>D:/Documents/2020/Unity/Grawitacja/Assets/UnityAds/UnityEngine.Advertisements.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Monetization.Editor">
+ <HintPath>D:/Documents/2020/Unity/Grawitacja/Assets/UnityAds/UnityEngine.Monetization.Editor.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.iOS.Extensions.Xcode">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2019.3.4f1/Editor/Data/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
