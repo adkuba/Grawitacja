@@ -37,6 +37,7 @@ public class PlayerController : MonoBehaviour
     private bool adYesClicked = false;
     private bool adNoClicked = false;
     private bool waitForAd = false;
+    private int addScore = 0;
 
     //animacje
     private float waitAnimation = 0;
@@ -48,8 +49,9 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        PlayerPrefs.SetInt("highscore", 10); //UWAGA TYMCZASOWO ZAWSZE USTAWIAM HIGHSCORE
+        //PlayerPrefs.SetInt("highscore", 10); //UWAGA TYMCZASOWO ZAWSZE USTAWIAM HIGHSCORE
         highscore = PlayerPrefs.GetInt("highscore", 0); // nazwa i default value
+        addScore = PlayerPrefs.GetInt("addScore", 0);
 
         rb = GetComponent<Rigidbody>();
         scoreGameObject = GameObject.FindGameObjectWithTag("Score");
@@ -123,7 +125,7 @@ public class PlayerController : MonoBehaviour
         //wynik, paliwo, boost
         //fillAmount od 0 do 1
         fuelGameObject.GetComponent<UnityEngine.UI.Image>().fillAmount = percent / 100;
-        score = Convert.ToInt32(Vector3.Distance(Vector3.zero, transform.position) * 0.1f);
+        score = Convert.ToInt32(Vector3.Distance(Vector3.zero, transform.position) * 0.1f) + addScore;
         scoreGameObject.GetComponent<UnityEngine.UI.Text>().text = score.ToString();
         float boostPassedTime = Time.time - fromLastBoost;
         if (boostPassedTime < 10)
@@ -364,7 +366,8 @@ public class PlayerController : MonoBehaviour
             if (adYesClicked)
             {
                 adManager.SetActive(false);
-                print("musze wyswietlic reklame");
+                //MUSZE WYSWIETLIC REKLAME
+                endReload();
             }
         }
     }
@@ -386,6 +389,21 @@ public class PlayerController : MonoBehaviour
         endSequence();
     }
 
+    void endReload()
+    {
+        //zapisuje wynik
+        PlayerPrefs.SetInt("addScore", score);
+        
+        //odtwarzamy efekt spawn
+        if (!spawn.GetComponent<ParticleSystem>().isPlaying)
+        {
+            spawn.GetComponent<ParticleSystem>().Play();
+        }
+
+        //reload
+        StartCoroutine(ReloadingCoroutine());
+    }
+
     //wykonujemy na koniec
     void endSequence()
     {
@@ -396,6 +414,11 @@ public class PlayerController : MonoBehaviour
 
         //wybor czy wyswietlamy reklame
         adManager.SetActive(true);
+        //jesli juz raz wyswietlilismy reklame
+        if (PlayerPrefs.GetInt("addScore", 0) > 0)
+        {
+            adYes.SetActive(false);
+        }
     }
 
     //finalne wychodzenie
@@ -414,6 +437,13 @@ public class PlayerController : MonoBehaviour
             spawn.GetComponent<ParticleSystem>().Play();
         }
         StartCoroutine(ExitingCoroutine());
+    }
+
+    IEnumerator ReloadingCoroutine()
+    {
+        desiredScale = new Vector3(0.0028f, 0.0094f, 0.0016f);
+        yield return new WaitForSeconds(1.5f);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     IEnumerator ExitingCoroutine()

@@ -82,6 +82,8 @@ public class ManuCanvas : MonoBehaviour
 
         if (Input.GetKey("space")) //jak nacisniemy spacje to otwiera sie gra
         {
+            //resetuje addScore
+            PlayerPrefs.SetInt("addScore", 0);
             //robie cos takiego bo mialem buga ze obrazek sie pojawial przy zmianie scene 
             Destroy(infoImage);
             SceneManager.LoadScene("Game");
