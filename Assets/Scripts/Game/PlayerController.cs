@@ -9,36 +9,23 @@ public class PlayerController : MonoBehaviour
     private Vector3 targetForce = Vector3.zero;
     private Vector3 targetForceSteer = Vector3.zero;
     private Vector3 planetForce = Vector3.zero;
-    private GameObject[] planets;
     private int atractedTo = -1;
     private int lastAtracttedTo = -1;
     private float lastAtracttedToSize = -1;
-    public Rigidbody rb;
     private float usedFuel = 0;
-    private GameObject scoreGameObject;
-    private GameObject fuelGameObject;
-    private GameObject boostGameObject;
     private float orbitTime = 0;
     private float fromLastBoost;
-    public float fuelTank = 250f; //max ilosc paliwa
+    public float fuelTank = 400f;
     private bool exiting;
     private int score = 0;
     private int highscore;
-    public GameObject spawn;
     private float timeFromSpawn;
     private Vector3 desiredScale;
-    public GameObject playerShell;
-    private bool hsAnimationComp = false; //highScoreAnimationCompleted
-    public GameObject cockpitImage;
-    private RectTransform cockpitImageRect;
-    private GameObject adManager;
-    private GameObject adYes;
-    private GameObject adNo;
     private bool adYesClicked = false;
     private bool adNoClicked = false;
-    private bool waitForAd = false;
     private int addScore = 0;
-
+    //highScoreAnimationCompleted
+    private bool hsAnimationComp = false;
     //animacje
     private float waitAnimation = 0;
     private bool cockpitUp = false;
@@ -46,31 +33,61 @@ public class PlayerController : MonoBehaviour
     private bool textDown = false;
     private bool cockpitDown = false;
 
+    private GameObject[] planets;
+    private GameObject scoreGameObject;
+    private GameObject fuelGameObject;
+    private GameObject boostGameObject;
+    private GameObject spawn;
+    private GameObject cockpitImage;
+    private GameObject adManager;
+    private GameObject adYes;
+    private GameObject adNo;
+    private GameObject shell;
+    private GameObject engine;
+    private GameObject fuelEffect;
+    private Rigidbody rb;
+    private RectTransform cockpitImageRect;
+    private UnityEngine.UI.Image fuelImage;
+    private UnityEngine.UI.Image boostImage;
+    private UnityEngine.UI.Text scoreText;
+
+
     // Start is called before the first frame update
     void Start()
     {
-        //PlayerPrefs.SetInt("highscore", 10); //UWAGA TYMCZASOWO ZAWSZE USTAWIAM HIGHSCORE
-        highscore = PlayerPrefs.GetInt("highscore", 0); // nazwa i default value
-        addScore = PlayerPrefs.GetInt("addScore", 0);
-
-        rb = GetComponent<Rigidbody>();
         scoreGameObject = GameObject.FindGameObjectWithTag("Score");
+        shell = GameObject.FindGameObjectWithTag("Shell");
+        spawn = GameObject.FindGameObjectWithTag("Spawn");
+        cockpitImage = GameObject.FindGameObjectWithTag("Cockpit");
         fuelGameObject = GameObject.FindGameObjectWithTag("Fuel");
         boostGameObject = GameObject.FindGameObjectWithTag("Boost");
-        fromLastBoost = Time.time;
-        timeFromSpawn = Time.time;
-        transform.localScale = new Vector3(0.0028f, 0.0094f, 0.0016f);
-        cockpitImageRect = cockpitImage.GetComponent<RectTransform>();
-
-        exiting = true;
-        spawn.GetComponent<ParticleSystem>().Play(); //odtwarzamy efekt spawn
-        StartCoroutine(StartingCoroutine());
-        desiredScale = new Vector3(0.28f, 0.94f, 0.16f);
-
         adManager = GameObject.FindGameObjectWithTag("AdManager");
         adYes = GameObject.FindGameObjectWithTag("AdYes");
-        adYes.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(AdYesButtonClicked);
         adNo = GameObject.FindGameObjectWithTag("AdNo");
+        engine = GameObject.FindGameObjectWithTag("Engine");
+        fuelEffect = GameObject.FindGameObjectWithTag("FuelEffect");
+        
+        //odtwarzamy efekt spawn
+        //kolejnosc tych komend jest wazna
+        transform.localScale = new Vector3(0.0028f, 0.0094f, 0.0016f);
+        exiting = true;
+        spawn.GetComponent<ParticleSystem>().Play();
+        StartCoroutine(StartingCoroutine());
+        desiredScale = new Vector3(0.28f, 0.94f, 0.16f);
+        
+        rb = GetComponent<Rigidbody>();
+        cockpitImageRect = cockpitImage.GetComponent<RectTransform>();
+        fuelImage = fuelGameObject.GetComponent<UnityEngine.UI.Image>();
+        boostImage = boostGameObject.GetComponent<UnityEngine.UI.Image>();
+        scoreText = scoreGameObject.GetComponent<UnityEngine.UI.Text>();
+
+        // nazwa i default value
+        fuelEffect.SetActive(false);
+        highscore = PlayerPrefs.GetInt("highscore", 0);
+        addScore = PlayerPrefs.GetInt("addScore", 0);
+        fromLastBoost = Time.time;
+        timeFromSpawn = Time.time;
+        adYes.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(AdYesButtonClicked);
         adNo.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(AdNoButtonClicked);
         adManager.SetActive(false);
     }
@@ -79,14 +96,19 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         Vector3 scale = transform.localScale;
-        if (Vector3.Distance(scale, desiredScale) > 0.1 ) //rozmiar playera jest zły
+        //rozmiar playera jest zły
+        if (Vector3.Distance(scale, desiredScale) > 0.1 )
         {
-            transform.GetChild(1).gameObject.SetActive(false); //wylaczam silnik
-            if (scale.x < desiredScale.x) //playera trzeba zwiekszyc
+            //wylaczam silnik
+            engine.gameObject.SetActive(false);
+            //playera trzeba zwiekszyc
+            if (scale.x < desiredScale.x) 
             {
                 transform.localScale *= 1.05f;
 
-            } else //playera trzeba zmniejszyc
+            }
+            //playera trzeba zmniejszyc
+            else
             {
                 transform.localScale *= .95f;
             }
@@ -95,24 +117,25 @@ public class PlayerController : MonoBehaviour
             //potencjalny zamulacz kodu bo sie ciagle wywoluje
             if (!exiting)
             {
-                transform.GetChild(1).gameObject.SetActive(true); //wlaczam silnik
+                //wlaczam silnik
+                engine.SetActive(true);
+                shell.SetActive(true);
 
-            } else if (!waitForAd)
-            {
-                playerShell.SetActive(false);
             }
         }
 
-
-        if (exiting) //to musze miec dla efektu start (nie chce miec sterowania przez pierwsza sekunde) zmienic nazyw zmiennych! 
+        //to musze miec dla efektu start (nie chce miec sterowania przez pierwsza sekunde) zmienic nazyw zmiennych! 
+        if (exiting)
         {
             timeFromSpawn = Time.time;
         }
         //paliwo
         float force = Vector3.Distance(Vector3.zero, targetForceSteer);
-        if (force > 0.01f) //jesli dziala sila
+        //jesli dziala sila
+        if (force > 0.01f) 
         {
-            usedFuel += force * Time.deltaTime;
+            //tu zamiast deltatime musze miec chyba mala wartosc bo delta time sie zmienia
+            usedFuel += force * 0.005f;
         }
         float percent = (fuelTank - usedFuel) * 100 / fuelTank;
         if (percent <= 0)
@@ -124,17 +147,19 @@ public class PlayerController : MonoBehaviour
 
         //wynik, paliwo, boost
         //fillAmount od 0 do 1
-        fuelGameObject.GetComponent<UnityEngine.UI.Image>().fillAmount = percent / 100;
+        fuelImage.fillAmount = percent / 100;
         score = Convert.ToInt32(Vector3.Distance(Vector3.zero, transform.position) * 0.1f) + addScore;
-        scoreGameObject.GetComponent<UnityEngine.UI.Text>().text = score.ToString();
+        scoreText.text = score.ToString();
         float boostPassedTime = Time.time - fromLastBoost;
-        if (boostPassedTime < 10)
+        if (boostPassedTime < 7)
         {
-            boostGameObject.GetComponent<UnityEngine.UI.Image>().fillAmount = boostPassedTime / 10;
+            boostImage.fillAmount = boostPassedTime / 7;
 
-        } else //boost jest wiekszy niz 10s
+        }
+        //boost jest wiekszy niz 10s
+        else
         {
-            boostGameObject.GetComponent<UnityEngine.UI.Image>().fillAmount = 1;
+            boostImage.fillAmount = 1;
         }
 
 
@@ -142,7 +167,8 @@ public class PlayerController : MonoBehaviour
         //wywola sie tylko raz!
         if (score > highscore && !hsAnimationComp)
         {
-            if (!cockpitUp) //jesli jeszcze nie podnioslem kokpitu
+            //jesli jeszcze nie podnioslem kokpitu
+            if (!cockpitUp)
             {
                 if (cockpitImageRect.anchoredPosition.y < -10)
                 {
@@ -153,12 +179,13 @@ public class PlayerController : MonoBehaviour
                     cockpitUp = true;
                 }
             }
-            
-            if (!textUp && cockpitUp) //jesli jeszcze nie podnioslem tekstu ale kokpit jest juz podniesiony
+
+            //jesli jeszcze nie podnioslem tekstu ale kokpit jest juz podniesiony
+            if (!textUp && cockpitUp)
             {
-                if (scoreGameObject.GetComponent<UnityEngine.UI.Text>().fontSize < 32)
+                if (scoreText.fontSize < 32)
                 {
-                    scoreGameObject.GetComponent<UnityEngine.UI.Text>().fontSize += 1;
+                    scoreText.fontSize += 1;
                     waitAnimation = Time.time;
 
                 } else
@@ -167,11 +194,12 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            if (!textDown && cockpitUp && textUp && Time.time - waitAnimation > 1) //dodatkowo czekamy sekunde
+            //dodatkowo czekamy sekunde
+            if (!textDown && cockpitUp && textUp && Time.time - waitAnimation > 1)
             {
-                if (scoreGameObject.GetComponent<UnityEngine.UI.Text>().fontSize > 23)
+                if (scoreText.fontSize > 23)
                 {
-                    scoreGameObject.GetComponent<UnityEngine.UI.Text>().fontSize -= 1;
+                   scoreText.fontSize -= 1;
 
                 } else
                 {
@@ -205,7 +233,8 @@ public class PlayerController : MonoBehaviour
         planets = GameObject.FindGameObjectsWithTag("Planet");
         foreach (GameObject planet in planets)
         {
-            if (Vector3.Distance(transform.position, planet.transform.position) < planet.transform.localScale.x * 2f) //jesli odległość jest mniejsza niz promien grawitacji, grawiacja to 2x planeta
+            //jesli odległość jest mniejsza niz promien grawitacji, grawiacja to 2x planeta
+            if (Vector3.Distance(transform.position, planet.transform.position) < planet.transform.localScale.x * 2f) 
             {
                 atractedTo = Array.IndexOf(planets, planet);
                 break;
@@ -217,11 +246,13 @@ public class PlayerController : MonoBehaviour
         {
             //ustalamy wielkosc kamery
             float cameraSize = rb.velocity.magnitude * 0.28f + 16f;
-            if (cameraSize < 20) //min
+            //min
+            if (cameraSize < 20) 
             {
                 cameraSize = 20;
             }
-            if (cameraSize > 30) //max
+            //max
+            if (cameraSize > 30) 
             {
                 cameraSize = 30;
             }
@@ -248,48 +279,69 @@ public class PlayerController : MonoBehaviour
 
             transform.rotation = rotation;
         }
- 
+
 
         //ograniczenie max predkosci, można sterować jesli mamy paliwo
         //mniejsze ograniczenie na skrecanie
         //sila do w boki - y moze byc wieksza
-        if (targetForceSteer.x < 100 && targetForceSteer.y < 5 && targetForceSteer.x > -100 && targetForceSteer.y > -5 && usedFuel < fuelTank && Time.time - timeFromSpawn > 1) 
+        //Input.touchCount > 0
+        if (targetForceSteer.x < 100 && targetForceSteer.y < 5 && targetForceSteer.x > -100 && targetForceSteer.y > -5 && usedFuel < fuelTank && Time.time - timeFromSpawn > 1 && Input.touchCount > 0) 
         {
-            if (Input.GetKey("right") && Input.GetKey("left")) //duzy boost do przodu
+            
+            Touch touch = Input.GetTouch(0);
+            Vector2 pos = touch.position;
+            //Input.GetKey("right")
+            //Input.GetKey("left")
+            //pos.x > Screen.width / 2
+            //pos.x < Screen.width / 2
+
+            //duzy boost do przodu
+            if (pos.x > Screen.width / 2 && pos.x < Screen.width / 2)
             {
-                if (boostPassedTime > 10 && usedFuel + 100 <= fuelTank) //co 10s mozna zastosowac duzego boosta
+                //co 10s mozna zastosowac duzego boosta
+                if (boostPassedTime > 7 && usedFuel + 40 <= fuelTank)
                 {
                     targetForceSteer += new Vector3(0, 25, 0);
                     fromLastBoost = Time.time;
-                    usedFuel += 100; //dodatkowy koszt boosta
+                    //dodatkowy koszt boosta
+                    usedFuel += 40; 
                 }
             }
-            else if (Input.GetKey("right"))
+            else if (pos.x > Screen.width / 2)
             {
-                targetForceSteer += new Vector3(70 * Time.deltaTime, 0, 0); //kluczowe deltaTime
+                //kluczowe deltaTime
+                targetForceSteer += new Vector3(70 * Time.deltaTime, 0, 0);
+                shell.transform.Rotate(new Vector3(0, -1, 0) * 70 * Time.deltaTime);
             }
 
-            else if (Input.GetKey("left"))
+            else if (pos.x < Screen.width / 2)
             {
-                targetForceSteer += new Vector3(-70 * Time.deltaTime, 0, 0); //kluczowe deltaTime
+                //kluczowe deltaTime
+                targetForceSteer += new Vector3(-70 * Time.deltaTime, 0, 0); 
+                shell.transform.Rotate(new Vector3(0, 1, 0) * 70 * Time.deltaTime);
             }
         }
 
         //wejscie wyjscie z orbity
-        if (lastAtracttedTo != atractedTo && lastAtracttedTo == -1) //wlasnie wchodzimy do pola
+        //wlasnie wchodzimy do pola
+        if (lastAtracttedTo != atractedTo && lastAtracttedTo == -1) 
         {
             orbitTime = Time.time;
-            lastAtracttedToSize = planets[atractedTo].transform.localScale.x; //zapisuje wielkosc ostatnio odwiedzanej planety
+            //zapisuje wielkosc ostatnio odwiedzanej planety
+            lastAtracttedToSize = planets[atractedTo].transform.localScale.x; 
         }
 
-        if (lastAtracttedTo != atractedTo && lastAtracttedTo != -1) //wlasnie wyszlismy z pola planety trzba dodac boosta
+        //wlasnie wyszlismy z pola planety trzba dodac boosta
+        if (lastAtracttedTo != atractedTo && lastAtracttedTo != -1)
         {
             //wylaczam efekt tankowania
-            transform.GetChild(0).gameObject.SetActive(false);
+            fuelEffect.SetActive(false);
 
-            if (Time.time - orbitTime > 4f) //jezeli czas orbity wiekszy niz 4s
+            //jezeli czas orbity wiekszy niz 4s
+            if (Time.time - orbitTime > 4f)
             {
-                targetForceSteer += new Vector3(0, 2, 0) * lastAtracttedToSize; //boost zalezny od wielkosci planety
+                //boost zalezny od wielkosci planety
+                targetForceSteer += new Vector3(0, 2, 0) * lastAtracttedToSize;
                 //uwaga to dolicza sie do zuzycia paliwa ale jest tego malo wiec w razie czego mozna dodac cos do paliwa zeby zrekompensowac
             }
             orbitTime = 0;
@@ -301,12 +353,15 @@ public class PlayerController : MonoBehaviour
             bool tank = planets[atractedTo].GetComponent<Planet>().fuel;
             if (tank && usedFuel > 0 && !exiting)
             {
-                transform.GetChild(0).gameObject.SetActive(true); //dodaje efekt tankowania
-                transform.GetChild(1).gameObject.SetActive(true); //upewniam sie ze efekt silnika jest wlaczony (moze zdarzyc sie ze zatankuje po wylaczeniu silnika)
+                //dodaje efekt tankowania
+                fuelEffect.SetActive(true);
+                //upewniam sie ze efekt silnika jest wlaczony (moze zdarzyc sie ze zatankuje po wylaczeniu silnika)
+                engine.SetActive(true);
                 usedFuel -= 0.15f; //tankuje
-            } else if (usedFuel <= 0)
+            } 
+            else if (usedFuel <= 0)
             {
-                transform.GetChild(0).gameObject.SetActive(false); //pelny bak wylaczam efekt tankowania
+                fuelEffect.SetActive(false); //pelny bak wylaczam efekt tankowania
             }
             planetForce = planets[atractedTo].transform.position - transform.position;
             //SILA przyciagania jest wieksza wraz ze zmniejszeniem sie dystansu
@@ -314,11 +369,14 @@ public class PlayerController : MonoBehaviour
             targetForce = planetForce * strengthOfAttraction / Vector3.Distance(transform.position, planets[atractedTo].transform.position);
         
 
-        } else //jak jestesmy poza dzialaniem planety to wylaczamy sile planety
+        }
+        //jak jestesmy poza dzialaniem planety to wylaczamy sile planety
+        else
         {
             if (Vector3.Distance(targetForce, Vector3.zero) > 0.0001f)
             {
-                targetForce -= targetForce * 0.02F; //Vector3.zero;
+                //Vector3.zero;
+                targetForce -= targetForce * 0.02F;
             }
         }
 
@@ -327,26 +385,33 @@ public class PlayerController : MonoBehaviour
         {
             targetForceSteer -= targetForceSteer * 0.025f;
         }
-        if (rb.velocity.magnitude > 20 && usedFuel < fuelTank) //predkosc wyciszamy tylko do pewnego momentu, dziala jezeli mamy paliwo!
+        //predkosc wyciszamy tylko do pewnego momentu, dziala jezeli mamy paliwo!
+        if (rb.velocity.magnitude > 20 && usedFuel < fuelTank)
         {
             rb.velocity -= rb.velocity * 0.0013F;
-        } else if (rb.velocity.magnitude < 15 && usedFuel < fuelTank && !exiting) //predkosc nigdy nie moze byc mniejsza niz 15, jezeli mamy paliwo i nie odtwarzamy spawn
+        }
+        //predkosc nigdy nie moze byc mniejsza niz 15, jezeli mamy paliwo i nie odtwarzamy spawn
+        else if (rb.velocity.magnitude < 15 && usedFuel < fuelTank && !exiting) 
         {
-            targetForceSteer += new Vector3(0, 0.8f, 0); //przyspieszam
+            //przyspieszam
+            targetForceSteer += new Vector3(0, 0.8f, 0); 
         }
 
-        rb.AddForce(targetForce); //stosujemy sile
-        rb.AddRelativeForce(targetForceSteer); //SILA RELATYWNY KIERUNEK, teraz nie musze obliczac tych katow i wgl
+        //stosujemy sile
+        rb.AddForce(targetForce);
+        //SILA RELATYWNY KIERUNEK, teraz nie musze obliczac tych katow i wgl
+        rb.AddRelativeForce(targetForceSteer);
 
 
         //jesli nie mamy paliwa to wyciszamy ruch
         if (usedFuel > fuelTank) 
         {
             //wylaczam efekt silnika
-            transform.GetChild(1).gameObject.SetActive(false);
+           engine.SetActive(false);
 
             rb.velocity -= rb.velocity * 0.002f;
-            if (rb.velocity.magnitude < 7) //jesli sie zatrzymalismy to koniec gry
+            //jesli sie zatrzymalismy to koniec gry
+            if (rb.velocity.magnitude < 7) 
             {
                 endSequence();
             }
@@ -359,7 +424,6 @@ public class PlayerController : MonoBehaviour
             if (adNoClicked)
             {
                 //konczymy gre
-                waitForAd = false;
                 adManager.SetActive(false);
                 endSequenceFinal();
             }
@@ -372,7 +436,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private float steer(float x1, float y1) //kat, TO MUSI BYC Z VELOCITY WYLICZANE
+    //kat, TO MUSI BYC Z VELOCITY WYLICZANE
+    private float steer(float x1, float y1) 
     {
         if(x1 == 0 || y1 == 0)
         {
@@ -410,7 +475,6 @@ public class PlayerController : MonoBehaviour
         //zatrzymujemy playera
         exiting = true;
         rb.isKinematic = true;
-        waitForAd = true; //zeby nie wylaczal sie shell przy zmienianiu rozmiaru playera
 
         //wybor czy wyswietlamy reklame
         adManager.SetActive(true);
@@ -432,7 +496,8 @@ public class PlayerController : MonoBehaviour
             PlayerPrefs.SetInt("highscoreChanged", 1);
         }
         //odtwarzamy efekt spawn
-        if (!spawn.GetComponent<ParticleSystem>().isPlaying) //aaaaa to jest zajebiscie wazne, opis w #18!!!!
+        //aaaaa to jest zajebiscie wazne, opis w #18!!!!
+        if (!spawn.GetComponent<ParticleSystem>().isPlaying) 
         {
             spawn.GetComponent<ParticleSystem>().Play();
         }
@@ -455,7 +520,8 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator StartingCoroutine()
     {
-        yield return new WaitForSeconds(0.5f); //czekamy az spawn sie odtworzy
+        //czekamy az spawn sie odtworzy
+        yield return new WaitForSeconds(0.5f); 
         exiting = false;
         yield break; //wychodzimy z coroutine
     }

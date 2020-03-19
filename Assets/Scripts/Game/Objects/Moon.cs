@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoonController : MonoBehaviour
+public class Moon : MonoBehaviour
 {
     private Vector3 rotation;
+
     // Start is called before the first frame update
     void Start()
     {

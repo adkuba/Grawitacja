@@ -17,6 +17,7 @@ public class Planet : MonoBehaviour
     {
         //wylicza szerokość i wysokość kamery
         screenBounds = new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize);
+        
         //czy mam paliwo?
         float rand = Random.value;
         fuel = false;
@@ -24,6 +25,7 @@ public class Planet : MonoBehaviour
         {
             fuel = true;
         }
+        
         //musze teraz okreslic co bedzie dodatkowo przy planecie
         rand = Random.value;
         bool sparksK = false;
@@ -45,11 +47,14 @@ public class Planet : MonoBehaviour
             moonK = true;
         }
         //wielkosc i kolor sparkles
+        //musi byc get child zeby znalazlo obiekt pod odpowiednia planeta
         sparks = transform.GetChild(0).GetComponent<ParticleSystem>();
         float sSize = transform.localScale.x * 0.14f - 0.2f;
-        sparks.transform.localScale = new Vector3(sSize, sSize, sSize); //odpowiedni rozmiar
+        //odpowiedni rozmiar
+        sparks.transform.localScale = new Vector3(sSize, sSize, sSize);
         int index = Random.Range(0, materials.Length);
-        sparks.GetComponent<ParticleSystemRenderer>().trailMaterial = materials[index]; //losowy kolor
+        //losowy kolor
+        sparks.GetComponent<ParticleSystemRenderer>().trailMaterial = materials[index];
         //wielkosc ksiezyca od 0.2 do 0.4
         float moonSize = Random.Range(0.2f, 0.4f);
         moon = transform.GetChild(2).gameObject;
@@ -68,9 +73,9 @@ public class Planet : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //usuwa sie poza generatorem
         widthBounds = new Vector2(Camera.main.transform.position.x - screenBounds.x * 7f, Camera.main.transform.position.x + screenBounds.x * 7f);
         heightBounds = new Vector2(Camera.main.transform.position.y - screenBounds.y * 9f, Camera.main.transform.position.y + screenBounds.y * 9f);
-        //*2 zeby bylo opoznienie, 1.5 bo szerokosc jest wieksza niz 
 
         if (transform.position.x < widthBounds.x || transform.position.x > widthBounds.y || transform.position.y < heightBounds.x || transform.position.y > heightBounds.y)
         {

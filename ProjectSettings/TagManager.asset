@@ -14,6 +14,17 @@ TagManager:
   - AdYes
   - AdNo
   - AdManager
+  - Highscore
+  - InfoImage
+  - MenuCanvas
+  - TapText
+  - MenuBG
+  - Shell
+  - InfoButton
+  - Spawn
+  - Cockpit
+  - Engine
+  - FuelEffect
   layers:
   - Default
   - TransparentFX

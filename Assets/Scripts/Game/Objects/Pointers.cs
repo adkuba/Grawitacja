@@ -6,6 +6,7 @@ using System;
 class PlanetsCompare : IComparer<GameObject>
 {
     private GameObject player = GameObject.FindGameObjectWithTag("Player");
+
     //porownywarka po odleglosciach od playera
     public int Compare(GameObject planet1, GameObject planet2)
     {
@@ -15,7 +16,8 @@ class PlanetsCompare : IComparer<GameObject>
         }
         else if (planet1 == null)
         {
-            return 1; // pierwsza planeta nie istnieje wiec druga jest blizej
+            // pierwsza planeta nie istnieje wiec druga jest blizej
+            return 1;
         }
         else if (planet2 == null)
         {
@@ -27,11 +29,13 @@ class PlanetsCompare : IComparer<GameObject>
         float distance2 = Vector3.Distance(player.transform.position, planet2.transform.position);
         if (distance1 < distance2)
         {
-            return -1; //pierwsza planeta jest blizej niz druga
+            //pierwsza planeta jest blizej niz druga
+            return -1;
         }
         else if (distance1 > distance2)
         {
-            return 1; //pierwsza planeta jest dalej niz druga
+            //pierwsza planeta jest dalej niz druga
+            return 1;
         }
         else
         {
@@ -40,19 +44,24 @@ class PlanetsCompare : IComparer<GameObject>
     }
 }
 
-public class PointersController : MonoBehaviour
+public class Pointers : MonoBehaviour
 {
     private GameObject[] planets;
     private GameObject firstPointer;
     private GameObject secondPointer;
     private GameObject player;
     private Vector2 screenBounds;
+    private Renderer firstPointerRenderer;
+    private Renderer secondPointerRenderer;
 
     // Start is called before the first frame update
     void Start()
     {
-        firstPointer = transform.GetChild(0).gameObject; //SetActive(true);
+        //moze byc get child bo w sumie nie ma znaczenia ktory to ktory plus mamy empty gameobject ktory jest managerem
+        firstPointer = transform.GetChild(0).gameObject;
         secondPointer = transform.GetChild(1).gameObject;
+        firstPointerRenderer = firstPointer.GetComponent<Renderer>();
+        secondPointerRenderer = secondPointer.GetComponent<Renderer>();
         player = GameObject.FindGameObjectWithTag("Player");
         screenBounds = new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize);
     }
@@ -72,7 +81,9 @@ public class PointersController : MonoBehaviour
             firstPointer.SetActive(false);
             secondPointer.SetActive(false);
 
-        } else //jesli jest wiecej niz dwie planety
+        }
+        //jesli jest wiecej niz dwie planety
+        else
         {
             int i = 0;
             int posIdx = 0;
@@ -80,7 +91,8 @@ public class PointersController : MonoBehaviour
             float[] alpha = new float[2] { 0, 0 };
             while (i < planets.Length)
             {
-                if (Vector3.Distance(player.transform.position, planets[i].transform.position) > screenBounds.magnitude + 19) //19 to max promien planety
+                //19 to max promien planety
+                if (Vector3.Distance(player.transform.position, planets[i].transform.position) > screenBounds.magnitude + 19)
                 {
                     float a = (player.transform.position.y - planets[i].transform.position.y) / (player.transform.position.x - planets[i].transform.position.x);
                     float b = player.transform.position.y - a * player.transform.position.x;
@@ -95,65 +107,79 @@ public class PointersController : MonoBehaviour
                     Vector2 right = new Vector2(xmax - 2, a * (xmax - 2) + b);
                     Vector2 down = new Vector2((ymin + 2 - b) / a, ymin + 2);
 
-                    if (planets[i].transform.position.y > player.transform.position.y) //jesli planeta nad playerem
+                    //jesli planeta nad playerem
+                    if (planets[i].transform.position.y > player.transform.position.y)
                     {
-                        if (planets[i].transform.position.x > player.transform.position.x) //pierwsza cwiartka
+                        //pierwsza cwiartka
+                        if (planets[i].transform.position.x > player.transform.position.x)
                         {
                             if (cameraView.Contains(up))
                             {
                                 positions[posIdx] = up;
 
                             }
-                            else //jesli nie na gorze to jest po prawej
+                            //jesli nie na gorze to jest po prawej
+                            else
                             {
                                 positions[posIdx] = right;
                             }
 
-                        } else //druga cwiartka
+                        }
+                        //druga cwiartka
+                        else
                         {
                             if (cameraView.Contains(up))
                             {
                                 positions[posIdx] = up;
 
                             }
-                            else //jesli nie na gorze to jest po lewej
+                            //jesli nie na gorze to jest po lewej
+                            else
                             {
                                 positions[posIdx] = left;
                             }
                         }
 
-                    } else if (planets[i].transform.position.y < player.transform.position.y)  //jesli planeta ponizej
+                    }
+                    //jesli planeta ponizej
+                    else if (planets[i].transform.position.y < player.transform.position.y)  
                     {
-                        if (planets[i].transform.position.x > player.transform.position.x) //czwarta cwiartka
+                        //czwarta cwiartka
+                        if (planets[i].transform.position.x > player.transform.position.x) 
                         {
                             if (cameraView.Contains(down))
                             {
                                 positions[posIdx] = down;
 
                             }
-                            else //jesli nie na dole to jest po prawej
+                            //jesli nie na dole to jest po prawej
+                            else
                             {
                                 positions[posIdx] = right;
                             }
 
                         }
-                        else //trzecia cwiartka
+                        //trzecia cwiartka
+                        else
                         {
                             if (cameraView.Contains(down))
                             {
                                 positions[posIdx] = down;
 
                             }
-                            else //jesli nie na dole to jest po lewej
+                            //jesli nie na dole to jest po lewej
+                            else
                             {
                                 positions[posIdx] = left;
                             }
                         }
                     }
-                    alpha[posIdx] = Vector3.Distance(player.transform.position, planets[i].transform.position) * (-0.00714f) + 0.943f; //dopracowac ta funkcje
+                    //dopracowac ta funkcje
+                    alpha[posIdx] = Vector3.Distance(player.transform.position, planets[i].transform.position) * (-0.00714f) + 0.943f;
                     posIdx++;
                 }
-                if (posIdx == 2) //znalezlismy wartosci
+                //znalezlismy wartosci
+                if (posIdx == 2)
                 {
                     break;
                 }
@@ -167,9 +193,9 @@ public class PointersController : MonoBehaviour
             {
                 firstPointer.SetActive(true);
                 firstPointer.transform.position = positions[0];
-                Color theColorToAdjust = firstPointer.GetComponent<Renderer>().material.color;
+                Color theColorToAdjust = firstPointerRenderer.material.color;
                 theColorToAdjust.a = alpha[0];
-                firstPointer.GetComponent<Renderer>().material.color = theColorToAdjust;
+                firstPointerRenderer.material.color = theColorToAdjust;
             }
 
             if (positions[1] == Vector2.zero)
@@ -180,9 +206,9 @@ public class PointersController : MonoBehaviour
             {
                 secondPointer.SetActive(true);
                 secondPointer.transform.position = positions[1];
-                Color theColorToAdjust = secondPointer.GetComponent<Renderer>().material.color;
+                Color theColorToAdjust = secondPointerRenderer.material.color;
                 theColorToAdjust.a = alpha[1];
-                secondPointer.GetComponent<Renderer>().material.color = theColorToAdjust;
+                secondPointerRenderer.material.color = theColorToAdjust;
             }
 
         }
