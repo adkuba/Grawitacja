@@ -30,8 +30,8 @@ public class Sun : MonoBehaviour
         transform.position = myPosition - difference * 0.5f;
 
         //usuwa sie poza generatorem
-        widthBounds = new Vector2(Camera.main.transform.position.x - screenBounds.x * 6f, Camera.main.transform.position.x + screenBounds.x * 6f);
-        heightBounds = new Vector2(Camera.main.transform.position.y - screenBounds.y * 8f, Camera.main.transform.position.y + screenBounds.y * 8f);
+        widthBounds = new Vector2(Camera.main.transform.position.x - screenBounds.x * 7f, Camera.main.transform.position.x + screenBounds.x * 7f);
+        heightBounds = new Vector2(Camera.main.transform.position.y - screenBounds.y * 9f, Camera.main.transform.position.y + screenBounds.y * 9f);
 
         if (transform.position.x < widthBounds.x || transform.position.x > widthBounds.y || transform.position.y < heightBounds.x || transform.position.y > heightBounds.y)
         {

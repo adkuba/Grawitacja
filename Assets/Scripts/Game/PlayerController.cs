@@ -104,13 +104,13 @@ public class PlayerController : MonoBehaviour
             //playera trzeba zwiekszyc
             if (scale.x < desiredScale.x) 
             {
-                transform.localScale *= 1.05f;
+                transform.localScale *= 1f + (2 * Time.deltaTime);
 
             }
             //playera trzeba zmniejszyc
             else
             {
-                transform.localScale *= .95f;
+                transform.localScale *= 1f - (2 * Time.deltaTime);
             }
         } else
         {
@@ -134,8 +134,8 @@ public class PlayerController : MonoBehaviour
         //jesli dziala sila
         if (force > 0.01f) 
         {
-            //tu zamiast deltatime musze miec chyba mala wartosc bo delta time sie zmienia
-            usedFuel += force * 0.005f;
+            //dopracowac
+            usedFuel += force * Time.deltaTime * 0.1f;
         }
         float percent = (fuelTank - usedFuel) * 100 / fuelTank;
         if (percent <= 0)
@@ -183,7 +183,7 @@ public class PlayerController : MonoBehaviour
             //jesli jeszcze nie podnioslem tekstu ale kokpit jest juz podniesiony
             if (!textUp && cockpitUp)
             {
-                if (scoreText.fontSize < 32)
+                if (scoreText.fontSize < 45)
                 {
                     scoreText.fontSize += 1;
                     waitAnimation = Time.time;
@@ -197,7 +197,7 @@ public class PlayerController : MonoBehaviour
             //dodatkowo czekamy sekunde
             if (!textDown && cockpitUp && textUp && Time.time - waitAnimation > 1)
             {
-                if (scoreText.fontSize > 23)
+                if (scoreText.fontSize > 35)
                 {
                    scoreText.fontSize -= 1;
 
@@ -283,9 +283,10 @@ public class PlayerController : MonoBehaviour
 
         //ograniczenie max predkosci, można sterować jesli mamy paliwo
         //mniejsze ograniczenie na skrecanie
-        //sila do w boki - y moze byc wieksza
+        //sila do w boki - x moze byc wieksza
         //Input.touchCount > 0
-        if (targetForceSteer.x < 100 && targetForceSteer.y < 5 && targetForceSteer.x > -100 && targetForceSteer.y > -5 && usedFuel < fuelTank && Time.time - timeFromSpawn > 1 && Input.touchCount > 0) 
+        //targetForceSteer.x < 120 && targetForceSteer.y < 5 && targetForceSteer.x > -120 && targetForceSteer.y > -5 && 
+        if (usedFuel < fuelTank && Time.time - timeFromSpawn > 1 && Input.touchCount > 0) 
         {
             
             Touch touch = Input.GetTouch(0);
@@ -295,30 +296,35 @@ public class PlayerController : MonoBehaviour
             //pos.x > Screen.width / 2
             //pos.x < Screen.width / 2
 
-            //duzy boost do przodu
-            if (pos.x > Screen.width / 2 && pos.x < Screen.width / 2)
+            if (Input.touchCount > 1) //co najmniej dwa kliknięcia
             {
-                //co 10s mozna zastosowac duzego boosta
-                if (boostPassedTime > 7 && usedFuel + 40 <= fuelTank)
+                Touch touch2 = Input.GetTouch(1);
+                Vector2 pos2 = touch2.position;
+                //duzy boost do przodu
+                if ((pos.x > Screen.width / 2 && pos2.x < Screen.width / 2) || (pos2.x > Screen.width / 2 && pos.x < Screen.width / 2))
                 {
-                    targetForceSteer += new Vector3(0, 25, 0);
-                    fromLastBoost = Time.time;
-                    //dodatkowy koszt boosta
-                    usedFuel += 40; 
+                    //co 10s mozna zastosowac duzego boosta
+                    if (boostPassedTime > 7 && usedFuel + 40 <= fuelTank)
+                    {
+                        targetForceSteer += new Vector3(0, 50, 0);
+                        fromLastBoost = Time.time;
+                        //dodatkowy koszt boosta
+                        usedFuel += 40;
+                    }
                 }
             }
+            //jedno kliknięcie
             else if (pos.x > Screen.width / 2)
             {
                 //kluczowe deltaTime
-                targetForceSteer += new Vector3(70 * Time.deltaTime, 0, 0);
-                shell.transform.Rotate(new Vector3(0, -1, 0) * 70 * Time.deltaTime);
+                targetForceSteer += new Vector3(90 * Time.deltaTime, 0, 0);
+                shell.transform.Rotate(new Vector3(0, -1, 0) * 90 * Time.deltaTime);
             }
-
             else if (pos.x < Screen.width / 2)
             {
                 //kluczowe deltaTime
-                targetForceSteer += new Vector3(-70 * Time.deltaTime, 0, 0); 
-                shell.transform.Rotate(new Vector3(0, 1, 0) * 70 * Time.deltaTime);
+                targetForceSteer += new Vector3(-90 * Time.deltaTime, 0, 0); 
+                shell.transform.Rotate(new Vector3(0, 1, 0) * 90 * Time.deltaTime);
             }
         }
 
@@ -357,7 +363,7 @@ public class PlayerController : MonoBehaviour
                 fuelEffect.SetActive(true);
                 //upewniam sie ze efekt silnika jest wlaczony (moze zdarzyc sie ze zatankuje po wylaczeniu silnika)
                 engine.SetActive(true);
-                usedFuel -= 0.15f; //tankuje
+                usedFuel -= Time.deltaTime * 10; //tankuje
             } 
             else if (usedFuel <= 0)
             {
@@ -365,7 +371,7 @@ public class PlayerController : MonoBehaviour
             }
             planetForce = planets[atractedTo].transform.position - transform.position;
             //SILA przyciagania jest wieksza wraz ze zmniejszeniem sie dystansu
-            float strengthOfAttraction = planets[atractedTo].transform.localScale.x * 1f;
+            float strengthOfAttraction = planets[atractedTo].transform.localScale.x * 70 * Time.deltaTime;
             targetForce = planetForce * strengthOfAttraction / Vector3.Distance(transform.position, planets[atractedTo].transform.position);
         
 
@@ -373,27 +379,23 @@ public class PlayerController : MonoBehaviour
         //jak jestesmy poza dzialaniem planety to wylaczamy sile planety
         else
         {
-            if (Vector3.Distance(targetForce, Vector3.zero) > 0.0001f)
-            {
-                //Vector3.zero;
-                targetForce -= targetForce * 0.02F;
-            }
+            targetForce = Vector3.zero;
         }
 
         //wyciszamy ogolna predkosc i sile ze sterowania
         if (targetForceSteer.magnitude > 0.0001f)
         {
-            targetForceSteer -= targetForceSteer * 0.025f;
+            targetForceSteer -= targetForceSteer * Time.deltaTime * 1.5f;
         }
         //predkosc wyciszamy tylko do pewnego momentu, dziala jezeli mamy paliwo!
-        if (rb.velocity.magnitude > 20 && usedFuel < fuelTank)
+        if (rb.velocity.magnitude > 21 && usedFuel < fuelTank)
         {
-            rb.velocity -= rb.velocity * 0.0013F;
+            rb.velocity -= rb.velocity * Time.deltaTime * 0.1f;
         }
-        //predkosc nigdy nie moze byc mniejsza niz 15, jezeli mamy paliwo i nie odtwarzamy spawn
-        else if (rb.velocity.magnitude < 15 && usedFuel < fuelTank && !exiting) 
+        //predkosc nigdy nie moze byc mniejsza niz x, jezeli mamy paliwo i nie odtwarzamy spawn
+        else if (rb.velocity.magnitude < 16 && usedFuel < fuelTank && !exiting) 
         {
-            //przyspieszam
+            //przyspieszam DELTATIME
             targetForceSteer += new Vector3(0, 0.8f, 0); 
         }
 
@@ -409,7 +411,7 @@ public class PlayerController : MonoBehaviour
             //wylaczam efekt silnika
            engine.SetActive(false);
 
-            rb.velocity -= rb.velocity * 0.002f;
+            rb.velocity -= rb.velocity * Time.deltaTime * 0.1f;
             //jesli sie zatrzymalismy to koniec gry
             if (rb.velocity.magnitude < 7) 
             {

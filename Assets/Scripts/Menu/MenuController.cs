@@ -102,7 +102,7 @@ public class MenuController : MonoBehaviour
             //+ init wait
             if (!textUp && Time.time - animWait > 1)
             {
-                if (highscoreText.fontSize < 23)
+                if (highscoreText.fontSize < 45)
                 {
                     highscoreText.fontSize += 1;
 
@@ -130,7 +130,7 @@ public class MenuController : MonoBehaviour
 
             if (!textDown && count && textUp && Time.time - animWait > 1)
             {
-                if (highscoreText.fontSize > 16)
+                if (highscoreText.fontSize > 35)
                 {
                     highscoreText.fontSize -= 1;
 

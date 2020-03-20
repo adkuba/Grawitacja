@@ -33,8 +33,8 @@ public class Asteroid : MonoBehaviour
         transform.position = myPosition + difference * 0.3f;
 
         //wartosci dobrane tak aby obiekt byl usuwany jak wyjdzie poza generator
-        widthBounds = new Vector2(Camera.main.transform.position.x - screenBounds.x * 3f, Camera.main.transform.position.x + screenBounds.x * 3f);
-        heightBounds = new Vector2(Camera.main.transform.position.y - screenBounds.y * 4f, Camera.main.transform.position.y + screenBounds.y * 4f); 
+        widthBounds = new Vector2(Camera.main.transform.position.x - screenBounds.x * 4, Camera.main.transform.position.x + screenBounds.x * 4);
+        heightBounds = new Vector2(Camera.main.transform.position.y - screenBounds.y * 5, Camera.main.transform.position.y + screenBounds.y * 5); 
 
         if (transform.position.x < widthBounds.x || transform.position.x > widthBounds.y || transform.position.y < heightBounds.x || transform.position.y > heightBounds.y)
         {

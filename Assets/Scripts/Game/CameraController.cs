@@ -14,12 +14,12 @@ public class CameraController : MonoBehaviour
     public GameObject sunPrefab;
 
     private Vector2 screenBounds;
-    public int maxPlanets = 9;
-    public int maxSuns = 4;
-    public float sunRespawn = 10f;
-    public float respawn = 3f;
-    public int maxAsteroids = 10;
-    public float asteroidsRespawn = 5f;
+    public int maxPlanets;
+    public int maxSuns;
+    public float sunRespawn;
+    public float respawn;
+    public int maxAsteroids;
+    public float asteroidsRespawn;
     private float timeFromLastMovement;
 
     private GameObject[] planets;
@@ -131,10 +131,10 @@ public class CameraController : MonoBehaviour
 
     private void spawnSuns()
     {
-        Vector4 gora = new Vector4(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y + screenBounds.y * 4f, transform.position.y + screenBounds.y * 9);
-        Vector4 dol = new Vector4(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y * 4f, transform.position.y - screenBounds.y * 9);
-        Vector4 lewo = new Vector4(transform.position.x - screenBounds.x * 7f, transform.position.x - screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
-        Vector4 prawo = new Vector4(transform.position.x + screenBounds.x * 3f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+        Vector4 gora = new Vector4(transform.position.x - screenBounds.x * 6, transform.position.x + screenBounds.x * 6, transform.position.y + screenBounds.y * 4f, transform.position.y + screenBounds.y * 8);
+        Vector4 dol = new Vector4(transform.position.x - screenBounds.x * 6, transform.position.x + screenBounds.x * 6, transform.position.y - screenBounds.y * 4f, transform.position.y - screenBounds.y * 8);
+        Vector4 lewo = new Vector4(transform.position.x - screenBounds.x * 6, transform.position.x - screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+        Vector4 prawo = new Vector4(transform.position.x + screenBounds.x * 3f, transform.position.x + screenBounds.x * 6, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
         int startLen = suns.Length;
         //probuje stworzyc slonca tyle razy ile moge jeszcze utworzyc slonc
         for (int i = 0; i < maxSuns - startLen; i++) 
@@ -202,10 +202,10 @@ public class CameraController : MonoBehaviour
     private void spawnPlanets()
     {
         //jest 1.6f zeby nie tworzyl sie na widoku
-        Vector4 gora = new Vector4(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y + screenBounds.y * 4f, transform.position.y + screenBounds.y * 9);
-        Vector4 dol = new Vector4(transform.position.x - screenBounds.x * 7f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y * 4f, transform.position.y - screenBounds.y * 9);
-        Vector4 lewo = new Vector4(transform.position.x - screenBounds.x * 7f, transform.position.x - screenBounds.x * 3f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
-        Vector4 prawo = new Vector4(transform.position.x + screenBounds.x * 3f, transform.position.x + screenBounds.x * 7f, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+        Vector4 gora = new Vector4(transform.position.x - screenBounds.x * 4, transform.position.x + screenBounds.x * 4, transform.position.y + screenBounds.y * 3, transform.position.y + screenBounds.y * 6);
+        Vector4 dol = new Vector4(transform.position.x - screenBounds.x * 4, transform.position.x + screenBounds.x * 4, transform.position.y - screenBounds.y * 3, transform.position.y - screenBounds.y * 6);
+        Vector4 lewo = new Vector4(transform.position.x - screenBounds.x * 4, transform.position.x - screenBounds.x * 2, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
+        Vector4 prawo = new Vector4(transform.position.x + screenBounds.x * 2, transform.position.x + screenBounds.x * 4, transform.position.y - screenBounds.y, transform.position.y + screenBounds.y);
         int startLen = planets.Length;
         //probuje stworzyc planety tyle razy ile moge jeszcze utworzyc planety
         for (int i = 0; i < maxPlanets - startLen; i++) 
@@ -266,7 +266,7 @@ public class CameraController : MonoBehaviour
             //generowanie pozycji
             Vector2 xrange = new Vector2(minx, maxx);
             Vector2 yrange = new Vector2(miny, maxy);
-            planet.transform.position = generateObjectPosition(xrange, yrange, planet.transform.localScale.x, planets, 90);
+            planet.transform.position = generateObjectPosition(xrange, yrange, planet.transform.localScale.x, planets, 80);
 
             //jesli nie udalo sie wygenerowac pozycji wczesniej to niszczymy obiekt
             if (planet.transform.position == Vector3.zero)
@@ -290,7 +290,7 @@ public class CameraController : MonoBehaviour
             //generowanie pozycji
             Vector2 xrange = new Vector2(minx, maxx);
             Vector2 yrange = new Vector2(miny, maxy);
-            Vector3 position = generateObjectPosition(xrange, yrange, asteroid.transform.localScale.x, asteroids.Concat(planets).ToArray(), 30);
+            Vector3 position = generateObjectPosition(xrange, yrange, asteroid.transform.localScale.x, asteroids.Concat(planets).ToArray(), 50);
            
             //jesli nie udalo sie wygenerowac pozycji wczesniej to niszczymy obiekt
             if (asteroid.transform.position == Vector3.zero)
@@ -315,7 +315,7 @@ public class CameraController : MonoBehaviour
             //generowanie pozycji
             Vector2 xrange = new Vector2(minx, maxx);
             Vector2 yrange = new Vector2(miny, maxy);
-            Vector3 position = generateObjectPosition(xrange, yrange, sun.transform.localScale.x, suns, 100);
+            Vector3 position = generateObjectPosition(xrange, yrange, sun.transform.localScale.x, suns, 1000);
             sun.transform.position = position + new Vector3(0, 0, 15);
 
             //jesli nie udalo sie wygenerowac pozycji wczesniej to niszczymy obiekt
