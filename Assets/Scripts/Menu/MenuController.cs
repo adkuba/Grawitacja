@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class MenuController : MonoBehaviour
 {
-    private int highscore = 0;
+    private int highscore;
     private bool infoIsOpen = false;
     private bool textUp = false;
     private bool count = false;
@@ -27,6 +27,7 @@ public class MenuController : MonoBehaviour
     private Text highscoreText;
     private Text infoButtonText;
     private Canvas canvas;
+    private Gyroscope gyro;
     
     private RectTransform infoButtonRect;
     private RectTransform tapTextRect;
@@ -35,8 +36,6 @@ public class MenuController : MonoBehaviour
 
     void Start()
     {
-        Input.gyro.enabled = true;
-
         highscoreTextGO = GameObject.FindGameObjectWithTag("Highscore");
         infoImageGO = GameObject.FindGameObjectWithTag("InfoImage");
         infoButtonGO = GameObject.FindGameObjectWithTag("InfoButton");
@@ -63,6 +62,21 @@ public class MenuController : MonoBehaviour
             highscore = PlayerPrefs.GetInt("highscore", 0);
             highscoreText.text = highscore.ToString();
         }
+        //jesli przekroczylismy
+        else
+        {
+            hsCounter = PlayerPrefs.GetInt("lastHighscore", 0);
+            highscore = PlayerPrefs.GetInt("lastHighscore", 0);
+            highscoreText.text = highscore.ToString();
+        }
+
+        //gyroscope
+        //NASZ SAMSUNG NIE MA GYRO
+        if (SystemInfo.supportsGyroscope)
+        {
+            gyro = Input.gyro;
+            gyro.enabled = true;
+        }
 
         animWait = Time.time;
     }
@@ -71,9 +85,9 @@ public class MenuController : MonoBehaviour
     void Update()
     {
         //to nie dziala
-        Quaternion q = Input.gyro.attitude;
-        float xRotation = q.x;
-        float yRotation = q.y;
+        //Quaternion q = Input.gyro.attitude;
+        float xRotation = 0;
+        float yRotation = 0;
 
         //infoButtonText.text = xRotation.ToString();
 
@@ -235,20 +249,5 @@ public class MenuController : MonoBehaviour
         }
     }
 }
-
-/*
- * Do obrotu urzadzenia bede musial wykorzystac cos takiego Input.gyro.attitude
- * Czy gra ogarnie sama obrot urzadzenia?
- * 
-    Quaternion q = Input.gyro.attitude;
-    //Quaternion deviceRotation = new Quaternion(q.x, q.y, -q.z, -q.w); //to jest chyba ladny wektor ktory moge przeskalowac
-    float xRotation = q.x;
-    float yRotation = q.y;
-    //bede mapowal na wartosci x oraz y
-    //wartosci x oraz y to -180 do 180??
-    //wiec moge te wartosci dzielic przez 180 bede mial procent juz z minusem lub nie i to mnoze razy wartosc z jakiego chce zakresu wartosci np * 16 czyli mam zakres -8 do 8 itd
- * 
- * 
- */
 
 
