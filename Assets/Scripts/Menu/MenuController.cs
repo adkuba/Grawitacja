@@ -17,6 +17,7 @@ public class MenuController : MonoBehaviour
     private Vector2 canvasSize;
     public Sprite[] infoSlides;
     private int iterator = 0;
+    private Vector3 lastDevAcc = Vector3.zero;
 
     private GameObject highscoreTextGO;
     private GameObject infoButtonGO;
@@ -27,11 +28,11 @@ public class MenuController : MonoBehaviour
     private Text highscoreText;
     private Text infoButtonText;
     private Canvas canvas;
-    private Gyroscope gyro;
     
     private RectTransform infoButtonRect;
     private RectTransform tapTextRect;
     private RectTransform highscoreTextRect;
+    private RectTransform infoImageRect;
     
 
     void Start()
@@ -50,6 +51,7 @@ public class MenuController : MonoBehaviour
         infoButtonRect = infoButtonGO.GetComponent<RectTransform>();
         tapTextRect = tapTextGO.GetComponent<RectTransform>();
         highscoreTextRect = highscoreTextGO.GetComponent<RectTransform>();
+        infoImageRect = infoImageGO.GetComponent<RectTransform>();
 
         infoImage.sprite = infoSlides[iterator];
         infoImageGO.SetActive(false);
@@ -70,45 +72,63 @@ public class MenuController : MonoBehaviour
             highscoreText.text = highscore.ToString();
         }
 
-        //gyroscope
-        //NASZ SAMSUNG NIE MA GYRO
-        if (SystemInfo.supportsGyroscope)
-        {
-            gyro = Input.gyro;
-            gyro.enabled = true;
-        }
-
         animWait = Time.time;
     }
 
     // Update is called once per frame
     void Update()
     {
-        //to nie dziala
-        //Quaternion q = Input.gyro.attitude;
-        float xRotation = 0;
-        float yRotation = 0;
+        Vector3 deviceAcc = Input.acceleration;
+        //max magnitude = 1
+        Vector3.Normalize(deviceAcc);
 
-        //infoButtonText.text = xRotation.ToString();
+        //uzytkownik zazwyczaj trzyba telefon w pozycji 45 stopni wiec dodaje troche do y pozycji bo punkt "zero" jest jak telefon jest na plasko
+        //0.5 to jest 45 stopni ja robie troche mniej
+        float yOffset = 0.3f * 30;
 
-        float BGposx = (xRotation / 180) * 10;
-        float BGposy = (yRotation / 180) * 10;
+        //UWAGA NA TE DODANE WARTOSCI, powinieniem je zgarniac w Start() i tutaj dodawac, żeby nie trzeba bylo zmieniac wartosci i w unity i w skrypcie
+        //REFAKTORYZACJA
+        Vector3 BGdesired = new Vector3(deviceAcc.x * 20 + canvas.transform.position.x, deviceAcc.y * 20 + canvas.transform.position.y + yOffset, 0);
+        Vector2 IBDesired = new Vector2(deviceAcc.x * 30 - 100, deviceAcc.y * 30 - 50 + yOffset);
+        Vector2 HSDesired = new Vector2(deviceAcc.x * 30 + 100, deviceAcc.y * 30 - 50 + yOffset);
+        Vector2 TDesired = new Vector2(deviceAcc.x * 30, deviceAcc.y * 30 + 60 + yOffset);
+        Vector2 IIDesired = new Vector2(deviceAcc.x * 30, deviceAcc.y * 30 + yOffset);
 
-        menuBGGO.transform.position = new Vector3(BGposx + canvas.transform.position.x, BGposy + canvas.transform.position.y, 0);
+        //musze przesunac bg
+        if (Vector3.Distance(menuBGGO.transform.position, BGdesired) > 0.1)
+        {
+            Vector3 difference = BGdesired - menuBGGO.transform.position;
+            menuBGGO.transform.position += difference * Time.deltaTime * 20;
+        }
 
-        //zakres -8 8
-        float Iposx = (xRotation / 180) * 16;
-        float Iposy = (yRotation / 180) * 16;
+        //infoButton
+        if (Vector2.Distance(infoButtonRect.anchoredPosition, IBDesired) > 0.1)
+        {
+            Vector2 difference = IBDesired - infoButtonRect.anchoredPosition;
+            infoButtonRect.anchoredPosition += difference * Time.deltaTime * 20;
+        }
 
-        float Hposx = (xRotation / 180) * 16;
-        float Hposy = (yRotation / 180) * 16;
+        //highscore
+        if (Vector2.Distance(highscoreTextRect.anchoredPosition, HSDesired) > 0.1)
+        {
+            Vector2 difference = HSDesired - highscoreTextRect.anchoredPosition;
+            highscoreTextRect.anchoredPosition += difference * Time.deltaTime * 20;
+        }
 
-        float Tposx = (xRotation / 180) * 16;
-        float Tposy = (yRotation / 180) * 16;
+        //tap
+        if (Vector2.Distance(tapTextRect.anchoredPosition, TDesired) > 0.1)
+        {
+            Vector2 difference = TDesired - tapTextRect.anchoredPosition;
+            tapTextRect.anchoredPosition += difference * Time.deltaTime * 20;
+        }
 
-        infoButtonRect.anchoredPosition = new Vector3(Iposx - 70, Iposy - 50, 0);
-        highscoreTextRect.anchoredPosition = new Vector3(Hposx + 70, Hposy - 50, 0);
-        tapTextRect.anchoredPosition = new Vector3(Tposx, Tposy + 100, 0);
+        //infoImage
+        if (Vector2.Distance(infoImageRect.anchoredPosition, IIDesired) > 0.1)
+        {
+            Vector2 difference = IIDesired - infoImageRect.anchoredPosition;
+            infoImageRect.anchoredPosition += difference * Time.deltaTime * 20;
+        }
+
 
         //jesli przekroczylismy hs to animacja
         if (PlayerPrefs.GetInt("highscoreChanged", 0) == 1)
