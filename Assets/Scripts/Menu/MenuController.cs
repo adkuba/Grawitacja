@@ -84,13 +84,13 @@ public class MenuController : MonoBehaviour
 
         //uzytkownik zazwyczaj trzyba telefon w pozycji 45 stopni wiec dodaje troche do y pozycji bo punkt "zero" jest jak telefon jest na plasko
         //0.5 to jest 45 stopni ja robie troche mniej
-        float yOffset = 0.3f * 30;
+        float yOffset = 0.2f * 30;
 
         //UWAGA NA TE DODANE WARTOSCI, powinieniem je zgarniac w Start() i tutaj dodawac, żeby nie trzeba bylo zmieniac wartosci i w unity i w skrypcie
         //REFAKTORYZACJA
         Vector3 BGdesired = new Vector3(deviceAcc.x * 20 + canvas.transform.position.x, deviceAcc.y * 20 + canvas.transform.position.y + yOffset, 0);
-        Vector2 IBDesired = new Vector2(deviceAcc.x * 30 - 100, deviceAcc.y * 30 - 50 + yOffset);
-        Vector2 HSDesired = new Vector2(deviceAcc.x * 30 + 100, deviceAcc.y * 30 - 50 + yOffset);
+        Vector2 IBDesired = new Vector2(deviceAcc.x * 30 - 100, deviceAcc.y * 30 - 40 + yOffset);
+        Vector2 HSDesired = new Vector2(deviceAcc.x * 30 + 100, deviceAcc.y * 30 - 40 + yOffset);
         Vector2 TDesired = new Vector2(deviceAcc.x * 30, deviceAcc.y * 30 + 60 + yOffset);
         Vector2 IIDesired = new Vector2(deviceAcc.x * 30, deviceAcc.y * 30 + yOffset);
 
@@ -136,7 +136,7 @@ public class MenuController : MonoBehaviour
             //+ init wait
             if (!textUp && Time.time - animWait > 1)
             {
-                if (highscoreText.fontSize < 45)
+                if (highscoreText.fontSize < 40)
                 {
                     highscoreText.fontSize += 1;
 
@@ -164,7 +164,7 @@ public class MenuController : MonoBehaviour
 
             if (!textDown && count && textUp && Time.time - animWait > 1)
             {
-                if (highscoreText.fontSize > 35)
+                if (highscoreText.fontSize > 30)
                 {
                     highscoreText.fontSize -= 1;
 

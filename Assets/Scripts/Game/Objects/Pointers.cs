@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System;
 
 class PlanetsCompare : IComparer<GameObject>
@@ -50,9 +51,13 @@ public class Pointers : MonoBehaviour
     private GameObject firstPointer;
     private GameObject secondPointer;
     private GameObject player;
+    private Vector2 canvasSize;
     private Vector2 screenBounds;
-    private Renderer firstPointerRenderer;
-    private Renderer secondPointerRenderer;
+    private Image firstPointerImage;
+    private Image secondPointerImage;
+    private Canvas canvas;
+    private RectTransform firstPRect;
+    private RectTransform secondPRect;
 
     // Start is called before the first frame update
     void Start()
@@ -60,16 +65,19 @@ public class Pointers : MonoBehaviour
         //moze byc get child bo w sumie nie ma znaczenia ktory to ktory plus mamy empty gameobject ktory jest managerem
         firstPointer = transform.GetChild(0).gameObject;
         secondPointer = transform.GetChild(1).gameObject;
-        firstPointerRenderer = firstPointer.GetComponent<Renderer>();
-        secondPointerRenderer = secondPointer.GetComponent<Renderer>();
+        firstPointerImage = firstPointer.GetComponent<UnityEngine.UI.Image>();
+        secondPointerImage = secondPointer.GetComponent<UnityEngine.UI.Image>();
+        firstPRect = firstPointer.GetComponent<RectTransform>();
+        secondPRect = secondPointer.GetComponent<RectTransform>();
         player = GameObject.FindGameObjectWithTag("Player");
+        canvas = GameObject.FindGameObjectWithTag("GameCanvas").GetComponent<Canvas>();
+        canvasSize = new Vector2(canvas.GetComponent<RectTransform>().rect.width / 2, canvas.GetComponent<RectTransform>().rect.height / 2);
         screenBounds = new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize);
     }
 
     // Update is called once per frame
     void Update()
     {
-        screenBounds = new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize);
         planets = GameObject.FindGameObjectsWithTag("Planet");
         PlanetsCompare planetsCompare = new PlanetsCompare();
         Array.Sort(planets, planetsCompare);
@@ -102,10 +110,10 @@ public class Pointers : MonoBehaviour
                     float ymax = player.transform.position.y + screenBounds.y;
                     float xmax = player.transform.position.x + screenBounds.x;
                     float ymin = player.transform.position.y - screenBounds.y;
-                    Vector2 left = new Vector2(xmin + 2, a * (xmin + 2) + b);
-                    Vector2 up = new Vector2((ymax - 2 - b) / a, ymax - 2);
-                    Vector2 right = new Vector2(xmax - 2, a * (xmax - 2) + b);
-                    Vector2 down = new Vector2((ymin + 2 - b) / a, ymin + 2);
+                    Vector2 left = new Vector2(xmin + 4.3f, a * (xmin + 4.3f) + b);
+                    Vector2 up = new Vector2((ymax - 3.1f - b) / a, ymax - 3.1f);
+                    Vector2 right = new Vector2(xmax - 4.3f, a * (xmax - 4.3f) + b);
+                    Vector2 down = new Vector2((ymin + 3.1f - b) / a, ymin + 3.1f);
 
                     //jesli planeta nad playerem
                     if (planets[i].transform.position.y > player.transform.position.y)
@@ -115,13 +123,15 @@ public class Pointers : MonoBehaviour
                         {
                             if (cameraView.Contains(up))
                             {
-                                positions[posIdx] = up;
+                                Vector2 upToCanvas = new Vector2(( (up.x - player.transform.position.x) / screenBounds.x ) * canvasSize.x, ( (up.y - player.transform.position.y) / screenBounds.y ) * canvasSize.y);
+                                positions[posIdx] = upToCanvas;
 
                             }
                             //jesli nie na gorze to jest po prawej
                             else
                             {
-                                positions[posIdx] = right;
+                                Vector2 rightToCanvas = new Vector2(( (right.x - player.transform.position.x) / screenBounds.x ) * canvasSize.x, ( (right.y - player.transform.position.y) / screenBounds.y ) * canvasSize.y);
+                                positions[posIdx] = rightToCanvas;
                             }
 
                         }
@@ -130,13 +140,14 @@ public class Pointers : MonoBehaviour
                         {
                             if (cameraView.Contains(up))
                             {
-                                positions[posIdx] = up;
-
+                                Vector2 upToCanvas = new Vector2(((up.x - player.transform.position.x) / screenBounds.x) * canvasSize.x, ((up.y - player.transform.position.y) / screenBounds.y) * canvasSize.y);
+                                positions[posIdx] = upToCanvas;
                             }
                             //jesli nie na gorze to jest po lewej
                             else
                             {
-                                positions[posIdx] = left;
+                                Vector2 leftToCanvas = new Vector2(( (left.x - player.transform.position.x) / screenBounds.x ) * canvasSize.x, ( (left.y - player.transform.position.y) / screenBounds.y ) * canvasSize.y);
+                                positions[posIdx] = leftToCanvas;
                             }
                         }
 
@@ -149,13 +160,14 @@ public class Pointers : MonoBehaviour
                         {
                             if (cameraView.Contains(down))
                             {
-                                positions[posIdx] = down;
-
+                                Vector2 downToCanvas = new Vector2(( (down.x - player.transform.position.x) / screenBounds.x ) * canvasSize.x, ( (down.y - player.transform.position.y) / screenBounds.y ) * canvasSize.y);
+                                positions[posIdx] = downToCanvas;
                             }
                             //jesli nie na dole to jest po prawej
                             else
                             {
-                                positions[posIdx] = right;
+                                Vector2 rightToCanvas = new Vector2(((right.x - player.transform.position.x) / screenBounds.x) * canvasSize.x, ((right.y - player.transform.position.y) / screenBounds.y) * canvasSize.y);
+                                positions[posIdx] = rightToCanvas;
                             }
 
                         }
@@ -164,18 +176,19 @@ public class Pointers : MonoBehaviour
                         {
                             if (cameraView.Contains(down))
                             {
-                                positions[posIdx] = down;
-
+                                Vector2 downToCanvas = new Vector2(((down.x - player.transform.position.x) / screenBounds.x) * canvasSize.x, ((down.y - player.transform.position.y) / screenBounds.y) * canvasSize.y);
+                                positions[posIdx] = downToCanvas;
                             }
                             //jesli nie na dole to jest po lewej
                             else
                             {
-                                positions[posIdx] = left;
+                                Vector2 leftToCanvas = new Vector2(((left.x - player.transform.position.x) / screenBounds.x) * canvasSize.x, ((left.y - player.transform.position.y) / screenBounds.y) * canvasSize.y);
+                                positions[posIdx] = leftToCanvas;
                             }
                         }
                     }
                     //dopracowac ta funkcje
-                    alpha[posIdx] = Vector3.Distance(player.transform.position, planets[i].transform.position) * (-0.00714f) + 0.943f;
+                    alpha[posIdx] = Vector3.Distance(player.transform.position, planets[i].transform.position) * (-0.00714f) + 1f;
                     posIdx++;
                 }
                 //znalezlismy wartosci
@@ -192,10 +205,10 @@ public class Pointers : MonoBehaviour
             } else
             {
                 firstPointer.SetActive(true);
-                firstPointer.transform.position = positions[0];
-                Color theColorToAdjust = firstPointerRenderer.material.color;
+                firstPRect.anchoredPosition = positions[0];
+                Color theColorToAdjust = firstPointerImage.color;
                 theColorToAdjust.a = alpha[0];
-                firstPointerRenderer.material.color = theColorToAdjust;
+                firstPointerImage.color = theColorToAdjust;
             }
 
             if (positions[1] == Vector2.zero)
@@ -205,10 +218,10 @@ public class Pointers : MonoBehaviour
             else
             {
                 secondPointer.SetActive(true);
-                secondPointer.transform.position = positions[1];
-                Color theColorToAdjust = secondPointerRenderer.material.color;
+                secondPRect.anchoredPosition = positions[1];
+                Color theColorToAdjust = secondPointerImage.color;
                 theColorToAdjust.a = alpha[1];
-                secondPointerRenderer.material.color = theColorToAdjust;
+                secondPointerImage.color = theColorToAdjust;
             }
 
         }

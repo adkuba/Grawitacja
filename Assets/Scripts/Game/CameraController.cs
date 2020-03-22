@@ -290,7 +290,7 @@ public class CameraController : MonoBehaviour
             //generowanie pozycji
             Vector2 xrange = new Vector2(minx, maxx);
             Vector2 yrange = new Vector2(miny, maxy);
-            Vector3 position = generateObjectPosition(xrange, yrange, asteroid.transform.localScale.x, asteroids.Concat(planets).ToArray(), 50);
+            asteroid.transform.position = generateObjectPosition(xrange, yrange, asteroid.transform.localScale.x, asteroids.Concat(planets).ToArray(), 50);
            
             //jesli nie udalo sie wygenerowac pozycji wczesniej to niszczymy obiekt
             if (asteroid.transform.position == Vector3.zero)
@@ -298,8 +298,6 @@ public class CameraController : MonoBehaviour
                 Destroy(asteroid);
             }
 
-            //+ new Vector3(0, 0, -70);
-            asteroid.transform.position = position; 
             asteroids = GameObject.FindGameObjectsWithTag("Asteroid");
         }
     }

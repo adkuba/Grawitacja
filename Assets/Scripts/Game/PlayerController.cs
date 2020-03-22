@@ -31,6 +31,7 @@ public class PlayerController : MonoBehaviour
     private bool textUp = false;
     private bool textDown = false;
     private bool cockpitDown = false;
+    private float timeFromLastPlanet;
 
     private GameObject[] planets;
     private GameObject scoreGameObject;
@@ -89,6 +90,8 @@ public class PlayerController : MonoBehaviour
         adYes.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(AdYesButtonClicked);
         adNo.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(AdNoButtonClicked);
         adManager.SetActive(false);
+
+        timeFromLastPlanet = Time.time;
     }
 
     // Update is called once per frame
@@ -182,7 +185,7 @@ public class PlayerController : MonoBehaviour
             //jesli jeszcze nie podnioslem tekstu ale kokpit jest juz podniesiony
             if (!textUp && cockpitUp)
             {
-                if (scoreText.fontSize < 45)
+                if (scoreText.fontSize < 50)
                 {
                     scoreText.fontSize += 1;
                     waitAnimation = Time.time;
@@ -196,7 +199,7 @@ public class PlayerController : MonoBehaviour
             //dodatkowo czekamy sekunde
             if (!textDown && cockpitUp && textUp && Time.time - waitAnimation > 1)
             {
-                if (scoreText.fontSize > 35)
+                if (scoreText.fontSize > 45)
                 {
                    scoreText.fontSize -= 1;
 
@@ -302,8 +305,8 @@ public class PlayerController : MonoBehaviour
                 //duzy boost do przodu moge go uzyc jesli nie jestem w planecie
                 if ((pos.x > Screen.width / 2 && pos2.x < Screen.width / 2) || (pos2.x > Screen.width / 2 && pos.x < Screen.width / 2))
                 {
-                    //co 10s mozna zastosowac duzego boosta
-                    if (boostPassedTime > 7 && usedFuel + 40 <= fuelTank)
+                    //co 10s mozna zastosowac duzego boosta i jesli nie jestem w planecie
+                    if (boostPassedTime > 7 && usedFuel + 40 <= fuelTank && atractedTo == -1 && Time.time - timeFromLastPlanet > 2)
                     {
                         targetForceSteer += new Vector3(0, 50, 0);
                         fromLastBoost = Time.time;
@@ -368,23 +371,45 @@ public class PlayerController : MonoBehaviour
             {
                 fuelEffect.SetActive(false); //pelny bak wylaczam efekt tankowania
             }
-            fromLastBoost = Time.time + 1;
+
+            var tempColor = boostImage.color;
+            tempColor.a = 0.25f;
+            boostImage.color = tempColor;
+
             planetForce = planets[atractedTo].transform.position - transform.position;
             //SILA przyciagania jest wieksza wraz ze zmniejszeniem sie dystansu
-            float strengthOfAttraction = planets[atractedTo].transform.localScale.x * 80 * Time.deltaTime;
+            float strengthOfAttraction = planets[atractedTo].transform.localScale.x * 100 * Time.deltaTime;
             //przy duzych planetach size 16 19 sila moze byc zbyt duza dlatego jest ograniczenie
             if (strengthOfAttraction > 40)
             {
                 strengthOfAttraction = 40;
             }
             targetForce = planetForce * strengthOfAttraction / Vector3.Distance(transform.position, planets[atractedTo].transform.position);
-        
 
+            timeFromLastPlanet = Time.time;
         }
         //jak jestesmy poza dzialaniem planety to wylaczamy sile planety
         else
         {
             targetForce = Vector3.zero;
+        }
+
+
+        //jak juz nie mamy paliwa na boosta
+        if (fuelTank - usedFuel < 40)
+        {
+            var tempColor = boostImage.color;
+            tempColor.a = 0.25f;
+            boostImage.color = tempColor;
+        }
+        else
+        {
+            if (atractedTo == -1 && Time.time - timeFromLastPlanet > 2)
+            {
+                var tempColor = boostImage.color;
+                tempColor.a = 0.78f;
+                boostImage.color = tempColor;
+            }
         }
 
         //wyciszamy ogolna predkosc i sile ze sterowania
@@ -393,12 +418,12 @@ public class PlayerController : MonoBehaviour
             targetForceSteer -= targetForceSteer * Time.deltaTime * 1.5f;
         }
         //predkosc wyciszamy tylko do pewnego momentu, dziala jezeli mamy paliwo!
-        if (rb.velocity.magnitude > 20 && usedFuel < fuelTank)
+        if (rb.velocity.magnitude > 21 && usedFuel < fuelTank)
         {
             rb.velocity -= rb.velocity * Time.deltaTime * 0.3f;
         }
         //predkosc nigdy nie moze byc mniejsza niz x, jezeli mamy paliwo i nie odtwarzamy spawn
-        else if (rb.velocity.magnitude < 15 && usedFuel < fuelTank && !exiting) 
+        else if (rb.velocity.magnitude < 17 && usedFuel < fuelTank && !exiting) 
         {
             //przyspieszam
             targetForceSteer += new Vector3(0, 1, 0) * 70 * Time.deltaTime; 
