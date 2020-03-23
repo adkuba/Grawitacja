@@ -62,9 +62,8 @@ public class Pointers : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //moze byc get child bo w sumie nie ma znaczenia ktory to ktory plus mamy empty gameobject ktory jest managerem
-        firstPointer = transform.GetChild(0).gameObject;
-        secondPointer = transform.GetChild(1).gameObject;
+        firstPointer = GameObject.FindGameObjectWithTag("Pointer1");
+        secondPointer = GameObject.FindGameObjectWithTag("Pointer2");
         firstPointerImage = firstPointer.GetComponent<UnityEngine.UI.Image>();
         secondPointerImage = secondPointer.GetComponent<UnityEngine.UI.Image>();
         firstPRect = firstPointer.GetComponent<RectTransform>();
@@ -73,7 +72,7 @@ public class Pointers : MonoBehaviour
         canvas = GameObject.FindGameObjectWithTag("GameCanvas").GetComponent<Canvas>();
         canvasSize = new Vector2(canvas.GetComponent<RectTransform>().rect.width / 2, canvas.GetComponent<RectTransform>().rect.height / 2);
         screenBounds = new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize);
-    }
+    } 
 
     // Update is called once per frame
     void Update()
@@ -97,97 +96,46 @@ public class Pointers : MonoBehaviour
             int posIdx = 0;
             Vector2[] positions = new Vector2[2] { Vector2.zero, Vector2.zero };
             float[] alpha = new float[2] { 0, 0 };
+            float[] angles = new float[2] { 0, 0 };
             while (i < planets.Length)
             {
                 //19 to max promien planety
                 if (Vector3.Distance(player.transform.position, planets[i].transform.position) > screenBounds.magnitude + 19)
                 {
-                    float a = (player.transform.position.y - planets[i].transform.position.y) / (player.transform.position.x - planets[i].transform.position.x);
-                    float b = player.transform.position.y - a * player.transform.position.x;
-                    //mamy wzor prostej teraz czas na sprawdzenie
-                    Rect cameraView = new Rect(player.transform.position.x - screenBounds.x, player.transform.position.y - screenBounds.y, screenBounds.x * 2, screenBounds.y * 2);
-                    float xmin = player.transform.position.x - screenBounds.x;
-                    float ymax = player.transform.position.y + screenBounds.y;
-                    float xmax = player.transform.position.x + screenBounds.x;
-                    float ymin = player.transform.position.y - screenBounds.y;
-                    Vector2 left = new Vector2(xmin + 4.3f, a * (xmin + 4.3f) + b);
-                    Vector2 up = new Vector2((ymax - 3.1f - b) / a, ymax - 3.1f);
-                    Vector2 right = new Vector2(xmax - 4.3f, a * (xmax - 4.3f) + b);
-                    Vector2 down = new Vector2((ymin + 3.1f - b) / a, ymin + 3.1f);
+                    //kierunek
+                    Vector3 direction = planets[i].transform.position - player.transform.position;
+                    //normalizacja
+                    direction.Normalize();
+                    direction *= canvasSize.magnitude;
+                    //ograniczenie, + offset 15 to polowa image i 5 jako space
+                    float offset = 20;
 
-                    //jesli planeta nad playerem
-                    if (planets[i].transform.position.y > player.transform.position.y)
+                    if (direction.x > canvasSize.x - offset)
                     {
-                        //pierwsza cwiartka
-                        if (planets[i].transform.position.x > player.transform.position.x)
-                        {
-                            if (cameraView.Contains(up))
-                            {
-                                Vector2 upToCanvas = new Vector2(( (up.x - player.transform.position.x) / screenBounds.x ) * canvasSize.x, ( (up.y - player.transform.position.y) / screenBounds.y ) * canvasSize.y);
-                                positions[posIdx] = upToCanvas;
-
-                            }
-                            //jesli nie na gorze to jest po prawej
-                            else
-                            {
-                                Vector2 rightToCanvas = new Vector2(( (right.x - player.transform.position.x) / screenBounds.x ) * canvasSize.x, ( (right.y - player.transform.position.y) / screenBounds.y ) * canvasSize.y);
-                                positions[posIdx] = rightToCanvas;
-                            }
-
-                        }
-                        //druga cwiartka
-                        else
-                        {
-                            if (cameraView.Contains(up))
-                            {
-                                Vector2 upToCanvas = new Vector2(((up.x - player.transform.position.x) / screenBounds.x) * canvasSize.x, ((up.y - player.transform.position.y) / screenBounds.y) * canvasSize.y);
-                                positions[posIdx] = upToCanvas;
-                            }
-                            //jesli nie na gorze to jest po lewej
-                            else
-                            {
-                                Vector2 leftToCanvas = new Vector2(( (left.x - player.transform.position.x) / screenBounds.x ) * canvasSize.x, ( (left.y - player.transform.position.y) / screenBounds.y ) * canvasSize.y);
-                                positions[posIdx] = leftToCanvas;
-                            }
-                        }
-
+                        direction.x = canvasSize.x - offset;
                     }
-                    //jesli planeta ponizej
-                    else if (planets[i].transform.position.y < player.transform.position.y)  
+                    if (direction.x < -canvasSize.x + offset)
                     {
-                        //czwarta cwiartka
-                        if (planets[i].transform.position.x > player.transform.position.x) 
-                        {
-                            if (cameraView.Contains(down))
-                            {
-                                Vector2 downToCanvas = new Vector2(( (down.x - player.transform.position.x) / screenBounds.x ) * canvasSize.x, ( (down.y - player.transform.position.y) / screenBounds.y ) * canvasSize.y);
-                                positions[posIdx] = downToCanvas;
-                            }
-                            //jesli nie na dole to jest po prawej
-                            else
-                            {
-                                Vector2 rightToCanvas = new Vector2(((right.x - player.transform.position.x) / screenBounds.x) * canvasSize.x, ((right.y - player.transform.position.y) / screenBounds.y) * canvasSize.y);
-                                positions[posIdx] = rightToCanvas;
-                            }
-
-                        }
-                        //trzecia cwiartka
-                        else
-                        {
-                            if (cameraView.Contains(down))
-                            {
-                                Vector2 downToCanvas = new Vector2(((down.x - player.transform.position.x) / screenBounds.x) * canvasSize.x, ((down.y - player.transform.position.y) / screenBounds.y) * canvasSize.y);
-                                positions[posIdx] = downToCanvas;
-                            }
-                            //jesli nie na dole to jest po lewej
-                            else
-                            {
-                                Vector2 leftToCanvas = new Vector2(((left.x - player.transform.position.x) / screenBounds.x) * canvasSize.x, ((left.y - player.transform.position.y) / screenBounds.y) * canvasSize.y);
-                                positions[posIdx] = leftToCanvas;
-                            }
-                        }
+                        direction.x = -canvasSize.x + offset;
                     }
-                    //dopracowac ta funkcje
+                    if (direction.y > canvasSize.y - offset)
+                    {
+                        direction.y = canvasSize.y - offset;
+                    }
+                    if (direction.y < -canvasSize.y + offset)
+                    {
+                        direction.y = -canvasSize.y + offset;
+                    }
+                    positions[posIdx] = direction;
+
+                    //angle
+                    angles[posIdx] = Vector3.Angle(Vector3.up, direction);
+                    if (player.transform.position.x < planets[i].transform.position.x)
+                    {
+                        angles[posIdx] *= -1;
+                    }
+
+                    //przezroczystosc zalezna od odleglosci
                     alpha[posIdx] = Vector3.Distance(player.transform.position, planets[i].transform.position) * (-0.00714f) + 1f;
                     posIdx++;
                 }
@@ -206,6 +154,7 @@ public class Pointers : MonoBehaviour
             {
                 firstPointer.SetActive(true);
                 firstPRect.anchoredPosition = positions[0];
+                firstPRect.rotation = Quaternion.Euler(0, 0, angles[0]);
                 Color theColorToAdjust = firstPointerImage.color;
                 theColorToAdjust.a = alpha[0];
                 firstPointerImage.color = theColorToAdjust;
@@ -219,6 +168,7 @@ public class Pointers : MonoBehaviour
             {
                 secondPointer.SetActive(true);
                 secondPRect.anchoredPosition = positions[1];
+                secondPRect.rotation = Quaternion.Euler(0, 0, angles[1]);
                 Color theColorToAdjust = secondPointerImage.color;
                 theColorToAdjust.a = alpha[1];
                 secondPointerImage.color = theColorToAdjust;

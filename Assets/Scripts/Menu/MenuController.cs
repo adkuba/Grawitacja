@@ -80,7 +80,7 @@ public class MenuController : MonoBehaviour
     {
         Vector3 deviceAcc = Input.acceleration;
         //max magnitude = 1
-        Vector3.Normalize(deviceAcc);
+        deviceAcc.Normalize();
 
         //uzytkownik zazwyczaj trzyba telefon w pozycji 45 stopni wiec dodaje troche do y pozycji bo punkt "zero" jest jak telefon jest na plasko
         //0.5 to jest 45 stopni ja robie troche mniej

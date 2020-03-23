@@ -26,6 +26,8 @@ TagManager:
   - Engine
   - FuelEffect
   - GameCanvas
+  - Pointer1
+  - Pointer2
   layers:
   - Default
   - TransparentFX

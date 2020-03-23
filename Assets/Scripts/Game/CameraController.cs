@@ -51,54 +51,20 @@ public class CameraController : MonoBehaviour
         suns = GameObject.FindGameObjectsWithTag("Sun");
 
         //jesli kliknelismy
-        if (Input.GetKey("right") || Input.GetKey("left"))
+        if (Input.touchCount > 0)
         {
             timeFromLastMovement = Time.time;
         }
-        //jeli nic nie kliknelismy od 8s
-        if (Time.time - timeFromLastMovement > 8)
+        //jeli nic nie kliknelismy
+        if (Time.time - timeFromLastMovement > 5)
         {
-            //to probujemy wygenerowac asteroide przed ryjem
-            //minx maxx miny maxy
-            Vector4 spawn = new Vector4(player.transform.position.x, player.transform.position.x, player.transform.position.y, player.transform.position.y);
-            float vx = playerRigidbody.velocity.x;
-            float vy = playerRigidbody.velocity.y;
-            float vc = playerRigidbody.velocity.magnitude;
-            float c = screenBounds.magnitude + 10;
-
-            float cos = Abs(vx) / vc;
-            float sin = Abs(vy) / vc;
-
-            if (vy > 0)
-            {
-                //pierwsza cw
-                if (vx > 0)
-                {
-                    //okno 30x30
-                    spawn += new Vector4(c * cos + 5, c * cos + 35, sin * c + 5, sin * c + 35);
-                }
-                //druga
-                else
-                {
-                    //y dodatnie, x ujemne
-                    spawn += new Vector4( (-c) * cos - 5, (-c) * cos - 35, sin * c + 5, sin * c + 35);
-                }
-            } else
-            {
-                //czwarta
-                if (vx > 0)
-                {
-                    //y ujemne x dodatnie
-                    spawn += new Vector4( c * cos + 5, c * cos + 35, sin * (-c) - 5, sin * (-c) - 35);
-                }
-                //trzecia
-                else
-                {
-                    //y ujmne x ujemne
-                    spawn += new Vector4( (-c) * cos - 5, (-c) * cos - 35, sin * (-c) - 5, sin * (-c) - 35);
-                }
-            }
-            generateAsteroid(spawn.x, spawn.y, spawn.z, spawn.w);
+            Vector3 speed = playerRigidbody.velocity;
+            speed.Normalize();
+            speed *= screenBounds.magnitude + 10;
+            speed += player.transform.position;
+            //ten offset wlasciwie nie jest wazny, musi byc maly
+            float offset = 1;
+            generateAsteroid(speed.x - offset, speed.x + offset, speed.y - offset, speed.y + offset);
         }
     }
 
@@ -290,7 +256,7 @@ public class CameraController : MonoBehaviour
             //generowanie pozycji
             Vector2 xrange = new Vector2(minx, maxx);
             Vector2 yrange = new Vector2(miny, maxy);
-            asteroid.transform.position = generateObjectPosition(xrange, yrange, asteroid.transform.localScale.x, asteroids.Concat(planets).ToArray(), 50);
+            asteroid.transform.position = generateObjectPosition(xrange, yrange, asteroid.transform.localScale.x, asteroids.Concat(planets).ToArray(), 40); //19*2 + 2
            
             //jesli nie udalo sie wygenerowac pozycji wczesniej to niszczymy obiekt
             if (asteroid.transform.position == Vector3.zero)
