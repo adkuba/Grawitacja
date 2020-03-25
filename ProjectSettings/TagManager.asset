@@ -28,6 +28,7 @@ TagManager:
   - GameCanvas
   - Pointer1
   - Pointer2
+  - Music
   layers:
   - Default
   - TransparentFX

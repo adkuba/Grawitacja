@@ -50,6 +50,8 @@ public class PlayerController : MonoBehaviour
     private UnityEngine.UI.Image fuelImage;
     private UnityEngine.UI.Image boostImage;
     private UnityEngine.UI.Text scoreText;
+    private AudioSource crashSound;
+    private AudioSource engineSound;
 
 
     // Start is called before the first frame update
@@ -66,6 +68,8 @@ public class PlayerController : MonoBehaviour
         adNo = GameObject.FindGameObjectWithTag("AdNo");
         engine = GameObject.FindGameObjectWithTag("Engine");
         fuelEffect = GameObject.FindGameObjectWithTag("FuelEffect");
+        crashSound = GetComponent<AudioSource>();
+        engineSound = engine.GetComponent<AudioSource>();
         
         //odtwarzamy efekt spawn
         //kolejnosc tych komend jest wazna
@@ -504,6 +508,9 @@ public class PlayerController : MonoBehaviour
     //wykonujemy na koniec
     void endSequence()
     {
+        //dzwiek
+        crashSound.Play();
+        engineSound.Pause();
         //zatrzymujemy playera
         exiting = true;
         rb.isKinematic = true;
