@@ -24,15 +24,23 @@ public class MenuController : MonoBehaviour
     private GameObject tapTextGO;
     private GameObject infoImageGO;
     private GameObject menuBGGO;
+    private GameObject infoBackButtonGO;
+    private GameObject infoNextButtonGO;
+    private GameObject soundButtonGO;
     private Image infoImage;
     private Text highscoreText;
     private Text infoButtonText;
     private Canvas canvas;
-    
+    public Sprite soundOn;
+    public Sprite soundOFF;
+    private Image soundImage;
+    private Button soundButton;
+
     private RectTransform infoButtonRect;
     private RectTransform tapTextRect;
     private RectTransform highscoreTextRect;
     private RectTransform infoImageRect;
+    private RectTransform soundButtonRect;
     
 
     void Start()
@@ -42,6 +50,9 @@ public class MenuController : MonoBehaviour
         infoButtonGO = GameObject.FindGameObjectWithTag("InfoButton");
         tapTextGO = GameObject.FindGameObjectWithTag("TapText");
         menuBGGO = GameObject.FindGameObjectWithTag("MenuBG");
+        infoBackButtonGO = GameObject.FindGameObjectWithTag("IBack");
+        infoNextButtonGO = GameObject.FindGameObjectWithTag("INext");
+        soundButtonGO = GameObject.FindGameObjectWithTag("SoundB");
 
         canvas = GameObject.FindGameObjectWithTag("MenuCanvas").GetComponent<Canvas>();
         highscoreText = highscoreTextGO.GetComponent<UnityEngine.UI.Text>();
@@ -49,14 +60,22 @@ public class MenuController : MonoBehaviour
         infoImage = infoImageGO.GetComponent<Image>();
         Button infoButton = infoButtonGO.GetComponent<UnityEngine.UI.Button>();
         infoButtonRect = infoButtonGO.GetComponent<RectTransform>();
+        Button infoBackButton = infoBackButtonGO.GetComponent<UnityEngine.UI.Button>();
+        Button infoNextButton = infoNextButtonGO.GetComponent<UnityEngine.UI.Button>();
         tapTextRect = tapTextGO.GetComponent<RectTransform>();
         highscoreTextRect = highscoreTextGO.GetComponent<RectTransform>();
         infoImageRect = infoImageGO.GetComponent<RectTransform>();
+        soundButtonRect = soundButtonGO.GetComponent<RectTransform>();
+        soundButton = soundButtonGO.GetComponent<UnityEngine.UI.Button>();
+        soundImage = soundButton.GetComponent<UnityEngine.UI.Image>();
 
         infoImage.sprite = infoSlides[iterator];
         infoImageGO.SetActive(false);
         infoButton.onClick.AddListener(TaskOnInfoClick);
+        infoNextButton.onClick.AddListener(NextInfo);
+        infoBackButton.onClick.AddListener(BackInfo);
         canvasSize = new Vector2(canvas.GetComponent<RectTransform>().rect.width, canvas.GetComponent<RectTransform>().rect.height);
+        soundButton.onClick.AddListener(SoundButton);
 
         //jesli nie przekroczylismy hs to wyjebane
         if (PlayerPrefs.GetInt("highscoreChanged", 0) == 0)
@@ -72,6 +91,14 @@ public class MenuController : MonoBehaviour
             highscoreText.text = highscore.ToString();
         }
 
+        if (PlayerPrefs.GetInt("canPlayMusic", 1) == 1)
+        {
+            soundImage.sprite = soundOn;
+        }
+        else
+        {
+            soundImage.sprite = soundOFF;
+        }
         animWait = Time.time;
     }
 
@@ -93,6 +120,7 @@ public class MenuController : MonoBehaviour
         Vector2 HSDesired = new Vector2(deviceAcc.x * 30 + 100, deviceAcc.y * 30 - 40 + yOffset);
         Vector2 TDesired = new Vector2(deviceAcc.x * 30, deviceAcc.y * 30 + 60 + yOffset);
         Vector2 IIDesired = new Vector2(deviceAcc.x * 30, deviceAcc.y * 30 + yOffset);
+        Vector2 SBDesired = new Vector2(deviceAcc.x * 30, deviceAcc.y * 30 + yOffset - 40);
 
         //musze przesunac bg
         if (Vector3.Distance(menuBGGO.transform.position, BGdesired) > 0.1)
@@ -127,6 +155,13 @@ public class MenuController : MonoBehaviour
         {
             Vector2 difference = IIDesired - infoImageRect.anchoredPosition;
             infoImageRect.anchoredPosition += difference * Time.deltaTime * 20;
+        }
+
+        //soundButton
+        if (Vector2.Distance(soundButtonRect.anchoredPosition, SBDesired) > 0.1)
+        {
+            Vector2 difference = SBDesired - soundButtonRect.anchoredPosition;
+            soundButtonRect.anchoredPosition += difference * Time.deltaTime * 20;
         }
 
 
@@ -183,9 +218,7 @@ public class MenuController : MonoBehaviour
 
         }
 
-        //jak nacisniemy spacje to otwiera sie gra
-        //Input.GetKey("space")
-        //jesli nie jest otwarte menu
+        //jesli nie jest otwarte info
         if (!infoIsOpen)
         {
             //jesli klikniecie
@@ -207,43 +240,6 @@ public class MenuController : MonoBehaviour
                 }
             }
         }
-        //jak jest otwarte menu to mozemy zmieniac info grafike
-        else
-        {
-            //DOPRACOWAC BO COS NADAL NIE JEST OK
-            float infIWidth = infoImage.sprite.rect.width;
-            float infIHeight = infoImage.sprite.rect.height;
-            if (Input.touchCount > 0)
-            {
-                Touch touch = Input.GetTouch(0);
-                Vector2 pos = touch.position;
-                //y klika w przedziale obrazka
-                if (pos.y < (Screen.height / 2) + (infIHeight / 2) && pos.y > (Screen.height / 2) - (infIHeight / 2)) 
-                {
-                    //x klikamy na lewa polowke
-                    if (pos.x < Screen.width / 2 && pos.x > (Screen.width / 2) - (infIWidth / 2)) 
-                    {
-                        iterator--;
-                        if (iterator == -1)
-                        {
-                            iterator = 0;
-                        }
-                        infoImage.sprite = infoSlides[iterator];
-                    }
-                    //x klikamy na prawa polowke
-                    if (pos.x > Screen.width / 2 && pos.x < (Screen.width / 2) + (infIWidth / 2)) 
-                    {
-                        iterator++;
-                        if (iterator == 2)
-                        {
-                            iterator = 1;
-                        }
-                        infoImage.sprite = infoSlides[iterator];
-                    }
-                }
-
-            }     
-        }
     }
 
     void TaskOnInfoClick()
@@ -253,19 +249,70 @@ public class MenuController : MonoBehaviour
         {
             highscoreTextGO.SetActive(true);
             tapTextGO.SetActive(true);
+            soundButtonGO.SetActive(true);
             infoImageGO.SetActive(false);
             infoButtonText.text = "Info";
+            infoBackButtonGO.SetActive(false);
+            infoNextButtonGO.SetActive(false);
             infoIsOpen = false;
 
         }
         //otwieramy menu
         else
         {
+            soundButtonGO.SetActive(false);
             highscoreTextGO.SetActive(false);
             tapTextGO.SetActive(false);
             infoImageGO.SetActive(true);
             infoButtonText.text = "Back";
+            //zaczynamy zawsze od pierwszego
+            iterator = 0;
+            infoBackButtonGO.SetActive(false);
+            infoNextButtonGO.SetActive(true);
             infoIsOpen = true;
+        }
+    }
+
+    void NextInfo()
+    {
+        iterator++;
+        if (iterator == 1)
+        {
+            infoBackButtonGO.SetActive(true);
+        }
+        infoImage.sprite = infoSlides[iterator];
+        if (iterator == infoSlides.Length - 1)
+        {
+            infoNextButtonGO.SetActive(false);
+        }
+    }
+
+    void BackInfo()
+    {
+        iterator--;
+        if (iterator == infoSlides.Length - 2)
+        {
+            infoNextButtonGO.SetActive(true);
+        }
+        infoImage.sprite = infoSlides[iterator];
+        if (iterator == 0)
+        {
+            infoBackButtonGO.SetActive(false);
+        }
+    }
+
+    void SoundButton()
+    {
+        //zmieniamy na nie moze grac
+        if (PlayerPrefs.GetInt("canPlayMusic", 1) == 1)
+        {
+            PlayerPrefs.SetInt("canPlayMusic", 0);
+            soundImage.sprite = soundOFF;
+        }
+        else
+        {
+            PlayerPrefs.SetInt("canPlayMusic", 1);
+            soundImage.sprite = soundOn;
         }
     }
 }

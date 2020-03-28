@@ -32,6 +32,7 @@ public class PlayerController : MonoBehaviour
     private bool textDown = false;
     private bool cockpitDown = false;
     private float timeFromLastPlanet;
+    private bool endSeguenceInvoked = false;
 
     private GameObject[] planets;
     private GameObject scoreGameObject;
@@ -508,19 +509,23 @@ public class PlayerController : MonoBehaviour
     //wykonujemy na koniec
     void endSequence()
     {
-        //dzwiek
-        crashSound.Play();
-        engineSound.Pause();
-        //zatrzymujemy playera
-        exiting = true;
-        rb.isKinematic = true;
-
-        //wybor czy wyswietlamy reklame
-        adManager.SetActive(true);
-        //jesli juz raz wyswietlilismy reklame
-        if (PlayerPrefs.GetInt("addScore", 0) > 0)
+        if (!endSeguenceInvoked)
         {
-            adYes.SetActive(false);
+            endSeguenceInvoked = true;
+            //dzwiek
+            crashSound.Play();
+            engineSound.Pause();
+            //zatrzymujemy playera
+            exiting = true;
+            rb.isKinematic = true;
+
+            //wybor czy wyswietlamy reklame
+            adManager.SetActive(true);
+            //jesli juz raz wyswietlilismy reklame
+            if (PlayerPrefs.GetInt("addScore", 0) > 0)
+            {
+                adYes.SetActive(false);
+            }
         }
     }
 

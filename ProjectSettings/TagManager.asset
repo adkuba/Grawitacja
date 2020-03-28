@@ -29,6 +29,9 @@ TagManager:
   - Pointer1
   - Pointer2
   - Music
+  - IBack
+  - INext
+  - SoundB
   layers:
   - Default
   - TransparentFX
