@@ -11,7 +11,6 @@ TagManager:
   - Asteroid
   - Sun
   - Boost
-  - AdYes
   - AdNo
   - AdManager
   - Highscore
@@ -32,6 +31,7 @@ TagManager:
   - IBack
   - INext
   - SoundB
+  - NetInfo
   layers:
   - Default
   - TransparentFX

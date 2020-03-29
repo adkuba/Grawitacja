@@ -20,7 +20,6 @@ public class PlayerController : MonoBehaviour
     private int highscore;
     private float timeFromSpawn;
     private Vector3 desiredScale;
-    private bool adYesClicked = false;
     private bool adNoClicked = false;
     private int addScore = 0;
     //highScoreAnimationCompleted
@@ -41,13 +40,13 @@ public class PlayerController : MonoBehaviour
     private GameObject spawn;
     private GameObject cockpitImage;
     private GameObject adManager;
-    private GameObject adYes;
     private GameObject adNo;
     private GameObject shell;
     private GameObject engine;
     private GameObject fuelEffect;
     private Rigidbody rb;
     private RectTransform cockpitImageRect;
+    private RectTransform adNoRect;
     private UnityEngine.UI.Image fuelImage;
     private UnityEngine.UI.Image boostImage;
     private UnityEngine.UI.Text scoreText;
@@ -65,12 +64,12 @@ public class PlayerController : MonoBehaviour
         fuelGameObject = GameObject.FindGameObjectWithTag("Fuel");
         boostGameObject = GameObject.FindGameObjectWithTag("Boost");
         adManager = GameObject.FindGameObjectWithTag("AdManager");
-        adYes = GameObject.FindGameObjectWithTag("AdYes");
         adNo = GameObject.FindGameObjectWithTag("AdNo");
         engine = GameObject.FindGameObjectWithTag("Engine");
         fuelEffect = GameObject.FindGameObjectWithTag("FuelEffect");
         crashSound = GetComponent<AudioSource>();
         engineSound = engine.GetComponent<AudioSource>();
+        adNoRect = adNo.GetComponent<RectTransform>();
         
         //odtwarzamy efekt spawn
         //kolejnosc tych komend jest wazna
@@ -92,7 +91,6 @@ public class PlayerController : MonoBehaviour
         addScore = PlayerPrefs.GetInt("addScore", 0);
         fromLastBoost = Time.time;
         timeFromSpawn = Time.time;
-        adYes.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(AdYesButtonClicked);
         adNo.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(AdNoButtonClicked);
         adManager.SetActive(false);
 
@@ -462,13 +460,15 @@ public class PlayerController : MonoBehaviour
             {
                 //konczymy gre
                 adManager.SetActive(false);
+                PlayerPrefs.SetInt("ADcounter", 0);
                 endSequenceFinal();
             }
-            if (adYesClicked)
+            //jesli reklama zostala wyswietlona
+            if (PlayerPrefs.GetInt("ADdisplayed", 0) == 1)
             {
                 adManager.SetActive(false);
-                //MUSZE WYSWIETLIC REKLAME
                 endReload();
+                PlayerPrefs.SetInt("ADdisplayed", 0);
             }
         }
     }
@@ -521,10 +521,11 @@ public class PlayerController : MonoBehaviour
 
             //wybor czy wyswietlamy reklame
             adManager.SetActive(true);
-            //jesli juz raz wyswietlilismy reklame
-            if (PlayerPrefs.GetInt("addScore", 0) > 0)
+
+            //jesli wyswietla sie tylko guzik no
+            if (Application.internetReachability == NetworkReachability.NotReachable || (PlayerPrefs.GetInt("ADcounter", 0) == 1))
             {
-                adYes.SetActive(false);
+                adNoRect.anchoredPosition = new Vector2(0, -6);
             }
         }
     }
@@ -571,12 +572,7 @@ public class PlayerController : MonoBehaviour
         yield break; //wychodzimy z coroutine
     }
 
-    //lisener dla buttonow od reklam
-    void AdYesButtonClicked()
-    {
-        adYesClicked = true;
-    }
-
+    //lisener dla buttona no od reklam
     void AdNoButtonClicked()
     {
         adNoClicked = true;

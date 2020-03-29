@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Game\AdScript.cs" />
      <Compile Include="Assets\Scripts\Game\BGController.cs" />
      <Compile Include="Assets\Scripts\Game\CameraController.cs" />
      <Compile Include="Assets\Scripts\Game\Objects\Asteroid.cs" />
