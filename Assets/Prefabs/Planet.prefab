@@ -217,11 +217,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fuel: 0
   materials:
-  - {fileID: 2100000, guid: 2db6e174276cfde428839480bdba6c1c, type: 2}
-  - {fileID: 2100000, guid: ef559eba1c28d6740bb2c17bbafcd678, type: 2}
   - {fileID: 2100000, guid: b3fd224267db5244aaf09ecd55b22f8d, type: 2}
   - {fileID: 2100000, guid: 87be594fcac275b428f6026a94cf057b, type: 2}
+  - {fileID: 2100000, guid: ef559eba1c28d6740bb2c17bbafcd678, type: 2}
   - {fileID: 2100000, guid: b9878009167dfdd42899fea623ce9fda, type: 2}
+  - {fileID: 2100000, guid: 2db6e174276cfde428839480bdba6c1c, type: 2}
 --- !u!1 &1420010586332111300
 GameObject:
   m_ObjectHideFlags: 0

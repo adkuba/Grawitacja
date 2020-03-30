@@ -10,6 +10,7 @@ public class Planet : MonoBehaviour
     public bool fuel;
     private ParticleSystem sparks;
     private GameObject moon;
+    private GameObject player;
     public Material[] materials;
 
     // Start is called before the first frame update
@@ -17,6 +18,7 @@ public class Planet : MonoBehaviour
     {
         //wylicza szerokość i wysokość kamery
         screenBounds = new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize);
+        player = GameObject.FindGameObjectWithTag("Player");
         
         //czy mam paliwo?
         float rand = Random.value;
@@ -52,8 +54,31 @@ public class Planet : MonoBehaviour
         float sSize = transform.localScale.x * 0.14f - 0.2f;
         //odpowiedni rozmiar
         sparks.transform.localScale = new Vector3(sSize, sSize, sSize);
-        int index = Random.Range(0, materials.Length);
-        //losowy kolor
+
+        //kolor zalezny od odleglosci
+        float score = Vector3.Distance(Vector3.zero, player.transform.position) * 0.4f;
+        int index = 0;
+        if (score < 400)
+        {
+            index = 0;
+        }
+        else if (score < 800)
+        {
+            index = 1;
+        }
+        else if (score < 1200)
+        {
+            index = 2;
+        }
+        else if (score < 1600)
+        {
+            index = 3;
+
+        }
+        else
+        {
+            index = 4;
+        }
         sparks.GetComponent<ParticleSystemRenderer>().trailMaterial = materials[index];
         //wielkosc ksiezyca od 0.2 do 0.4
         float moonSize = Random.Range(0.2f, 0.4f);

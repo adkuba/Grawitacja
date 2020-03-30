@@ -5057,8 +5057,6 @@ MonoBehaviour:
   maxSuns: 1
   sunRespawn: 10
   respawn: 3
-  maxAsteroids: 5
-  asteroidsRespawn: 5
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -10571,7 +10569,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh27194
+  m_Name: pb_Mesh16494
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2

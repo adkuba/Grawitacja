@@ -153,7 +153,7 @@ public class PlayerController : MonoBehaviour
         //wynik, paliwo, boost
         //fillAmount od 0 do 1
         fuelImage.fillAmount = percent / 100;
-        score = Convert.ToInt32(Vector3.Distance(Vector3.zero, transform.position) * 0.1f) + addScore;
+        score = Convert.ToInt32(Vector3.Distance(Vector3.zero, transform.position) * 0.4f) + addScore;
         scoreText.text = score.ToString();
         float boostPassedTime = Time.time - fromLastBoost;
         if (boostPassedTime < 7)

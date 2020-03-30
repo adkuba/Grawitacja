@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using static System.Math;
+using System;
 
 /*kontroler kamery
  *generator planet i asteroidow
@@ -18,8 +19,8 @@ public class CameraController : MonoBehaviour
     public int maxSuns;
     public float sunRespawn;
     public float respawn;
-    public int maxAsteroids;
-    public float asteroidsRespawn;
+    private int maxAsteroids = 5;
+    private float asteroidsRespawn = 5;
     private float timeFromLastMovement;
 
     private GameObject[] planets;
@@ -56,7 +57,14 @@ public class CameraController : MonoBehaviour
             timeFromLastMovement = Time.time;
         }
         //jeli nic nie kliknelismy
-        if (Time.time - timeFromLastMovement > 5)
+        //skalowanie trudnosci
+        float score = Vector3.Distance(Vector3.zero, player.transform.position) * 0.4f;
+        if (score > 2000)
+        {
+            score = 2000;
+        }
+        float timeObs = score * -0.00225f + 5;
+        if (Time.time - timeFromLastMovement > timeObs && playerRigidbody.velocity.magnitude > 1)
         {
             Vector3 speed = playerRigidbody.velocity;
             speed.Normalize();
@@ -90,6 +98,14 @@ public class CameraController : MonoBehaviour
     {
         while (true)
         {
+            //skalowanie trudnosci
+            float score = Vector3.Distance(Vector3.zero, player.transform.position) * 0.4f;
+            if (score > 2000)
+            {
+                score = 2000;
+            }
+            asteroidsRespawn = score * -0.002f + 5;
+            maxAsteroids = Convert.ToInt32(score * 0.0175f + 5);
             yield return new WaitForSeconds(asteroidsRespawn);
             spawnAsteroids();
         }
@@ -106,7 +122,7 @@ public class CameraController : MonoBehaviour
         for (int i = 0; i < maxSuns - startLen; i++) 
         {
             //losowo wybieram polowke w ktorej bede tworzyl obiekt
-            float cwiatrka = Random.value;
+            float cwiatrka = UnityEngine.Random.value;
             //na gorze
             if (cwiatrka <= .25f) 
             {
@@ -141,7 +157,7 @@ public class CameraController : MonoBehaviour
         for (int i = 0; i < maxAsteroids - startLen; i++) 
         {
             //losowo wybieram polowke w ktorej bede tworzyl obiekt
-            float cwiatrka = Random.value;
+            float cwiatrka = UnityEngine.Random.value;
             //na gorze
             if (cwiatrka <= .25f) 
             {
@@ -177,7 +193,7 @@ public class CameraController : MonoBehaviour
         for (int i = 0; i < maxPlanets - startLen; i++) 
         {
             //losowo wybieram polowke w ktorej bede tworzyl obiekt
-            float cwiatrka = Random.value;
+            float cwiatrka = UnityEngine.Random.value;
             //na gorze
             if (cwiatrka <= .25f) 
             {
@@ -210,22 +226,22 @@ public class CameraController : MonoBehaviour
             GameObject planet = Instantiate(planetPrefab) as GameObject;
 
             //generowanie rozmiaru
-            float rand = Random.value;
+            float rand = UnityEngine.Random.value;
             float size = 0;
             bool find = false;
             if (rand <= .8f && !find)
             {
-                size = Random.Range(12f, 14f);
+                size = UnityEngine.Random.Range(12f, 14f);
                 find = true;
             }
             if (rand <= .95f && !find)
             {
-                size = Random.Range(14f, 16f);
+                size = UnityEngine.Random.Range(14f, 16f);
                 find = true;
             }
             if (!find)
             {
-                size = Random.Range(16f, 19f);
+                size = UnityEngine.Random.Range(16f, 19f);
             }
             planet.transform.localScale = new Vector3(size, size, size);
 
@@ -256,7 +272,7 @@ public class CameraController : MonoBehaviour
             //generowanie pozycji
             Vector2 xrange = new Vector2(minx, maxx);
             Vector2 yrange = new Vector2(miny, maxy);
-            asteroid.transform.position = generateObjectPosition(xrange, yrange, asteroid.transform.localScale.x, asteroids.Concat(planets).ToArray(), 40); //19*2 + 2
+            asteroid.transform.position = generateObjectPosition(xrange, yrange, asteroid.transform.localScale.x, asteroids.Concat(planets).ToArray(), 40, true); //19*2 + 2
            
             //jesli nie udalo sie wygenerowac pozycji wczesniej to niszczymy obiekt
             if (asteroid.transform.position == Vector3.zero)
@@ -301,7 +317,7 @@ public class CameraController : MonoBehaviour
         return false;
     }
 
-    private Vector2 generateObjectPosition(Vector2 xrange, Vector2 yrange, float size, GameObject[] objectsTable, int minDistance)
+    private Vector2 generateObjectPosition(Vector2 xrange, Vector2 yrange, float size, GameObject[] objectsTable, int minDistance, bool asteroid = false)
     {
         int steps = 0;
         Vector2 position = Vector2.zero;
@@ -310,19 +326,51 @@ public class CameraController : MonoBehaviour
         {
             bool foundBad = false;
             //minx maxx, miny maxy
-            position = new Vector2(Random.Range(xrange.x, xrange.y), Random.Range(yrange.x, yrange.y));
+            position = new Vector2(UnityEngine.Random.Range(xrange.x, xrange.y), UnityEngine.Random.Range(yrange.x, yrange.y));
             steps++;
-            foreach (GameObject gObject in objectsTable)
+            if (!asteroid)
             {
-                if (gObject != null)
+                foreach (GameObject gObject in objectsTable)
                 {
-                    if (Vector2.Distance(new Vector2(gObject.transform.position.x, gObject.transform.position.y), position) - size - gObject.transform.localScale.x <= minDistance)
+                    if (gObject != null)
                     {
-                        foundBad = true;
-                        break;
+                        if (Vector2.Distance(new Vector2(gObject.transform.position.x, gObject.transform.position.y), position) - size - gObject.transform.localScale.x <= minDistance)
+                        {
+                            foundBad = true;
+                            break;
+                        }
                     }
                 }
             }
+            //specjalnie dla asteroidy
+            else
+            {
+                foreach (GameObject gObject in objectsTable)
+                {
+                    if (gObject != null)
+                    {
+                        //obiekt w tablicy jest planeta
+                        if (gObject.GetComponent<Planet>() != null)
+                        {
+                            if (Vector2.Distance(new Vector2(gObject.transform.position.x, gObject.transform.position.y), position) - size - gObject.transform.localScale.x <= minDistance)
+                            {
+                                foundBad = true;
+                                break;
+                            }
+                        }
+                        //obiekt w tablicy jest asteroida NIE UZYWAM MINDISTANCE
+                        else
+                        {
+                            if (Vector2.Distance(new Vector2(gObject.transform.position.x, gObject.transform.position.y), position) - size - gObject.transform.localScale.x <= 20)
+                            {
+                                foundBad = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+      
             //znalezlismy dobra pozycje
             if (!foundBad)
             {
