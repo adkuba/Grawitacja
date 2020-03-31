@@ -18,10 +18,12 @@ public class CameraController : MonoBehaviour
     public int maxPlanets;
     public int maxSuns;
     public float sunRespawn;
-    public float respawn;
+    public float planetRespawn;
     private int maxAsteroids = 5;
     private float asteroidsRespawn = 5;
     private float timeFromLastMovement;
+    private int addScore;
+    private float score;
 
     private GameObject[] planets;
     private GameObject[] asteroids;
@@ -32,6 +34,7 @@ public class CameraController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        addScore = PlayerPrefs.GetInt("addScore", 0);
         player = GameObject.FindGameObjectWithTag("Player");
         playerRigidbody = player.GetComponent<Rigidbody>();
         timeFromLastMovement = Time.time;
@@ -44,6 +47,11 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        score = Vector3.Distance(Vector3.zero, player.transform.position) * 0.4f + addScore;
+        if (score > 2000)
+        {
+            score = 2000;
+        }
         //wielkosc kamery w player controller
         transform.position = player.transform.position + new Vector3(0, 0, -90);
         //wszystkie planety
@@ -58,13 +66,8 @@ public class CameraController : MonoBehaviour
         }
         //jeli nic nie kliknelismy
         //skalowanie trudnosci
-        float score = Vector3.Distance(Vector3.zero, player.transform.position) * 0.4f;
-        if (score > 2000)
-        {
-            score = 2000;
-        }
         float timeObs = score * -0.00225f + 5;
-        if (Time.time - timeFromLastMovement > timeObs && playerRigidbody.velocity.magnitude > 1)
+        if (Time.time - timeFromLastMovement > timeObs && playerRigidbody.velocity.magnitude > 1 && player.GetComponent<PlayerController>().getAttractedTo() == -1)
         {
             Vector3 speed = playerRigidbody.velocity;
             speed.Normalize();
@@ -89,7 +92,7 @@ public class CameraController : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(respawn);
+            yield return new WaitForSeconds(planetRespawn);
             spawnPlanets();
         }
     }
@@ -99,11 +102,6 @@ public class CameraController : MonoBehaviour
         while (true)
         {
             //skalowanie trudnosci
-            float score = Vector3.Distance(Vector3.zero, player.transform.position) * 0.4f;
-            if (score > 2000)
-            {
-                score = 2000;
-            }
             asteroidsRespawn = score * -0.002f + 5;
             maxAsteroids = Convert.ToInt32(score * 0.0175f + 5);
             yield return new WaitForSeconds(asteroidsRespawn);

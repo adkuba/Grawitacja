@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using UnityEngine.SceneManagement;
+using static System.Math;
 
 public class MenuController : MonoBehaviour
 {
@@ -18,6 +19,9 @@ public class MenuController : MonoBehaviour
     public Sprite[] infoSlides;
     private int iterator = 0;
     private Vector3 lastDevAcc = Vector3.zero;
+    private Vector2 firstTouchPos;
+    private Vector2 lastTouchPos;
+    private float dragDistance;
 
     private GameObject highscoreTextGO;
     private GameObject infoButtonGO;
@@ -54,6 +58,8 @@ public class MenuController : MonoBehaviour
         infoNextButtonGO = GameObject.FindGameObjectWithTag("INext");
         soundButtonGO = GameObject.FindGameObjectWithTag("SoundB");
 
+        //swipe to 10% średniej z długości i wysokości ekranu
+        dragDistance = (Screen.width + Screen.height) * 0.1f / 2f;
         canvas = GameObject.FindGameObjectWithTag("MenuCanvas").GetComponent<Canvas>();
         highscoreText = highscoreTextGO.GetComponent<UnityEngine.UI.Text>();
         infoButtonText = infoButtonGO.GetComponentInChildren<UnityEngine.UI.Text>();
@@ -222,20 +228,32 @@ public class MenuController : MonoBehaviour
         if (!infoIsOpen)
         {
             //jesli klikniecie
-            if (Input.touchCount > 0)
+            if (Input.touchCount == 1)
             {
                 //to sprawdzamy czy nie na info
                 Touch touch = Input.GetTouch(0);
-                Vector2 pos = touch.position;
-                //x sie zgadza
-                if (pos.x < infoButtonGO.transform.position.x - (infoButtonRect.rect.width / 2) || pos.x > infoButtonGO.transform.position.x + (infoButtonRect.rect.width / 2))
+                if (touch.phase == TouchPhase.Began)
                 {
-                    //y sie zgadza
-                    if (pos.y < infoButtonGO.transform.position.y - (infoButtonRect.rect.height / 2) || pos.y > infoButtonGO.transform.position.y + (infoButtonRect.rect.height / 2))
+                    firstTouchPos = touch.position;
+                    lastTouchPos = touch.position;
+                }
+                else if (touch.phase == TouchPhase.Moved)
+                {
+                    lastTouchPos = touch.position;
+                }
+                else if (touch.phase == TouchPhase.Ended)
+                {
+                    lastTouchPos = touch.position;
+
+                    //to jest klikniecie a nie swipe
+                    if (Math.Abs(lastTouchPos.x - firstTouchPos.x) < dragDistance && Math.Abs(lastTouchPos.y - firstTouchPos.y) < dragDistance)
                     {
-                        //resetuje addScore
-                        PlayerPrefs.SetInt("addScore", 0);
-                        SceneManager.LoadScene("Game");
+                        //jesli dodatkowo nie klikamy w żaden button ktory jest na gorze
+                        if (lastTouchPos.y < soundButtonGO.transform.position.y - 3 * (soundButtonRect.rect.height / 2) / 2)
+                        {
+                            PlayerPrefs.SetInt("addScore", 0);
+                            SceneManager.LoadScene("Game");
+                        }
                     }
                 }
             }

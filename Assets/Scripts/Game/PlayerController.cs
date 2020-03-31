@@ -32,6 +32,8 @@ public class PlayerController : MonoBehaviour
     private bool cockpitDown = false;
     private float timeFromLastPlanet;
     private bool endSeguenceInvoked = false;
+    private bool fuelAnim = false;
+    private bool hsAnimStarted = false;
 
     private GameObject[] planets;
     private GameObject scoreGameObject;
@@ -148,6 +150,38 @@ public class PlayerController : MonoBehaviour
             //zabezpieczam sie przed minusowymi procentami ktore moga powstac
             percent = 0;
         }
+        //zuzywa wiecej paliwa jesli nie wchodze w orbity planet
+        if (Time.time - timeFromLastPlanet > 10)
+        {
+            usedFuel += Time.deltaTime * 5;
+            //jesli animacja hs nie jest w trakcie
+            if (!hsAnimStarted)
+            {
+                //zaczynam animacje paliwa
+                fuelAnim = true;
+                if (fuelImage.rectTransform.sizeDelta.x < 70)
+                {
+                    fuelImage.rectTransform.sizeDelta += new Vector2(10, 10) * Time.deltaTime;
+                }
+                if (cockpitImageRect.anchoredPosition.y < -10)
+                {
+                    cockpitImageRect.anchoredPosition += new Vector2(0, 10 * Time.deltaTime);
+
+                }
+            }
+        }
+        else if (fuelImage.rectTransform.sizeDelta.x > 50)
+        {
+            fuelImage.rectTransform.sizeDelta -= new Vector2(10, 10) * Time.deltaTime;
+        }
+        else if (cockpitImageRect.anchoredPosition.y > -25)
+        {
+            cockpitImageRect.anchoredPosition -= new Vector2(0, 10 * Time.deltaTime);
+        }
+        else
+        {
+            fuelAnim = false;
+        }
 
 
         //wynik, paliwo, boost
@@ -169,9 +203,10 @@ public class PlayerController : MonoBehaviour
 
 
         //animacja highscore, wywoluje sie dopoki nie skonczymy animacji
-        //wywola sie tylko raz!
-        if (score > highscore && !hsAnimationComp)
+        //wywola sie tylko raz! i nie podczas animacji paliwa
+        if (score > highscore && !hsAnimationComp && !fuelAnim)
         {
+            hsAnimStarted = true;
             //jesli jeszcze nie podnioslem kokpitu
             if (!cockpitUp)
             {
@@ -228,6 +263,7 @@ public class PlayerController : MonoBehaviour
             if (cockpitUp && textUp && textDown && cockpitDown)
             {
                 hsAnimationComp = true;
+                hsAnimStarted = false;
             }
         }
 
@@ -446,7 +482,7 @@ public class PlayerController : MonoBehaviour
 
             rb.velocity -= rb.velocity * Time.deltaTime * 0.1f;
             //jesli sie zatrzymalismy to koniec gry
-            if (rb.velocity.magnitude < 7) 
+            if (rb.velocity.magnitude < 7 && atractedTo == -1) 
             {
                 endSequence();
             }
@@ -576,5 +612,10 @@ public class PlayerController : MonoBehaviour
     void AdNoButtonClicked()
     {
         adNoClicked = true;
+    }
+
+    public int getAttractedTo()
+    {
+        return atractedTo;
     }
 }

@@ -55,7 +55,7 @@ public class AdScript : MonoBehaviour, IUnityAdsListener
     public void OnUnityAdsReady(string placementId)
     {
         // If the ready Placement is rewarded, activate the button: 
-        if (placementId == myPlacementId)
+        if (placementId == myPlacementId && myButton != null)
         {
             myButton.interactable = true;
         }
