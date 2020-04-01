@@ -22,7 +22,6 @@ public class CameraController : MonoBehaviour
     private int maxAsteroids = 5;
     private float asteroidsRespawn = 5;
     private float timeFromLastMovement;
-    private int addScore;
     private float score;
 
     private GameObject[] planets;
@@ -34,7 +33,6 @@ public class CameraController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        addScore = PlayerPrefs.GetInt("addScore", 0);
         player = GameObject.FindGameObjectWithTag("Player");
         playerRigidbody = player.GetComponent<Rigidbody>();
         timeFromLastMovement = Time.time;
@@ -47,7 +45,7 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        score = Vector3.Distance(Vector3.zero, player.transform.position) * 0.4f + addScore;
+        score = player.GetComponent<PlayerController>().getScore();
         if (score > 2000)
         {
             score = 2000;

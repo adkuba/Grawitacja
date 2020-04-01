@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
     private float fromLastBoost;
     public float fuelTank = 400f;
     private bool exiting;
-    private int score = 0;
+    private float score = 0;
     private int highscore;
     private float timeFromSpawn;
     private Vector3 desiredScale;
@@ -34,12 +34,14 @@ public class PlayerController : MonoBehaviour
     private bool endSeguenceInvoked = false;
     private bool fuelAnim = false;
     private bool hsAnimStarted = false;
+    private int scoreBoost = 0;
 
     private GameObject[] planets;
     private GameObject scoreGameObject;
     private GameObject fuelGameObject;
     private GameObject boostGameObject;
     private GameObject spawn;
+    private GameObject boostAdd;
     private GameObject cockpitImage;
     private GameObject adManager;
     private GameObject adNo;
@@ -52,6 +54,7 @@ public class PlayerController : MonoBehaviour
     private UnityEngine.UI.Image fuelImage;
     private UnityEngine.UI.Image boostImage;
     private UnityEngine.UI.Text scoreText;
+    private UnityEngine.UI.Text boostAddText;
     private AudioSource crashSound;
     private AudioSource engineSound;
 
@@ -69,6 +72,7 @@ public class PlayerController : MonoBehaviour
         adNo = GameObject.FindGameObjectWithTag("AdNo");
         engine = GameObject.FindGameObjectWithTag("Engine");
         fuelEffect = GameObject.FindGameObjectWithTag("FuelEffect");
+        boostAdd = GameObject.FindGameObjectWithTag("BoostAdd");
         crashSound = GetComponent<AudioSource>();
         engineSound = engine.GetComponent<AudioSource>();
         adNoRect = adNo.GetComponent<RectTransform>();
@@ -80,21 +84,24 @@ public class PlayerController : MonoBehaviour
         spawn.GetComponent<ParticleSystem>().Play();
         StartCoroutine(StartingCoroutine());
         desiredScale = new Vector3(0.28f, 0.94f, 0.16f);
-        
+
         rb = GetComponent<Rigidbody>();
         cockpitImageRect = cockpitImage.GetComponent<RectTransform>();
         fuelImage = fuelGameObject.GetComponent<UnityEngine.UI.Image>();
         boostImage = boostGameObject.GetComponent<UnityEngine.UI.Image>();
         scoreText = scoreGameObject.GetComponent<UnityEngine.UI.Text>();
+        boostAddText = boostAdd.GetComponent<UnityEngine.UI.Text>();
 
         // nazwa i default value
         fuelEffect.SetActive(false);
         highscore = PlayerPrefs.GetInt("highscore", 0);
         addScore = PlayerPrefs.GetInt("addScore", 0);
+        score = addScore;
         fromLastBoost = Time.time;
         timeFromSpawn = Time.time;
         adNo.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(AdNoButtonClicked);
         adManager.SetActive(false);
+        boostAdd.SetActive(false);
 
         timeFromLastPlanet = Time.time;
     }
@@ -170,11 +177,11 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
-        else if (fuelImage.rectTransform.sizeDelta.x > 50)
+        else if (fuelImage.rectTransform.sizeDelta.x > 50 && !hsAnimStarted)
         {
             fuelImage.rectTransform.sizeDelta -= new Vector2(10, 10) * Time.deltaTime;
         }
-        else if (cockpitImageRect.anchoredPosition.y > -25)
+        else if (cockpitImageRect.anchoredPosition.y > -25 && !hsAnimStarted)
         {
             cockpitImageRect.anchoredPosition -= new Vector2(0, 10 * Time.deltaTime);
         }
@@ -187,8 +194,24 @@ public class PlayerController : MonoBehaviour
         //wynik, paliwo, boost
         //fillAmount od 0 do 1
         fuelImage.fillAmount = percent / 100;
-        score = Convert.ToInt32(Vector3.Distance(Vector3.zero, transform.position) * 0.4f) + addScore;
-        scoreText.text = score.ToString();
+        int desiredScore = Convert.ToInt32(Vector3.Distance(Vector3.zero, transform.position) * 0.4f) + addScore;
+        if (score < desiredScore)
+        {
+            score += 20 * Time.deltaTime;
+            if (score > desiredScore)
+            {
+                score = desiredScore;
+            }
+        }
+        else if (score > desiredScore)
+        {
+            score -= 20 * Time.deltaTime;
+            if (score < desiredScore)
+            {
+                score = desiredScore;
+            }
+        }
+        scoreText.text = Convert.ToInt32(score).ToString();
         float boostPassedTime = Time.time - fromLastBoost;
         if (boostPassedTime < 7)
         {
@@ -344,11 +367,17 @@ public class PlayerController : MonoBehaviour
                 //duzy boost do przodu moge go uzyc jesli nie jestem w planecie
                 if ((pos.x > Screen.width / 2 && pos2.x < Screen.width / 2) || (pos2.x > Screen.width / 2 && pos.x < Screen.width / 2))
                 {
-                    //co 10s mozna zastosowac duzego boosta i jesli nie jestem w planecie
+                    //jesli nie jestem w planecie
                     if (boostPassedTime > 7 && usedFuel + 40 <= fuelTank && atractedTo == -1 && Time.time - timeFromLastPlanet > 2)
                     {
                         targetForceSteer += new Vector3(0, 50, 0);
                         fromLastBoost = Time.time;
+                        //dodajemy do wyniku od 0 do 100
+                        scoreBoost = UnityEngine.Random.Range(0, 101);
+                        boostAddText.text = "+" + scoreBoost.ToString();
+                        boostAdd.SetActive(true);
+                        addScore += scoreBoost;
+                        scoreBoost = 0;
                         //dodatkowy koszt boosta
                         usedFuel += 40;
                     }
@@ -367,6 +396,12 @@ public class PlayerController : MonoBehaviour
                 targetForceSteer += new Vector3(-90 * Time.deltaTime, 0, 0); 
                 shell.transform.Rotate(new Vector3(0, 1, 0) * 90 * Time.deltaTime);
             }
+        }
+
+        //wylaczamy boost add text
+        if (boostAdd.activeSelf && Time.time - fromLastBoost > 4)
+        {
+            boostAdd.SetActive(false);
         }
 
         //wejscie wyjscie z orbity
@@ -530,7 +565,7 @@ public class PlayerController : MonoBehaviour
     void endReload()
     {
         //zapisuje wynik
-        PlayerPrefs.SetInt("addScore", score);
+        PlayerPrefs.SetInt("addScore", Convert.ToInt32(score));
         
         //odtwarzamy efekt spawn
         if (!spawn.GetComponent<ParticleSystem>().isPlaying)
@@ -573,7 +608,7 @@ public class PlayerController : MonoBehaviour
         if (score > highscore)
         {
             PlayerPrefs.SetInt("lastHighscore", highscore);
-            highscore = score;
+            highscore = Convert.ToInt32(score);
             PlayerPrefs.SetInt("highscore", highscore);
             PlayerPrefs.SetInt("highscoreChanged", 1);
         }
@@ -617,5 +652,10 @@ public class PlayerController : MonoBehaviour
     public int getAttractedTo()
     {
         return atractedTo;
+    }
+
+    public float getScore()
+    {
+        return score;
     }
 }

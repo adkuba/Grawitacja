@@ -22,6 +22,7 @@ public class MenuController : MonoBehaviour
     private Vector2 firstTouchPos;
     private Vector2 lastTouchPos;
     private float dragDistance;
+    private int delta;
 
     private GameObject highscoreTextGO;
     private GameObject infoButtonGO;
@@ -106,6 +107,7 @@ public class MenuController : MonoBehaviour
             soundImage.sprite = soundOFF;
         }
         animWait = Time.time;
+        delta = PlayerPrefs.GetInt("highscore", 0) - highscore;
     }
 
     // Update is called once per frame
@@ -192,7 +194,12 @@ public class MenuController : MonoBehaviour
             {
                 if (highscore < PlayerPrefs.GetInt("highscore", 0))
                 {
-                    hsCounter += 18 * Time.deltaTime;
+
+                    hsCounter += (delta * 0.24f + 15.6f) * Time.deltaTime;
+                    if (hsCounter > PlayerPrefs.GetInt("highscore", 0))
+                    {
+                        hsCounter = PlayerPrefs.GetInt("highscore", 0);
+                    }
                     highscore = Convert.ToInt32(hsCounter);
                     highscoreText.text = highscore.ToString();
                     

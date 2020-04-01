@@ -13,7 +13,6 @@ public class Planet : MonoBehaviour
     private GameObject player;
     public Material[] materials;
     private float score;
-    private int addScore;
 
     // Start is called before the first frame update
     void Start()
@@ -21,7 +20,6 @@ public class Planet : MonoBehaviour
         //wylicza szerokość i wysokość kamery
         screenBounds = new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize);
         player = GameObject.FindGameObjectWithTag("Player");
-        addScore = PlayerPrefs.GetInt("addScore", 0);
 
         //czy mam paliwo?
         float rand = Random.value;
@@ -59,7 +57,7 @@ public class Planet : MonoBehaviour
         sparks.transform.localScale = new Vector3(sSize, sSize, sSize);
 
         //kolor zalezny od odleglosci
-        score = Vector3.Distance(Vector3.zero, transform.position) * 0.4f + addScore;
+        score = player.GetComponent<PlayerController>().getScore();
         int index = 0;
         if (score < 400)
         {
