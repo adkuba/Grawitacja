@@ -14,14 +14,14 @@ public class Planet : MonoBehaviour
     public Material[] materials;
     private float score;
 
-    // Start is called before the first frame update
+
     void Start()
     {
-        //wylicza szerokość i wysokość kamery
+        //camera height and width
         screenBounds = new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize);
         player = GameObject.FindGameObjectWithTag("Player");
 
-        //czy mam paliwo?
+        //fuel
         float rand = Random.value;
         fuel = false;
         if (rand > .66f)
@@ -29,7 +29,7 @@ public class Planet : MonoBehaviour
             fuel = true;
         }
         
-        //musze teraz okreslic co bedzie dodatkowo przy planecie
+        //additional effects
         rand = Random.value;
         bool sparksK = false;
         bool moonK = false;
@@ -49,14 +49,11 @@ public class Planet : MonoBehaviour
             sparksK = true;
             moonK = true;
         }
-        //wielkosc i kolor sparkles
-        //musi byc get child zeby znalazlo obiekt pod odpowiednia planeta
+
+        //sparkles size and colour
         sparks = transform.GetChild(0).GetComponent<ParticleSystem>();
         float sSize = transform.localScale.x * 0.14f - 0.2f;
-        //odpowiedni rozmiar
         sparks.transform.localScale = new Vector3(sSize, sSize, sSize);
-
-        //kolor zalezny od odleglosci
         score = player.GetComponent<PlayerController>().getScore();
         int index = 0;
         if (score < 400)
@@ -81,11 +78,12 @@ public class Planet : MonoBehaviour
             index = 4;
         }
         sparks.GetComponent<ParticleSystemRenderer>().trailMaterial = materials[index];
-        //wielkosc ksiezyca od 0.2 do 0.4
+
+        //moon size
         float moonSize = Random.Range(0.2f, 0.4f);
         moon = transform.GetChild(2).gameObject;
         moon.transform.localScale = new Vector3(moonSize, moonSize, moonSize);
-        //usuwanie
+
         if (!moonK)
         {
             Destroy(transform.GetChild(2).gameObject);
@@ -96,10 +94,10 @@ public class Planet : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
+
     void Update()
     {
-        //usuwa sie poza generatorem
+        //deleting
         widthBounds = new Vector2(Camera.main.transform.position.x - screenBounds.x * 5, Camera.main.transform.position.x + screenBounds.x * 5);
         heightBounds = new Vector2(Camera.main.transform.position.y - screenBounds.y * 7, Camera.main.transform.position.y + screenBounds.y * 7);
 

@@ -8,7 +8,7 @@ class PlanetsCompare : IComparer<GameObject>
 {
     private GameObject player = GameObject.FindGameObjectWithTag("Player");
 
-    //porownywarka po odleglosciach od playera
+    //gameobject distance from player compare
     public int Compare(GameObject planet1, GameObject planet2)
     {
         if (planet1 == null && planet2 == null)
@@ -17,25 +17,23 @@ class PlanetsCompare : IComparer<GameObject>
         }
         else if (planet1 == null)
         {
-            // pierwsza planeta nie istnieje wiec druga jest blizej
+            //second is closer
             return 1;
         }
         else if (planet2 == null)
         {
             return -1;
         }
-        //jesli nie mamy nullow to wyliczmy
 
+        //no nulls
         float distance1 = Vector3.Distance(player.transform.position, planet1.transform.position);
         float distance2 = Vector3.Distance(player.transform.position, planet2.transform.position);
         if (distance1 < distance2)
         {
-            //pierwsza planeta jest blizej niz druga
             return -1;
         }
         else if (distance1 > distance2)
         {
-            //pierwsza planeta jest dalej niz druga
             return 1;
         }
         else
@@ -59,7 +57,6 @@ public class Pointers : MonoBehaviour
     private RectTransform firstPRect;
     private RectTransform secondPRect;
 
-    // Start is called before the first frame update
     void Start()
     {
         firstPointer = GameObject.FindGameObjectWithTag("Pointer1");
@@ -74,22 +71,19 @@ public class Pointers : MonoBehaviour
         screenBounds = new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize);
     } 
 
-    // Update is called once per frame
     void Update()
     {
         planets = GameObject.FindGameObjectsWithTag("Planet");
         PlanetsCompare planetsCompare = new PlanetsCompare();
         Array.Sort(planets, planetsCompare);
 
-        //ustalanie pozycji pointerow, odrzucam te ktore sa blizej niz okrag o promieniu do najdalszego punktu kamery (róg ekranu)
-        //tylko na poczatku planet moze byc mniej niz dwa wiec moge zrobic taki warunek
+        //2 planets required, only objects further than screen.magnitude + offsets
         if (planets.Length < 2)
         {
             firstPointer.SetActive(false);
             secondPointer.SetActive(false);
 
         }
-        //jesli jest wiecej niz dwie planety
         else
         {
             int i = 0;
@@ -99,15 +93,14 @@ public class Pointers : MonoBehaviour
             float[] angles = new float[2] { 0, 0 };
             while (i < planets.Length)
             {
-                //19 to max promien planety
+                //19 is the max planet diameter
                 if (Vector3.Distance(player.transform.position, planets[i].transform.position) > screenBounds.magnitude + 19)
                 {
-                    //kierunek
                     Vector3 direction = planets[i].transform.position - player.transform.position;
-                    //normalizacja
                     direction.Normalize();
                     direction *= canvasSize.magnitude;
-                    //ograniczenie, + offset 15 to polowa image i 5 jako space
+
+                    //max values +- offset
                     float offset = 20;
 
                     if (direction.x > canvasSize.x - offset)
@@ -135,11 +128,10 @@ public class Pointers : MonoBehaviour
                         angles[posIdx] *= -1;
                     }
 
-                    //przezroczystosc zalezna od odleglosci
+                    //alpha value
                     alpha[posIdx] = Vector3.Distance(player.transform.position, planets[i].transform.position) * (-0.00714f) + 1f;
                     posIdx++;
                 }
-                //znalezlismy wartosci
                 if (posIdx == 2)
                 {
                     break;

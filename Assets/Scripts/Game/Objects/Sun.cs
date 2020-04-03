@@ -11,7 +11,6 @@ public class Sun : MonoBehaviour
     private Vector3 playerPosition;
     private GameObject player;
 
-    // Start is called before the first frame update
     void Start()
     {
         screenBounds = new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize);
@@ -19,7 +18,6 @@ public class Sun : MonoBehaviour
         playerPosition = player.transform.position;
     }
 
-    // Update is called once per frame
     void Update()
     {
         Vector3 myPosition = transform.position;
@@ -29,7 +27,7 @@ public class Sun : MonoBehaviour
         difference.z = 0;
         transform.position = myPosition - difference * 0.5f;
 
-        //usuwa sie poza generatorem
+        //deleting
         widthBounds = new Vector2(Camera.main.transform.position.x - screenBounds.x * 7f, Camera.main.transform.position.x + screenBounds.x * 7f);
         heightBounds = new Vector2(Camera.main.transform.position.y - screenBounds.y * 9f, Camera.main.transform.position.y + screenBounds.y * 9f);
 

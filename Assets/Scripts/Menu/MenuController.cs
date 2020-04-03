@@ -59,7 +59,7 @@ public class MenuController : MonoBehaviour
         infoNextButtonGO = GameObject.FindGameObjectWithTag("INext");
         soundButtonGO = GameObject.FindGameObjectWithTag("SoundB");
 
-        //swipe to 10% średniej z długości i wysokości ekranu
+        //swipe size
         dragDistance = (Screen.width + Screen.height) * 0.1f / 2f;
         canvas = GameObject.FindGameObjectWithTag("MenuCanvas").GetComponent<Canvas>();
         highscoreText = highscoreTextGO.GetComponent<UnityEngine.UI.Text>();
@@ -84,13 +84,12 @@ public class MenuController : MonoBehaviour
         canvasSize = new Vector2(canvas.GetComponent<RectTransform>().rect.width, canvas.GetComponent<RectTransform>().rect.height);
         soundButton.onClick.AddListener(SoundButton);
 
-        //jesli nie przekroczylismy hs to wyjebane
         if (PlayerPrefs.GetInt("highscoreChanged", 0) == 0)
         {
             highscore = PlayerPrefs.GetInt("highscore", 0);
             highscoreText.text = highscore.ToString();
         }
-        //jesli przekroczylismy
+        //highscore passed
         else
         {
             hsCounter = PlayerPrefs.GetInt("lastHighscore", 0);
@@ -110,19 +109,16 @@ public class MenuController : MonoBehaviour
         delta = PlayerPrefs.GetInt("highscore", 0) - highscore;
     }
 
-    // Update is called once per frame
+
     void Update()
     {
         Vector3 deviceAcc = Input.acceleration;
-        //max magnitude = 1
         deviceAcc.Normalize();
 
-        //uzytkownik zazwyczaj trzyba telefon w pozycji 45 stopni wiec dodaje troche do y pozycji bo punkt "zero" jest jak telefon jest na plasko
-        //0.5 to jest 45 stopni ja robie troche mniej
+        //user usually holds device at some angle
         float yOffset = 0.2f * 30;
 
-        //UWAGA NA TE DODANE WARTOSCI, powinieniem je zgarniac w Start() i tutaj dodawac, żeby nie trzeba bylo zmieniac wartosci i w unity i w skrypcie
-        //REFAKTORYZACJA
+        //optimalization? should get this +- values than manually writing
         Vector3 BGdesired = new Vector3(deviceAcc.x * 20 + canvas.transform.position.x, deviceAcc.y * 20 + canvas.transform.position.y + yOffset, 0);
         Vector2 IBDesired = new Vector2(deviceAcc.x * 30 - 100, deviceAcc.y * 30 - 40 + yOffset);
         Vector2 HSDesired = new Vector2(deviceAcc.x * 30 + 100, deviceAcc.y * 30 - 40 + yOffset);
@@ -130,60 +126,52 @@ public class MenuController : MonoBehaviour
         Vector2 IIDesired = new Vector2(deviceAcc.x * 30, deviceAcc.y * 30 + yOffset);
         Vector2 SBDesired = new Vector2(deviceAcc.x * 30, deviceAcc.y * 30 + yOffset - 40);
 
-        //musze przesunac bg
         if (Vector3.Distance(menuBGGO.transform.position, BGdesired) > 0.1)
         {
             Vector3 difference = BGdesired - menuBGGO.transform.position;
             menuBGGO.transform.position += difference * Time.deltaTime * 20;
         }
 
-        //infoButton
         if (Vector2.Distance(infoButtonRect.anchoredPosition, IBDesired) > 0.1)
         {
             Vector2 difference = IBDesired - infoButtonRect.anchoredPosition;
             infoButtonRect.anchoredPosition += difference * Time.deltaTime * 20;
         }
 
-        //highscore
         if (Vector2.Distance(highscoreTextRect.anchoredPosition, HSDesired) > 0.1)
         {
             Vector2 difference = HSDesired - highscoreTextRect.anchoredPosition;
             highscoreTextRect.anchoredPosition += difference * Time.deltaTime * 20;
         }
 
-        //tap
         if (Vector2.Distance(tapTextRect.anchoredPosition, TDesired) > 0.1)
         {
             Vector2 difference = TDesired - tapTextRect.anchoredPosition;
             tapTextRect.anchoredPosition += difference * Time.deltaTime * 20;
         }
 
-        //infoImage
         if (Vector2.Distance(infoImageRect.anchoredPosition, IIDesired) > 0.1)
         {
             Vector2 difference = IIDesired - infoImageRect.anchoredPosition;
             infoImageRect.anchoredPosition += difference * Time.deltaTime * 20;
         }
 
-        //soundButton
         if (Vector2.Distance(soundButtonRect.anchoredPosition, SBDesired) > 0.1)
         {
             Vector2 difference = SBDesired - soundButtonRect.anchoredPosition;
             soundButtonRect.anchoredPosition += difference * Time.deltaTime * 20;
         }
 
-
-        //jesli przekroczylismy hs to animacja
+        //highscore animation
         if (PlayerPrefs.GetInt("highscoreChanged", 0) == 1)
         {
-            //+ init wait
             if (!textUp && Time.time - animWait > 1)
             {
                 if (highscoreText.fontSize < 40)
                 {
                     highscoreText.fontSize += 1;
-
-                } else
+                } 
+                else
                 {
                     animWait = Time.time;
                     textUp = true;
@@ -194,7 +182,6 @@ public class MenuController : MonoBehaviour
             {
                 if (highscore < PlayerPrefs.GetInt("highscore", 0))
                 {
-
                     hsCounter += (delta * 0.24f + 15.6f) * Time.deltaTime;
                     if (hsCounter > PlayerPrefs.GetInt("highscore", 0))
                     {
@@ -202,8 +189,8 @@ public class MenuController : MonoBehaviour
                     }
                     highscore = Convert.ToInt32(hsCounter);
                     highscoreText.text = highscore.ToString();
-                    
-                } else
+                } 
+                else
                 {
                     animWait = Time.time;
                     count = true;
@@ -215,7 +202,6 @@ public class MenuController : MonoBehaviour
                 if (highscoreText.fontSize > 30)
                 {
                     highscoreText.fontSize -= 1;
-
                 }
                 else
                 {
@@ -223,21 +209,16 @@ public class MenuController : MonoBehaviour
                 }
             }
 
-            //koniec animacji
             if (textUp && count && textDown)
             {
                 PlayerPrefs.SetInt("highscoreChanged", 0);
             }
-
         }
 
-        //jesli nie jest otwarte info
         if (!infoIsOpen)
         {
-            //jesli klikniecie
             if (Input.touchCount == 1)
             {
-                //to sprawdzamy czy nie na info
                 Touch touch = Input.GetTouch(0);
                 if (touch.phase == TouchPhase.Began)
                 {
@@ -252,10 +233,10 @@ public class MenuController : MonoBehaviour
                 {
                     lastTouchPos = touch.position;
 
-                    //to jest klikniecie a nie swipe
+                    //swipe detection
                     if (Math.Abs(lastTouchPos.x - firstTouchPos.x) < dragDistance && Math.Abs(lastTouchPos.y - firstTouchPos.y) < dragDistance)
                     {
-                        //jesli dodatkowo nie klikamy w żaden button ktory jest na gorze
+                        //not clicking buttons
                         if (lastTouchPos.y < soundButtonGO.transform.position.y - 3 * (soundButtonRect.rect.height / 2) / 2)
                         {
                             PlayerPrefs.SetInt("addScore", 0);
@@ -269,7 +250,6 @@ public class MenuController : MonoBehaviour
 
     void TaskOnInfoClick()
     {
-        //zamykamy menu
         if (infoIsOpen)
         {
             highscoreTextGO.SetActive(true);
@@ -280,9 +260,7 @@ public class MenuController : MonoBehaviour
             infoBackButtonGO.SetActive(false);
             infoNextButtonGO.SetActive(false);
             infoIsOpen = false;
-
         }
-        //otwieramy menu
         else
         {
             soundButtonGO.SetActive(false);
@@ -290,13 +268,14 @@ public class MenuController : MonoBehaviour
             tapTextGO.SetActive(false);
             infoImageGO.SetActive(true);
             infoButtonText.text = "Back";
-            //zaczynamy zawsze od pierwszego
             iterator = 0;
+            infoImage.sprite = infoSlides[iterator];
             infoBackButtonGO.SetActive(false);
             infoNextButtonGO.SetActive(true);
             infoIsOpen = true;
         }
     }
+
 
     void NextInfo()
     {
@@ -312,6 +291,7 @@ public class MenuController : MonoBehaviour
         }
     }
 
+
     void BackInfo()
     {
         iterator--;
@@ -326,9 +306,9 @@ public class MenuController : MonoBehaviour
         }
     }
 
+
     void SoundButton()
     {
-        //zmieniamy na nie moze grac
         if (PlayerPrefs.GetInt("canPlayMusic", 1) == 1)
         {
             PlayerPrefs.SetInt("canPlayMusic", 0);
@@ -341,5 +321,3 @@ public class MenuController : MonoBehaviour
         }
     }
 }
-
-

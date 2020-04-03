@@ -6,10 +6,11 @@ public class Moon : MonoBehaviour
 {
     private Vector3 rotation;
 
-    // Start is called before the first frame update
+
     void Start()
     {
-        if (Random.Range(0, 2) == 0) //wartosci 0 albo 1
+        //values 0 or 1!
+        if (Random.Range(0, 2) == 0)
         {
             rotation = new Vector3(0, 0, 1);
         }
@@ -19,7 +20,7 @@ public class Moon : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
+
     void Update()
     {
         transform.RotateAround(transform.parent.position, rotation, 30 * Time.deltaTime);

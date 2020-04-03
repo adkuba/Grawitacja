@@ -16,7 +16,8 @@ public class Music : MonoBehaviour
     void Start()
     {
         musicSource = GetComponent<AudioSource>();
-        //max moze byc jeden kontroler muzyki
+
+        //max 1 music controller
         GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Music");
         if (gameObjects.Length > 1)
         {
@@ -31,19 +32,17 @@ public class Music : MonoBehaviour
    
     void Update()
     {
-        //jesli muzyka nie gra przez wyznaczony czas
         if (!musicSource.isPlaying && Time.time - silenceTime > delay && PlayerPrefs.GetInt("canPlayMusic", 1) == 1)
         {
-            //jesli odtworzylismy wszystkie utwory to zaczynamy od poczatku
+            //all music played
             if (playedMusic.Count == audioClips.Length)
             {
                 playedMusic.Clear();
             }
-            //odtwarzamy losowy utwor ktory jeszcze nie gralismy
+            //random play
             int index = Random.Range(0, audioClips.Length);
             while (playedMusic.Contains(index))
             {
-                //przy intach koncowej wartosci nie wylosuje
                 index = Random.Range(0, audioClips.Length);
             }
             musicSource.clip = audioClips[index];

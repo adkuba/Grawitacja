@@ -8,14 +8,14 @@ public class BGController : MonoBehaviour
     private GameObject player;
     public float scrollSpeed = 0.1f;
 
-    // Start is called before the first frame update
+    
     void Start()
     {
         meshRenderer = GetComponent<MeshRenderer>();
         player = GameObject.FindGameObjectWithTag("Player");
     }
 
-    // Update is called once per frame
+    
     void Update()
     {
         transform.position = player.transform.position + new Vector3(0, 0, 40);

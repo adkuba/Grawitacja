@@ -2,6 +2,8 @@
 using UnityEngine.UI;
 using UnityEngine.Advertisements;
 
+
+//form unity tutorial
 [RequireComponent(typeof(Button))]
 public class AdScript : MonoBehaviour, IUnityAdsListener
 {
