@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
@@ -33,13 +34,21 @@ public class PlayerController : MonoBehaviour
     private bool fuelAnim = false;
     private bool hsAnimStarted = false;
     private int scoreBoost = 0;
+    private float steerAddition = 0;
+    private int closestAsteroid = -1;
+    private bool slowdownPlanet = false;
+    private float slowdownAngle = 0;
+    private float desiredTimeScale;
+    private float slowdownCameraAngle = -1;
 
     private GameObject[] planets;
+    private GameObject[] asteroids;
     private GameObject scoreGameObject;
     private GameObject fuelGameObject;
     private GameObject boostGameObject;
     private GameObject spawn;
     private GameObject boostAdd;
+    private GameObject fuelWarning;
     private GameObject cockpitImage;
     private GameObject adManager;
     private GameObject adNo;
@@ -66,6 +75,7 @@ public class PlayerController : MonoBehaviour
         fuelGameObject = GameObject.FindGameObjectWithTag("Fuel");
         boostGameObject = GameObject.FindGameObjectWithTag("Boost");
         adManager = GameObject.FindGameObjectWithTag("AdManager");
+        fuelWarning = GameObject.FindGameObjectWithTag("FuelWarning");
         adNo = GameObject.FindGameObjectWithTag("AdNo");
         engine = GameObject.FindGameObjectWithTag("Engine");
         fuelEffect = GameObject.FindGameObjectWithTag("FuelEffect");
@@ -97,6 +107,7 @@ public class PlayerController : MonoBehaviour
         adNo.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(AdNoButtonClicked);
         adManager.SetActive(false);
         boostAdd.SetActive(false);
+        fuelWarning.SetActive(false);
         timeFromLastPlanet = Time.time;
     }
 
@@ -150,6 +161,7 @@ public class PlayerController : MonoBehaviour
         if (Time.time - timeFromLastPlanet > 10)
         {
             usedFuel += Time.deltaTime * 5;
+            fuelWarning.SetActive(true);
 
             //animation checking
             if (!hsAnimStarted)
@@ -178,6 +190,12 @@ public class PlayerController : MonoBehaviour
             fuelAnim = false;
         }
 
+        //warning remove
+        if (Time.time - timeFromLastPlanet < 10)
+        {
+            fuelWarning.SetActive(false);
+        }
+
         //score, boost, fuel cockpit
         fuelImage.fillAmount = percent / 100;
         int desiredScore = Convert.ToInt32(Vector3.Distance(Vector3.zero, transform.position) * 0.4f) + addScore;
@@ -198,6 +216,26 @@ public class PlayerController : MonoBehaviour
             }
         }
         scoreText.text = Convert.ToInt32(score).ToString();
+        //slowdown angle is reducing with score
+        slowdownAngle = score * -0.0214f + 34.29f;
+        if (slowdownAngle > 30)
+        {
+            slowdownAngle = 30;
+        }
+        if (slowdownAngle < 0)
+        {
+            slowdownAngle = 0;
+        }
+        //timescale up with score
+        desiredTimeScale = score * 0.000429f + 0.914f;
+        if (desiredTimeScale < 1)
+        {
+            desiredTimeScale = 1;
+        }
+        if (desiredTimeScale > 1.6f)
+        {
+            desiredTimeScale = 1.6f;
+        }
         float boostPassedTime = Time.time - fromLastBoost;
         if (boostPassedTime < 7)
         {
@@ -285,16 +323,43 @@ public class PlayerController : MonoBehaviour
         //player rotation and camera
         if (!exiting)
         {
-            float cameraSize = rb.velocity.magnitude * 0.28f + 16f;
-            if (cameraSize < 20) 
+            float cameraSize = 0;
+            if (slowdownCameraAngle == -1)
             {
-                cameraSize = 20;
+                cameraSize = rb.velocity.magnitude * 0.21f + 21.58f;
+                if (cameraSize < 26)
+                {
+                    cameraSize = 26;
+                }
+                if (cameraSize > 30)
+                {
+                    cameraSize = 30;
+                }
             }
-            if (cameraSize > 30) 
+            //focus on slowdown
+            else
             {
-                cameraSize = 30;
+                cameraSize = slowdownCameraAngle;
             }
-            Camera.main.orthographicSize = cameraSize;
+            float actualCameraSize = Camera.main.orthographicSize;
+            if (actualCameraSize < cameraSize)
+            {
+                actualCameraSize += 20 * Time.deltaTime;
+                if (actualCameraSize > cameraSize)
+                {
+                    actualCameraSize = cameraSize;
+                }
+            }
+            if (actualCameraSize > cameraSize)
+            {
+                actualCameraSize -= 20 * Time.deltaTime;
+                if (actualCameraSize < cameraSize)
+                {
+                    actualCameraSize = cameraSize;
+                }
+            }
+
+            Camera.main.orthographicSize = actualCameraSize;
 
             float coordinate = steer(rb.velocity.x, rb.velocity.y);
             Quaternion rotation = Quaternion.Euler(0, 0, 0);
@@ -347,12 +412,12 @@ public class PlayerController : MonoBehaviour
             }
             else if (pos.x > Screen.width / 2)
             {
-                targetForceSteer += new Vector3(90 * Time.deltaTime, 0, 0);
+                targetForceSteer += new Vector3(90 * Time.deltaTime + steerAddition, 0, 0);
                 shell.transform.Rotate(new Vector3(0, -1, 0) * 90 * Time.deltaTime);
             }
             else if (pos.x < Screen.width / 2)
             {
-                targetForceSteer += new Vector3(-90 * Time.deltaTime, 0, 0); 
+                targetForceSteer += new Vector3(-90 * Time.deltaTime - steerAddition, 0, 0); 
                 shell.transform.Rotate(new Vector3(0, 1, 0) * 90 * Time.deltaTime);
             }
         }
@@ -367,6 +432,15 @@ public class PlayerController : MonoBehaviour
         if (lastAtracttedTo != atractedTo && lastAtracttedTo == -1) 
         {
             orbitTime = Time.time;
+            Vector3 direction = planets[atractedTo].transform.position - transform.position;
+            if (Vector3.Angle(rb.velocity, direction) < slowdownAngle)
+            {
+                slowdownPlanet = true;
+            }
+            else
+            {
+                slowdownPlanet = false;
+            }
         }
 
         //out of orbit, boost
@@ -381,7 +455,72 @@ public class PlayerController : MonoBehaviour
             }
             orbitTime = 0;
         }
-        
+
+
+        asteroids = GameObject.FindGameObjectsWithTag("Asteroid");
+        //moons as asteroids
+        asteroids = asteroids.Concat(GameObject.FindGameObjectsWithTag("Moon")).ToArray();
+        if (closestAsteroid == -1 && atractedTo == -1)
+        {
+            foreach (GameObject asteroid in asteroids)
+            {
+                if (asteroid != null)
+                {
+                    if (Vector3.Distance(transform.position, asteroid.transform.position) < 20)
+                    {
+                        Vector3 direction = asteroid.transform.position - transform.position;
+                        //if small angle
+                        if (Vector3.Angle(rb.velocity, direction) < slowdownAngle)
+                        {
+                            closestAsteroid = Array.IndexOf(asteroids, asteroid);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        //slowdown
+        //jesli planeta
+        if (atractedTo != -1 && slowdownPlanet && fuelTank - usedFuel > 0 && !exiting)
+        {
+            Vector3 direction = planets[atractedTo].transform.position - transform.position;
+            //this angle constant
+            if (Vector3.Angle(rb.velocity, direction) < 40f)
+            {
+                slowdownCameraAngle = 23;
+                Time.timeScale = 0.4f;
+                steerAddition = 220 * Time.deltaTime;
+            }
+            else
+            {
+                slowdownPlanet = false;
+            }
+        }
+        //jesli asteroida
+        else if (closestAsteroid != -1 && fuelTank - usedFuel > 0 && !exiting)
+        {
+            Vector3 direction = asteroids[closestAsteroid].transform.position - transform.position;
+            if (Vector3.Angle(rb.velocity, direction) < 25f)
+            {
+                slowdownCameraAngle = 23;
+                Time.timeScale = 0.5f;
+                steerAddition = 80 * Time.deltaTime;
+            }
+            else
+            {
+                closestAsteroid = -1;
+            }
+        }
+        //if no slowdown
+        else
+        {
+            slowdownCameraAngle = -1;
+            Time.timeScale = desiredTimeScale;
+            steerAddition = 0;
+        }
+       
+
         //gravity
         if (atractedTo != -1)
         {
@@ -455,7 +594,7 @@ public class PlayerController : MonoBehaviour
         if (usedFuel > fuelTank) 
         {
             engine.SetActive(false);
-            rb.velocity -= rb.velocity * Time.deltaTime * 0.1f;
+            rb.velocity -= rb.velocity * Time.deltaTime * 0.4f;
             if (rb.velocity.magnitude < 7 && atractedTo == -1) 
             {
                 endSequence();
