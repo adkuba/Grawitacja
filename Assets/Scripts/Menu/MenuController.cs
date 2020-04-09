@@ -107,6 +107,13 @@ public class MenuController : MonoBehaviour
         }
         animWait = Time.time;
         delta = PlayerPrefs.GetInt("highscore", 0) - highscore;
+
+        //first open
+        if (PlayerPrefs.GetInt("hasPlayed", 0) == 0)
+        {
+            PlayerPrefs.SetInt("hasPlayed", 1);
+            TaskOnInfoClick();
+        }
     }
 
 
@@ -237,7 +244,10 @@ public class MenuController : MonoBehaviour
                     if (Math.Abs(lastTouchPos.x - firstTouchPos.x) < dragDistance && Math.Abs(lastTouchPos.y - firstTouchPos.y) < dragDistance)
                     {
                         //not clicking buttons
-                        if (lastTouchPos.y < soundButtonGO.transform.position.y - 3 * (soundButtonRect.rect.height / 2) / 2)
+                        //touch is in pixels!!!
+                        float percent = (canvasSize.y + soundButtonRect.anchoredPosition.y - 3 * (soundButtonRect.rect.height / 2) / 2) / canvasSize.y;
+                        float pixelValue = Screen.height * percent;
+                        if (lastTouchPos.y < pixelValue)
                         {
                             PlayerPrefs.SetInt("addScore", 0);
                             SceneManager.LoadScene("Game");

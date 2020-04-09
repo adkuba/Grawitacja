@@ -63,7 +63,6 @@ public class PlayerController : MonoBehaviour
     private UnityEngine.UI.Text scoreText;
     private UnityEngine.UI.Text boostAddText;
     private AudioSource crashSound;
-    private AudioSource engineSound;
 
 
     void Start()
@@ -81,7 +80,6 @@ public class PlayerController : MonoBehaviour
         fuelEffect = GameObject.FindGameObjectWithTag("FuelEffect");
         boostAdd = GameObject.FindGameObjectWithTag("BoostAdd");
         crashSound = GetComponent<AudioSource>();
-        engineSound = engine.GetComponent<AudioSource>();
         adNoRect = adNo.GetComponent<RectTransform>();
         
         //spawn effect, order of code is important!
@@ -655,7 +653,6 @@ public class PlayerController : MonoBehaviour
         {
             endSeguenceInvoked = true;
             crashSound.Play();
-            engineSound.Pause();
             exiting = true;
             rb.isKinematic = true;
             adManager.SetActive(true);
