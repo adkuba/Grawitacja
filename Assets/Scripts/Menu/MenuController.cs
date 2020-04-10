@@ -28,7 +28,6 @@ public class MenuController : MonoBehaviour
     private GameObject infoButtonGO;
     private GameObject tapTextGO;
     private GameObject infoImageGO;
-    private GameObject menuBGGO;
     private GameObject infoBackButtonGO;
     private GameObject infoNextButtonGO;
     private GameObject soundButtonGO;
@@ -54,7 +53,6 @@ public class MenuController : MonoBehaviour
         infoImageGO = GameObject.FindGameObjectWithTag("InfoImage");
         infoButtonGO = GameObject.FindGameObjectWithTag("InfoButton");
         tapTextGO = GameObject.FindGameObjectWithTag("TapText");
-        menuBGGO = GameObject.FindGameObjectWithTag("MenuBG");
         infoBackButtonGO = GameObject.FindGameObjectWithTag("IBack");
         infoNextButtonGO = GameObject.FindGameObjectWithTag("INext");
         soundButtonGO = GameObject.FindGameObjectWithTag("SoundB");
@@ -119,56 +117,6 @@ public class MenuController : MonoBehaviour
 
     void Update()
     {
-        Vector3 deviceAcc = Input.acceleration;
-        deviceAcc.Normalize();
-
-        //user usually holds device at some angle
-        float yOffset = 0.2f * 30;
-
-        //optimalization? should get this +- values than manually writing
-        Vector3 BGdesired = new Vector3(deviceAcc.x * 20 + canvas.transform.position.x, deviceAcc.y * 20 + canvas.transform.position.y + yOffset, 0);
-        Vector2 IBDesired = new Vector2(deviceAcc.x * 30 - 100, deviceAcc.y * 30 - 40 + yOffset);
-        Vector2 HSDesired = new Vector2(deviceAcc.x * 30 + 100, deviceAcc.y * 30 - 40 + yOffset);
-        Vector2 TDesired = new Vector2(deviceAcc.x * 30, deviceAcc.y * 30 + 60 + yOffset);
-        Vector2 IIDesired = new Vector2(deviceAcc.x * 30, deviceAcc.y * 30 + yOffset);
-        Vector2 SBDesired = new Vector2(deviceAcc.x * 30, deviceAcc.y * 30 + yOffset - 40);
-
-        if (Vector3.Distance(menuBGGO.transform.position, BGdesired) > 0.1)
-        {
-            Vector3 difference = BGdesired - menuBGGO.transform.position;
-            menuBGGO.transform.position += difference * Time.deltaTime * 20;
-        }
-
-        if (Vector2.Distance(infoButtonRect.anchoredPosition, IBDesired) > 0.1)
-        {
-            Vector2 difference = IBDesired - infoButtonRect.anchoredPosition;
-            infoButtonRect.anchoredPosition += difference * Time.deltaTime * 20;
-        }
-
-        if (Vector2.Distance(highscoreTextRect.anchoredPosition, HSDesired) > 0.1)
-        {
-            Vector2 difference = HSDesired - highscoreTextRect.anchoredPosition;
-            highscoreTextRect.anchoredPosition += difference * Time.deltaTime * 20;
-        }
-
-        if (Vector2.Distance(tapTextRect.anchoredPosition, TDesired) > 0.1)
-        {
-            Vector2 difference = TDesired - tapTextRect.anchoredPosition;
-            tapTextRect.anchoredPosition += difference * Time.deltaTime * 20;
-        }
-
-        if (Vector2.Distance(infoImageRect.anchoredPosition, IIDesired) > 0.1)
-        {
-            Vector2 difference = IIDesired - infoImageRect.anchoredPosition;
-            infoImageRect.anchoredPosition += difference * Time.deltaTime * 20;
-        }
-
-        if (Vector2.Distance(soundButtonRect.anchoredPosition, SBDesired) > 0.1)
-        {
-            Vector2 difference = SBDesired - soundButtonRect.anchoredPosition;
-            soundButtonRect.anchoredPosition += difference * Time.deltaTime * 20;
-        }
-
         //highscore animation
         if (PlayerPrefs.GetInt("highscoreChanged", 0) == 1)
         {
