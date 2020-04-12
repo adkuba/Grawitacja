@@ -54,7 +54,14 @@ public class Planet : MonoBehaviour
         sparks = transform.GetChild(0).GetComponent<ParticleSystem>();
         float sSize = transform.localScale.x * 0.14f - 0.2f;
         sparks.transform.localScale = new Vector3(sSize, sSize, sSize);
-        score = player.GetComponent<PlayerController>().getScore();
+        if (player.GetComponent<PlayerController>() == null)
+        {
+            score = player.GetComponent<MenuPlayer>().getScore();
+        }
+        else
+        {
+            score = player.GetComponent<PlayerController>().getScore();
+        }
         int index = 0;
         if (score < 400)
         {

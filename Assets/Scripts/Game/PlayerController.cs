@@ -156,7 +156,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //more fuel when not orbiting
-        if (Time.time - timeFromLastPlanet > 10)
+        if (Time.time - timeFromLastPlanet > 10 && !exiting)
         {
             usedFuel += Time.deltaTime * 5;
             fuelWarning.SetActive(true);
@@ -189,7 +189,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //warning remove
-        if (Time.time - timeFromLastPlanet < 10)
+        if (Time.time - timeFromLastPlanet < 10 || exiting)
         {
             fuelWarning.SetActive(false);
         }

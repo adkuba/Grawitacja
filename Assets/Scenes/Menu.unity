@@ -230,6 +230,55 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &16599282
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 16599284}
+  - component: {fileID: 16599283}
+  m_Layer: 0
+  m_Name: ObjectsGenerator
+  m_TagString: ObjectsGenerator
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &16599283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 16599282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c21582e8aadebe4dbb0e0aeb4e26ca0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  planetPrefab: {fileID: 1420010585961208381, guid: 9b31bc221c242ff4aa1a6809f9dbdaf3,
+    type: 3}
+  asteroidPrefab: {fileID: 2939228584696813498, guid: 03d48db34be393a44944663e9471e0c6,
+    type: 3}
+  sunPrefab: {fileID: 2932305652414498566, guid: c7aa3528b894c5d4baab34ccbf1aef71,
+    type: 3}
+--- !u!4 &16599284
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 16599282}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 366.01773, y: 225.69693, z: -1150.875}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &130152218
 GameObject:
   m_ObjectHideFlags: 0
@@ -1098,16 +1147,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15c659a16f30afd4bb5fd51e499773f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  planetPrefab: {fileID: 1420010585961208381, guid: c88f6500c3af332449b9be9b9296fe00,
-    type: 3}
-  asteroidPrefab: {fileID: 2939228584696813498, guid: 03d48db34be393a44944663e9471e0c6,
-    type: 3}
-  sunPrefab: {fileID: 2932305652414498566, guid: c7aa3528b894c5d4baab34ccbf1aef71,
-    type: 3}
-  maxPlanets: 6
-  maxSuns: 1
-  sunRespawn: 10
-  planetRespawn: 1
 --- !u!81 &902101919
 AudioListener:
   m_ObjectHideFlags: 0

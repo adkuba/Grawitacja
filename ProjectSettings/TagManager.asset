@@ -4,8 +4,6 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Planet
-  - Pointer
   - Score
   - Fuel
   - Asteroid
@@ -35,6 +33,8 @@ TagManager:
   - BoostAdd
   - Moon
   - FuelWarning
+  - ObjectsGenerator
+  - Planet
   layers:
   - Default
   - TransparentFX

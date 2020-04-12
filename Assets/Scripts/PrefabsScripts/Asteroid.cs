@@ -4,33 +4,20 @@ using UnityEngine;
 
 public class Asteroid : MonoBehaviour
 {
-    private Rigidbody rb;
     private Vector2 screenBounds;
     private Vector2 widthBounds;
     private Vector2 heightBounds;
-    private Vector3 lastPlayerPosition;
-    private Vector3 playerPosition;
-    private GameObject playerGO;
 
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
         screenBounds = new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize);
-        playerGO = GameObject.FindGameObjectWithTag("Player");
-        playerPosition = playerGO.transform.position;
     }
 
 
     void Update()
     {
         transform.Rotate(new Vector3(Random.Range(-1, 1), Random.Range(-1, 1)), 45 * Time.deltaTime);
-        Vector3 myPosition = transform.position;
-        lastPlayerPosition = playerPosition;
-        playerPosition = playerGO.transform.position;
-        Vector3 difference = lastPlayerPosition - playerPosition;
-        difference.z = 0;
-        transform.position = myPosition + difference * 0.3f;
 
         //deleting
         widthBounds = new Vector2(Camera.main.transform.position.x - screenBounds.x * 4, Camera.main.transform.position.x + screenBounds.x * 4);

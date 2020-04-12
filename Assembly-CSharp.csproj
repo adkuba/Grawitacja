@@ -56,19 +56,19 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Game\AdScript.cs" />
-     <Compile Include="Assets\Scripts\Game\BGController.cs" />
      <Compile Include="Assets\Scripts\Game\CameraController.cs" />
-     <Compile Include="Assets\Scripts\Game\Objects\Asteroid.cs" />
-     <Compile Include="Assets\Scripts\Game\Objects\Moon.cs" />
-     <Compile Include="Assets\Scripts\Game\Objects\Planet.cs" />
-     <Compile Include="Assets\Scripts\Game\Objects\Pointers.cs" />
-     <Compile Include="Assets\Scripts\Game\Objects\Sun.cs" />
      <Compile Include="Assets\Scripts\Game\PlayerController.cs" />
+     <Compile Include="Assets\Scripts\Game\Pointers.cs" />
      <Compile Include="Assets\Scripts\Menu\MenuCamera.cs" />
      <Compile Include="Assets\Scripts\Menu\MenuController.cs" />
-     <Compile Include="Assets\Scripts\Menu\MenuPlanet.cs" />
      <Compile Include="Assets\Scripts\Menu\MenuPlayer.cs" />
      <Compile Include="Assets\Scripts\Menu\Music.cs" />
+     <Compile Include="Assets\Scripts\PrefabsScripts\Asteroid.cs" />
+     <Compile Include="Assets\Scripts\PrefabsScripts\Moon.cs" />
+     <Compile Include="Assets\Scripts\PrefabsScripts\Planet.cs" />
+     <Compile Include="Assets\Scripts\PrefabsScripts\Sun.cs" />
+     <Compile Include="Assets\Scripts\Shared\BGController.cs" />
+     <Compile Include="Assets\Scripts\Shared\ObjectsGenerator.cs" />
      <None Include="Assets\UnityAds\link.xml" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>D:/Documents/2020/Unity/Grawitacja/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

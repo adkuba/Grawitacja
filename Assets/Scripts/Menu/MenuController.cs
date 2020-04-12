@@ -18,7 +18,6 @@ public class MenuController : MonoBehaviour
     private Vector2 canvasSize;
     public Sprite[] infoSlides;
     private int iterator = 0;
-    private Vector3 lastDevAcc = Vector3.zero;
     private Vector2 firstTouchPos;
     private Vector2 lastTouchPos;
     private float dragDistance;
@@ -39,11 +38,6 @@ public class MenuController : MonoBehaviour
     public Sprite soundOFF;
     private Image soundImage;
     private Button soundButton;
-
-    private RectTransform infoButtonRect;
-    private RectTransform tapTextRect;
-    private RectTransform highscoreTextRect;
-    private RectTransform infoImageRect;
     private RectTransform soundButtonRect;
     
 
@@ -64,15 +58,11 @@ public class MenuController : MonoBehaviour
         infoButtonText = infoButtonGO.GetComponentInChildren<UnityEngine.UI.Text>();
         infoImage = infoImageGO.GetComponent<Image>();
         Button infoButton = infoButtonGO.GetComponent<UnityEngine.UI.Button>();
-        infoButtonRect = infoButtonGO.GetComponent<RectTransform>();
         Button infoBackButton = infoBackButtonGO.GetComponent<UnityEngine.UI.Button>();
         Button infoNextButton = infoNextButtonGO.GetComponent<UnityEngine.UI.Button>();
-        tapTextRect = tapTextGO.GetComponent<RectTransform>();
-        highscoreTextRect = highscoreTextGO.GetComponent<RectTransform>();
-        infoImageRect = infoImageGO.GetComponent<RectTransform>();
-        soundButtonRect = soundButtonGO.GetComponent<RectTransform>();
         soundButton = soundButtonGO.GetComponent<UnityEngine.UI.Button>();
         soundImage = soundButton.GetComponent<UnityEngine.UI.Image>();
+        soundButtonRect = soundButtonGO.GetComponent<RectTransform>();
 
         infoImage.sprite = infoSlides[iterator];
         infoImageGO.SetActive(false);

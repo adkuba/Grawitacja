@@ -93,8 +93,7 @@ public class Pointers : MonoBehaviour
             float[] angles = new float[2] { 0, 0 };
             while (i < planets.Length)
             {
-                //19 is the max planet diameter
-                if (Vector3.Distance(player.transform.position, planets[i].transform.position) > screenBounds.magnitude + 19)
+                if (Vector3.Distance(player.transform.position, planets[i].transform.position) > screenBounds.magnitude)
                 {
                     Vector3 direction = planets[i].transform.position - player.transform.position;
                     direction.Normalize();
@@ -129,7 +128,16 @@ public class Pointers : MonoBehaviour
                     }
 
                     //alpha value
-                    alpha[posIdx] = Vector3.Distance(player.transform.position, planets[i].transform.position) * (-0.00714f) + 1f;
+                    float a = Vector3.Distance(player.transform.position, planets[i].transform.position) / (-3 * screenBounds.magnitude) + 1.33f;
+                    if (a > 1)
+                    {
+                        a = 1;
+                    }
+                    if (a < 0)
+                    {
+                        a = 0;
+                    }
+                    alpha[posIdx] = a;
                     posIdx++;
                 }
                 if (posIdx == 2)
