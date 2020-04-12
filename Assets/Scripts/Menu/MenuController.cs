@@ -22,6 +22,8 @@ public class MenuController : MonoBehaviour
     private Vector2 lastTouchPos;
     private float dragDistance;
     private int delta;
+    private int easterEggCounter = 0;
+    public Sprite easterEggImage;
 
     private GameObject highscoreTextGO;
     private GameObject infoButtonGO;
@@ -198,6 +200,12 @@ public class MenuController : MonoBehaviour
 
     void TaskOnInfoClick()
     {
+        easterEggCounter++;
+        if (easterEggCounter == 20)
+        {
+            infoSlides = new Sprite[1];
+            infoSlides[0] = easterEggImage;
+        }
         if (infoIsOpen)
         {
             highscoreTextGO.SetActive(true);

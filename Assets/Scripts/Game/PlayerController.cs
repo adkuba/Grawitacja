@@ -479,7 +479,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //slowdown
-        //jesli planeta
+        //if planet
         if (atractedTo != -1 && slowdownPlanet && fuelTank - usedFuel > 0 && !exiting)
         {
             Vector3 direction = planets[atractedTo].transform.position - transform.position;
@@ -495,7 +495,7 @@ public class PlayerController : MonoBehaviour
                 slowdownPlanet = false;
             }
         }
-        //jesli asteroida
+        //if asteroid
         else if (closestAsteroid != -1 && fuelTank - usedFuel > 0 && !exiting)
         {
             Vector3 direction = asteroids[closestAsteroid].transform.position - transform.position;
