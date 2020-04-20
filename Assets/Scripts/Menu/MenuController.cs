@@ -206,7 +206,7 @@ public class MenuController : MonoBehaviour
             tapTextGO.SetActive(true);
             soundButtonGO.SetActive(true);
             tutorialManager.SetActive(false);
-            infoButtonText.text = "Info";
+            infoButtonText.text = "Tutorial";
             infoIsOpen = false;
         }
         else
