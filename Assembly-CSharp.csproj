@@ -67,8 +67,11 @@
      <Compile Include="Assets\Scripts\PrefabsScripts\Moon.cs" />
      <Compile Include="Assets\Scripts\PrefabsScripts\Planet.cs" />
      <Compile Include="Assets\Scripts\PrefabsScripts\Sun.cs" />
+     <Compile Include="Assets\Scripts\PrefabsScripts\TutPlanet.cs" />
      <Compile Include="Assets\Scripts\Shared\BGController.cs" />
      <Compile Include="Assets\Scripts\Shared\ObjectsGenerator.cs" />
+     <Compile Include="Assets\Scripts\Tutorial\CameraTutorial.cs" />
+     <Compile Include="Assets\Scripts\Tutorial\PlayerTutorial.cs" />
      <None Include="Assets\UnityAds\link.xml" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>D:/Documents/2020/Unity/Grawitacja/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

@@ -35,6 +35,12 @@ TagManager:
   - FuelWarning
   - ObjectsGenerator
   - Planet
+  - InfoText
+  - Repeat
+  - TutorialManager
+  - TutorialYes
+  - TutorialNo
+  - TutorialBG
   layers:
   - Default
   - TransparentFX

@@ -16,8 +16,6 @@ public class MenuController : MonoBehaviour
     private float animWait = 0;
     private float hsCounter = 0;
     private Vector2 canvasSize;
-    public Sprite[] infoSlides;
-    private int iterator = 0;
     private Vector2 firstTouchPos;
     private Vector2 lastTouchPos;
     private float dragDistance;
@@ -28,11 +26,7 @@ public class MenuController : MonoBehaviour
     private GameObject highscoreTextGO;
     private GameObject infoButtonGO;
     private GameObject tapTextGO;
-    private GameObject infoImageGO;
-    private GameObject infoBackButtonGO;
-    private GameObject infoNextButtonGO;
     private GameObject soundButtonGO;
-    private Image infoImage;
     private Text highscoreText;
     private Text infoButtonText;
     private Canvas canvas;
@@ -41,36 +35,37 @@ public class MenuController : MonoBehaviour
     private Image soundImage;
     private Button soundButton;
     private RectTransform soundButtonRect;
+    private GameObject tutorialManager;
+    private GameObject tutorialYesGO;
+    private GameObject tutorialBGGO;
+    private Image tutorialBG;
     
 
     void Start()
     {
         highscoreTextGO = GameObject.FindGameObjectWithTag("Highscore");
-        infoImageGO = GameObject.FindGameObjectWithTag("InfoImage");
+        tutorialManager = GameObject.FindGameObjectWithTag("TutorialManager");
+        tutorialYesGO = GameObject.FindGameObjectWithTag("TutorialYes");
         infoButtonGO = GameObject.FindGameObjectWithTag("InfoButton");
         tapTextGO = GameObject.FindGameObjectWithTag("TapText");
-        infoBackButtonGO = GameObject.FindGameObjectWithTag("IBack");
-        infoNextButtonGO = GameObject.FindGameObjectWithTag("INext");
         soundButtonGO = GameObject.FindGameObjectWithTag("SoundB");
+        tutorialBGGO = GameObject.FindGameObjectWithTag("TutorialBG");
 
         //swipe size
         dragDistance = (Screen.width + Screen.height) * 0.1f / 2f;
         canvas = GameObject.FindGameObjectWithTag("MenuCanvas").GetComponent<Canvas>();
         highscoreText = highscoreTextGO.GetComponent<UnityEngine.UI.Text>();
         infoButtonText = infoButtonGO.GetComponentInChildren<UnityEngine.UI.Text>();
-        infoImage = infoImageGO.GetComponent<Image>();
         Button infoButton = infoButtonGO.GetComponent<UnityEngine.UI.Button>();
-        Button infoBackButton = infoBackButtonGO.GetComponent<UnityEngine.UI.Button>();
-        Button infoNextButton = infoNextButtonGO.GetComponent<UnityEngine.UI.Button>();
+        Button tutorialYesButton = tutorialYesGO.GetComponent<UnityEngine.UI.Button>();
         soundButton = soundButtonGO.GetComponent<UnityEngine.UI.Button>();
         soundImage = soundButton.GetComponent<UnityEngine.UI.Image>();
+        tutorialBG = tutorialBGGO.GetComponent<UnityEngine.UI.Image>();
         soundButtonRect = soundButtonGO.GetComponent<RectTransform>();
 
-        infoImage.sprite = infoSlides[iterator];
-        infoImageGO.SetActive(false);
+        tutorialManager.SetActive(false);
         infoButton.onClick.AddListener(TaskOnInfoClick);
-        infoNextButton.onClick.AddListener(NextInfo);
-        infoBackButton.onClick.AddListener(BackInfo);
+        tutorialYesButton.onClick.AddListener(YesTut);
         canvasSize = new Vector2(canvas.GetComponent<RectTransform>().rect.width, canvas.GetComponent<RectTransform>().rect.height);
         soundButton.onClick.AddListener(SoundButton);
 
@@ -99,9 +94,9 @@ public class MenuController : MonoBehaviour
         delta = PlayerPrefs.GetInt("highscore", 0) - highscore;
 
         //first open
-        if (PlayerPrefs.GetInt("hasPlayed", 0) == 0)
+        if (PlayerPrefs.GetInt("hasPlayed1_1", 0) == 0)
         {
-            PlayerPrefs.SetInt("hasPlayed", 1);
+            PlayerPrefs.SetInt("hasPlayed1_1", 1);
             TaskOnInfoClick();
         }
     }
@@ -203,18 +198,15 @@ public class MenuController : MonoBehaviour
         easterEggCounter++;
         if (easterEggCounter == 20)
         {
-            infoSlides = new Sprite[1];
-            infoSlides[0] = easterEggImage;
+            tutorialBG.sprite = easterEggImage;
         }
         if (infoIsOpen)
         {
             highscoreTextGO.SetActive(true);
             tapTextGO.SetActive(true);
             soundButtonGO.SetActive(true);
-            infoImageGO.SetActive(false);
+            tutorialManager.SetActive(false);
             infoButtonText.text = "Info";
-            infoBackButtonGO.SetActive(false);
-            infoNextButtonGO.SetActive(false);
             infoIsOpen = false;
         }
         else
@@ -222,44 +214,16 @@ public class MenuController : MonoBehaviour
             soundButtonGO.SetActive(false);
             highscoreTextGO.SetActive(false);
             tapTextGO.SetActive(false);
-            infoImageGO.SetActive(true);
+            tutorialManager.SetActive(true);
             infoButtonText.text = "Back";
-            iterator = 0;
-            infoImage.sprite = infoSlides[iterator];
-            infoBackButtonGO.SetActive(false);
-            infoNextButtonGO.SetActive(true);
             infoIsOpen = true;
         }
     }
 
 
-    void NextInfo()
+    void YesTut()
     {
-        iterator++;
-        if (iterator == 1)
-        {
-            infoBackButtonGO.SetActive(true);
-        }
-        infoImage.sprite = infoSlides[iterator];
-        if (iterator == infoSlides.Length - 1)
-        {
-            infoNextButtonGO.SetActive(false);
-        }
-    }
-
-
-    void BackInfo()
-    {
-        iterator--;
-        if (iterator == infoSlides.Length - 2)
-        {
-            infoNextButtonGO.SetActive(true);
-        }
-        infoImage.sprite = infoSlides[iterator];
-        if (iterator == 0)
-        {
-            infoBackButtonGO.SetActive(false);
-        }
+        SceneManager.LoadScene("Tutorial");
     }
 
 
