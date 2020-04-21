@@ -1003,7 +1003,7 @@ GameObject:
   - component: {fileID: 490089771}
   m_Layer: 5
   m_Name: Message
-  m_TagString: Untagged
+  m_TagString: TutorialMess
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1869,7 +1869,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: 60}
-  m_SizeDelta: {x: 171.6, y: 32.2}
+  m_SizeDelta: {x: 296.3, y: 32.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2078259812
 MonoBehaviour:

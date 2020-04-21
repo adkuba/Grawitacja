@@ -38,7 +38,10 @@ public class MenuController : MonoBehaviour
     private GameObject tutorialManager;
     private GameObject tutorialYesGO;
     private GameObject tutorialBGGO;
+    private GameObject tutorialMessGO;
     private Image tutorialBG;
+    private string defaultInfo = "Tutorial";
+    private string selectedInfo = "Back";
     
 
     void Start()
@@ -50,6 +53,7 @@ public class MenuController : MonoBehaviour
         tapTextGO = GameObject.FindGameObjectWithTag("TapText");
         soundButtonGO = GameObject.FindGameObjectWithTag("SoundB");
         tutorialBGGO = GameObject.FindGameObjectWithTag("TutorialBG");
+        tutorialMessGO = GameObject.FindGameObjectWithTag("TutorialMess");
 
         //swipe size
         dragDistance = (Screen.width + Screen.height) * 0.1f / 2f;
@@ -68,6 +72,17 @@ public class MenuController : MonoBehaviour
         tutorialYesButton.onClick.AddListener(YesTut);
         canvasSize = new Vector2(canvas.GetComponent<RectTransform>().rect.width, canvas.GetComponent<RectTransform>().rect.height);
         soundButton.onClick.AddListener(SoundButton);
+
+        //zmiana jezyka
+        if (Application.systemLanguage == SystemLanguage.Polish)
+        {
+            defaultInfo = "Poradnik";
+            selectedInfo = "Wroc";
+            tapTextGO.GetComponentInChildren<UnityEngine.UI.Text>().text = "kliknij aby zagrac";
+            tutorialMessGO.GetComponentInChildren<UnityEngine.UI.Text>().text = "Otworz poradnik";
+            tutorialYesGO.transform.GetChild(0).gameObject.GetComponentInChildren<UnityEngine.UI.Text>().text = "TAK";
+        }
+        infoButtonText.text = defaultInfo;
 
         if (PlayerPrefs.GetInt("highscoreChanged", 0) == 0)
         {
@@ -206,7 +221,7 @@ public class MenuController : MonoBehaviour
             tapTextGO.SetActive(true);
             soundButtonGO.SetActive(true);
             tutorialManager.SetActive(false);
-            infoButtonText.text = "Tutorial";
+            infoButtonText.text = defaultInfo;
             infoIsOpen = false;
         }
         else
@@ -215,7 +230,7 @@ public class MenuController : MonoBehaviour
             highscoreTextGO.SetActive(false);
             tapTextGO.SetActive(false);
             tutorialManager.SetActive(true);
-            infoButtonText.text = "Back";
+            infoButtonText.text = selectedInfo;
             infoIsOpen = true;
         }
     }
@@ -223,6 +238,7 @@ public class MenuController : MonoBehaviour
 
     void YesTut()
     {
+        PlayerPrefs.SetInt("onlyPTut", 0);
         SceneManager.LoadScene("Tutorial");
     }
 

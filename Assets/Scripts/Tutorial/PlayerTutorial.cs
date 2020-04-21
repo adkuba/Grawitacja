@@ -25,7 +25,6 @@ public class PlayerTutorial : MonoBehaviour
     private bool endSeguenceInvoked = false;
     private int scoreBoost = 0;
     private float steerAddition = 0;
-    private int closestAsteroid = -1;
     private bool slowdownPlanet = false;
     private float slowdownAngle = 0;
     private float desiredTimeScale;
@@ -43,7 +42,6 @@ public class PlayerTutorial : MonoBehaviour
     private GameObject boostGameObject;
     private GameObject spawn;
     private GameObject boostAdd;
-    private GameObject fuelWarning;
     private GameObject cockpitImage;
     private GameObject shell;
     private GameObject engine;
@@ -58,8 +56,14 @@ public class PlayerTutorial : MonoBehaviour
     private GameObject infoTextGO;
     private UnityEngine.UI.Text infoText;
     private Vector2 screenBounds;
-    private bool planetGen = false;
-    private GameObject repeat;
+    private GameObject quit;
+
+    private string leftTutText = "Click left side of the device";
+    private string rightTutText = "Click right side";
+    private string boostTutText = "Click both to activate boost\nLeft circle must be full and not transparent";
+    private string fuelTutText = "No orbiting = more fuel used\nGo after the pointer!";
+    private string orbitTutText = "Some planets have fuel\nFly as far as possible";
+    private string finalTutText = "Great that's it!";
 
     public GameObject planetPrefab;
 
@@ -72,12 +76,11 @@ public class PlayerTutorial : MonoBehaviour
         cockpitImage = GameObject.FindGameObjectWithTag("Cockpit");
         fuelGameObject = GameObject.FindGameObjectWithTag("Fuel");
         boostGameObject = GameObject.FindGameObjectWithTag("Boost");
-        fuelWarning = GameObject.FindGameObjectWithTag("FuelWarning");
         engine = GameObject.FindGameObjectWithTag("Engine");
         fuelEffect = GameObject.FindGameObjectWithTag("FuelEffect");
         boostAdd = GameObject.FindGameObjectWithTag("BoostAdd");
         infoTextGO = GameObject.FindGameObjectWithTag("InfoText");
-        repeat = GameObject.FindGameObjectWithTag("Repeat");
+        quit = GameObject.FindGameObjectWithTag("Quit");
 
         crashSound = GetComponent<AudioSource>();
 
@@ -95,7 +98,7 @@ public class PlayerTutorial : MonoBehaviour
         scoreText = scoreGameObject.GetComponent<UnityEngine.UI.Text>();
         boostAddText = boostAdd.GetComponent<UnityEngine.UI.Text>();
         infoText = infoTextGO.GetComponent<UnityEngine.UI.Text>();
-        repeat.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(RepeatButton);
+        quit.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(QuitButton);
 
         infoTextGO.SetActive(false);
         fuelEffect.SetActive(false);
@@ -103,9 +106,20 @@ public class PlayerTutorial : MonoBehaviour
         fromLastBoost = Time.time;
         timeFromSpawn = Time.time;
         boostAdd.SetActive(false);
-        fuelWarning.SetActive(false);
         timeFromLastPlanet = Time.time;
         screenBounds = new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize);
+
+        //zmiana jezyka
+        if (Application.systemLanguage == SystemLanguage.Polish)
+        {
+            quit.transform.GetChild(0).gameObject.GetComponent<UnityEngine.UI.Text>().text = "Wyjdz";
+            leftTutText = "Kliknij lewa strone urzadzenia";
+            rightTutText = "Kliknij prawa strone";
+            boostTutText = "Kliknij obydwie aby aktywowac boost\nLewe kolo musi byc pelne i aktywne";
+            fuelTutText = "Brak orbitowania = wiecej zuzytego paliwa\nLec za wskaznikiem!";
+            orbitTutText = "Niektore planety maja paliwo\nDolec jak najdalej potrafisz";
+            finalTutText = "Super to wszystko!";
+        }
     }
 
 
@@ -115,7 +129,14 @@ public class PlayerTutorial : MonoBehaviour
         desiredTimeScale = 0.8f;
         if (Time.time - timeFromSpawn > 2)
         {
-            infoText.text = "Click left side of the device";
+            if (PlayerPrefs.GetInt("onlyPTut", 0 ) == 1)
+            {
+                leftTut = true;
+                rightTut = true;
+                boostTut = true;
+            }
+
+            infoText.text = leftTutText;
             if (!boostTut)
             {
                 usedFuel = 0;
@@ -124,19 +145,20 @@ public class PlayerTutorial : MonoBehaviour
             //zrobiony skret w lewo
             if (leftTut)
             {
-                infoText.text = "Click right side of the device";
+                infoText.text = rightTutText;
                 //zrobiony skret w prawo
                 if (rightTut)
                 {
-                    infoText.text = "Click both to activate boost\n Left circle must be full and not transparent";
+                    infoText.text = boostTutText;
                     //dodatkowe info o tym kiedy mozna to uzywac
                     //zrobiny boost
                     if (boostTut)
                     {
                         //musze zmniejszyc paliwo
-                        infoText.text = "No orbiting = more fuel used\n Go to a planet!";
+                        infoText.text = fuelTutText;
                         //musze wygenerowac planete
-                        if (!planetGen)
+                        planets = GameObject.FindGameObjectsWithTag("Planet");
+                        if (planets.Length == 0 && Time.time - fromLastBoost > 3)
                         {
                             GameObject planet = Instantiate(planetPrefab) as GameObject;
                             float size = UnityEngine.Random.Range(14f, 16f);
@@ -163,17 +185,15 @@ public class PlayerTutorial : MonoBehaviour
                             //80 between planet - planet, 40 betwen planet - asteroid
                             Vector2 position2 = new Vector2(UnityEngine.Random.Range(xrange.x, xrange.y), UnityEngine.Random.Range(yrange.x, yrange.y));
                             planet2.transform.position = position2;
-
-                            planetGen = true;
                         }
 
                         //orbituje od 2 sek
                         if (atractedTo != -1)
                         {
-                            infoText.text = "Some planets have fuel\n Fly as far as possible";
+                            infoText.text = orbitTutText;
                             if (Time.time - orbitTime > 4)
                             {
-                                infoText.text = "Great that's it!";
+                                infoText.text = finalTutText;
                             }
                             if (Time.time - orbitTime > 7)
                             {
@@ -244,7 +264,6 @@ public class PlayerTutorial : MonoBehaviour
         if (Time.time - timeFromLastPlanet > 10 && !exiting && boostTut)
         {
             usedFuel += Time.deltaTime * 5;
-            fuelWarning.SetActive(true);
 
             if (fuelImage.rectTransform.sizeDelta.x < 70)
             {
@@ -263,12 +282,6 @@ public class PlayerTutorial : MonoBehaviour
         else if (cockpitImageRect.anchoredPosition.y > -25)
         {
             cockpitImageRect.anchoredPosition -= new Vector2(0, 10 * Time.deltaTime);
-        }
-
-        //warning remove
-        if (Time.time - timeFromLastPlanet < 10 || exiting)
-        {
-            fuelWarning.SetActive(false);
         }
 
         //score, boost, fuel cockpit
@@ -291,16 +304,7 @@ public class PlayerTutorial : MonoBehaviour
             }
         }
         scoreText.text = Convert.ToInt32(score).ToString();
-        //slowdown angle is reducing with score
-        slowdownAngle = score * -0.0214f + 34.29f;
-        if (slowdownAngle > 30)
-        {
-            slowdownAngle = 30;
-        }
-        if (slowdownAngle < 0)
-        {
-            slowdownAngle = 0;
-        }
+        slowdownAngle = 45f;
         float boostPassedTime = Time.time - fromLastBoost;
         if (boostPassedTime < 7)
         {
@@ -477,30 +481,6 @@ public class PlayerTutorial : MonoBehaviour
             orbitTime = 0;
         }
 
-
-        asteroids = GameObject.FindGameObjectsWithTag("Asteroid");
-        //moons as asteroids
-        asteroids = asteroids.Concat(GameObject.FindGameObjectsWithTag("Moon")).ToArray();
-        if (closestAsteroid == -1 && atractedTo == -1)
-        {
-            foreach (GameObject asteroid in asteroids)
-            {
-                if (asteroid != null)
-                {
-                    if (Vector3.Distance(transform.position, asteroid.transform.position) < 20)
-                    {
-                        Vector3 direction = asteroid.transform.position - transform.position;
-                        //if small angle
-                        if (Vector3.Angle(rb.velocity, direction) < slowdownAngle)
-                        {
-                            closestAsteroid = Array.IndexOf(asteroids, asteroid);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
         //slowdown
         //if planet
         if (atractedTo != -1 && slowdownPlanet && fuelTank - usedFuel > 0 && !exiting)
@@ -631,6 +611,11 @@ public class PlayerTutorial : MonoBehaviour
     {
         if (!endSeguenceInvoked)
         {
+            if (boostTut)
+            {
+                PlayerPrefs.SetInt("onlyPTut", 1);
+            }
+
             endSeguenceInvoked = true;
             crashSound.Play();
             exiting = true;
@@ -668,9 +653,21 @@ public class PlayerTutorial : MonoBehaviour
         return score;
     }
 
-    private void RepeatButton()
+    private void QuitButton()
     {
-        endSequence();
+        if (!endSeguenceInvoked)
+        {
+            endSeguenceInvoked = true;
+            crashSound.Play();
+            exiting = true;
+            rb.isKinematic = true;
+
+            if (!spawn.GetComponent<ParticleSystem>().isPlaying)
+            {
+                spawn.GetComponent<ParticleSystem>().Play();
+            }
+            StartCoroutine(ExitingCoroutine());
+        }
     }
 
     IEnumerator ReloadingCoroutine()

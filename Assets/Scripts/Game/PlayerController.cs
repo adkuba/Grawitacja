@@ -55,6 +55,10 @@ public class PlayerController : MonoBehaviour
     private GameObject shell;
     private GameObject engine;
     private GameObject fuelEffect;
+    private GameObject adMessGO;
+    private GameObject adYesGO;
+    private GameObject netInfo;
+    private UnityEngine.UI.Text adMess;
     private Rigidbody rb;
     private RectTransform cockpitImageRect;
     private RectTransform adNoRect;
@@ -79,6 +83,9 @@ public class PlayerController : MonoBehaviour
         engine = GameObject.FindGameObjectWithTag("Engine");
         fuelEffect = GameObject.FindGameObjectWithTag("FuelEffect");
         boostAdd = GameObject.FindGameObjectWithTag("BoostAdd");
+        adMessGO = GameObject.FindGameObjectWithTag("ADMess");
+        adYesGO = GameObject.FindGameObjectWithTag("AdYes");
+        netInfo = GameObject.FindGameObjectWithTag("NetInfo");
         crashSound = GetComponent<AudioSource>();
         adNoRect = adNo.GetComponent<RectTransform>();
         
@@ -94,7 +101,18 @@ public class PlayerController : MonoBehaviour
         fuelImage = fuelGameObject.GetComponent<UnityEngine.UI.Image>();
         boostImage = boostGameObject.GetComponent<UnityEngine.UI.Image>();
         scoreText = scoreGameObject.GetComponent<UnityEngine.UI.Text>();
+        adMess = adMessGO.GetComponent<UnityEngine.UI.Text>();
         boostAddText = boostAdd.GetComponent<UnityEngine.UI.Text>();
+
+        //zmiana jezyka
+        if (Application.systemLanguage == SystemLanguage.Polish)
+        {
+            adNo.transform.GetChild(0).gameObject.GetComponent<UnityEngine.UI.Text>().text = "NIE";
+            adYesGO.transform.GetChild(0).gameObject.GetComponent<UnityEngine.UI.Text>().text = "TAK";
+            netInfo.GetComponent<UnityEngine.UI.Text>().text = "brak polaczenia z internetem!";
+            fuelWarning.GetComponent<UnityEngine.UI.Text>().text = "Orbituj!";
+            adMess.text = "Wyswietl reklame aby kontynuowac";
+        }
 
         fuelEffect.SetActive(false);
         highscore = PlayerPrefs.GetInt("highscore", 0);

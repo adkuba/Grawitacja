@@ -36,11 +36,14 @@ TagManager:
   - ObjectsGenerator
   - Planet
   - InfoText
-  - Repeat
   - TutorialManager
   - TutorialYes
   - TutorialNo
   - TutorialBG
+  - ADMess
+  - AdYes
+  - TutorialMess
+  - Quit
   layers:
   - Default
   - TransparentFX
