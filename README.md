@@ -1,5 +1,5 @@
-# Spis treści
-- [About](#about)
+# Table of Contents
+- [What I've learned](#what-Ive-learned)
 - [Game concept](#game-concept)
 - [Functions](#functions)   
    - [Object generator](#object-generator)   
@@ -9,9 +9,8 @@
    - [Other](#other)
 - [Second game version](#second-game-version)
 
-# About
-What have I learned?
-* How to make my own **mobile game** in Unity with running ads and Play Store release. (**C#, Unity**)
+# What I've learned
+* How to make my own **mobile game** in Unity with implemented ads and Play Store release. (**C#, Unity**)
 * Learn more about the [results](https://medium.com/@akuba_15181/how-much-money-my-mobile-game-made-2a70a6ea9dd5)
 
 # Game concept
@@ -45,6 +44,6 @@ The planets are random size within the given range, and the strength of gravity 
 - The menu background is a game without a spaceship, we control it with the accelerometer.
 
 # Second game version
-You can add a coin collection system, thanks to which we will be able to buy better ships for a given flight, with a larger fuel tank, with greater possibility of acceleration, with higher maximum speed. <br><br>
+Add a coin collection system, thanks to which we will be able to buy better ships for a given flight, with a larger fuel tank, with greater possibility of acceleration, with higher maximum speed. <br><br>
 
 ![PlayStore](store.jpg)
