@@ -76,14 +76,7 @@ public class ObjectsGenerator : MonoBehaviour
         {
             //difficulty scaling
             float score = 0;
-            if (player.GetComponent<PlayerController>() == null)
-            {
-                score = player.GetComponent<MenuPlayer>().getScore();
-            }
-            else
-            {
-                score = player.GetComponent<PlayerController>().getScore();
-            }
+            score = player.GetComponent<PlayerController>().getScore();
             if (score > 2000)
             {
                 score = 2000;

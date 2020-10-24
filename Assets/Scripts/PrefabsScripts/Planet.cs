@@ -36,7 +36,7 @@ public class Planet : MonoBehaviour
         bool find = false;
         if (rand <= .4f && !find)
         {
-            moonK = true;
+            moonK = false;
             find = true;
         }
         if (rand <= .8f && !find)
@@ -47,25 +47,14 @@ public class Planet : MonoBehaviour
         if (rand <= .9 && !find)
         {
             sparksK = true;
-            moonK = true;
+            moonK = false;
         }
 
         //sparkles size and colour
         sparks = transform.GetChild(0).GetComponent<ParticleSystem>();
         float sSize = transform.localScale.x * 0.14f - 0.2f;
         sparks.transform.localScale = new Vector3(sSize, sSize, sSize);
-        if (player.GetComponent<PlayerController>() != null)
-        {
-            score = player.GetComponent<PlayerController>().getScore();
-        }
-        else if (player.GetComponent<MenuPlayer>() != null)
-        {
-            score = player.GetComponent<MenuPlayer>().getScore();
-        }
-        else
-        {
-            score = player.GetComponent<PlayerTutorial>().getScore();
-        }
+        score = player.GetComponent<PlayerController>().getScore();
         int index = 0;
         if (score < 400)
         {

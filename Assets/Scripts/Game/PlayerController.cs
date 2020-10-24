@@ -4,8 +4,10 @@ using UnityEngine;
 using System;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using Unity.MLAgents;
+using Unity.MLAgents.Sensors;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : Agent
 {
     private Vector3 targetForce = Vector3.zero;
     private Vector3 targetForceSteer = Vector3.zero;
@@ -21,7 +23,6 @@ public class PlayerController : MonoBehaviour
     private int highscore;
     private float timeFromSpawn;
     private Vector3 desiredScale;
-    private bool adNoClicked = false;
     private int addScore = 0;
     private bool hsAnimationComp = false;
     private float waitAnimation = 0;
@@ -30,7 +31,6 @@ public class PlayerController : MonoBehaviour
     private bool textDown = false;
     private bool cockpitDown = false;
     private float timeFromLastPlanet;
-    private bool endSeguenceInvoked = false;
     private bool fuelAnim = false;
     private bool hsAnimStarted = false;
     private int scoreBoost = 0;
@@ -40,6 +40,9 @@ public class PlayerController : MonoBehaviour
     private float slowdownAngle = 0;
     private float desiredTimeScale;
     private float slowdownCameraAngle = -1;
+    private float boostPassedTime = 0;
+    private int lastScore = 0;
+    private float aiOrbitTime = 0;
 
     private GameObject[] planets;
     private GameObject[] asteroids;
@@ -50,24 +53,56 @@ public class PlayerController : MonoBehaviour
     private GameObject boostAdd;
     private GameObject fuelWarning;
     private GameObject cockpitImage;
-    private GameObject adManager;
-    private GameObject adNo;
     private GameObject shell;
     private GameObject engine;
     private GameObject fuelEffect;
-    private GameObject adMessGO;
-    private GameObject adYesGO;
-    private GameObject netInfo;
-    private UnityEngine.UI.Text adMess;
     private Rigidbody rb;
     private RectTransform cockpitImageRect;
-    private RectTransform adNoRect;
     private UnityEngine.UI.Image fuelImage;
     private UnityEngine.UI.Image boostImage;
     private UnityEngine.UI.Text scoreText;
     private UnityEngine.UI.Text boostAddText;
     private AudioSource crashSound;
 
+
+    class PlanetsCompare : IComparer<GameObject>
+    {
+        private GameObject player = GameObject.FindGameObjectWithTag("Player");
+
+        //gameobject distance from player compare
+        public int Compare(GameObject planet1, GameObject planet2)
+        {
+            if (planet1 == null && planet2 == null)
+            {
+                return 0;
+            }
+            else if (planet1 == null)
+            {
+                //second is closer
+                return 1;
+            }
+            else if (planet2 == null)
+            {
+                return -1;
+            }
+
+            //no nulls
+            float distance1 = Vector3.Distance(player.transform.position, planet1.transform.position);
+            float distance2 = Vector3.Distance(player.transform.position, planet2.transform.position);
+            if (distance1 < distance2)
+            {
+                return -1;
+            }
+            else if (distance1 > distance2)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+    }
 
     void Start()
     {
@@ -77,17 +112,11 @@ public class PlayerController : MonoBehaviour
         cockpitImage = GameObject.FindGameObjectWithTag("Cockpit");
         fuelGameObject = GameObject.FindGameObjectWithTag("Fuel");
         boostGameObject = GameObject.FindGameObjectWithTag("Boost");
-        adManager = GameObject.FindGameObjectWithTag("AdManager");
         fuelWarning = GameObject.FindGameObjectWithTag("FuelWarning");
-        adNo = GameObject.FindGameObjectWithTag("AdNo");
         engine = GameObject.FindGameObjectWithTag("Engine");
         fuelEffect = GameObject.FindGameObjectWithTag("FuelEffect");
         boostAdd = GameObject.FindGameObjectWithTag("BoostAdd");
-        adMessGO = GameObject.FindGameObjectWithTag("ADMess");
-        adYesGO = GameObject.FindGameObjectWithTag("AdYes");
-        netInfo = GameObject.FindGameObjectWithTag("NetInfo");
         crashSound = GetComponent<AudioSource>();
-        adNoRect = adNo.GetComponent<RectTransform>();
         
         //spawn effect, order of code is important!
         transform.localScale = new Vector3(0.0028f, 0.0094f, 0.0016f);
@@ -101,32 +130,194 @@ public class PlayerController : MonoBehaviour
         fuelImage = fuelGameObject.GetComponent<UnityEngine.UI.Image>();
         boostImage = boostGameObject.GetComponent<UnityEngine.UI.Image>();
         scoreText = scoreGameObject.GetComponent<UnityEngine.UI.Text>();
-        adMess = adMessGO.GetComponent<UnityEngine.UI.Text>();
         boostAddText = boostAdd.GetComponent<UnityEngine.UI.Text>();
 
         //zmiana jezyka
         if (Application.systemLanguage == SystemLanguage.Polish)
         {
-            adNo.transform.GetChild(0).gameObject.GetComponent<UnityEngine.UI.Text>().text = "NIE";
-            adYesGO.transform.GetChild(0).gameObject.GetComponent<UnityEngine.UI.Text>().text = "TAK";
-            netInfo.GetComponent<UnityEngine.UI.Text>().text = "brak polaczenia z internetem!";
             fuelWarning.GetComponent<UnityEngine.UI.Text>().text = "Orbituj!";
-            adMess.text = "Wyswietl reklame aby kontynuowac";
         }
-
+         
         fuelEffect.SetActive(false);
         highscore = PlayerPrefs.GetInt("highscore", 0);
         addScore = PlayerPrefs.GetInt("addScore", 0);
         score = addScore;
         fromLastBoost = Time.time;
         timeFromSpawn = Time.time;
-        adNo.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(AdNoButtonClicked);
-        adManager.SetActive(false);
         boostAdd.SetActive(false);
         fuelWarning.SetActive(false);
         timeFromLastPlanet = Time.time;
     }
 
+    public void Steering(float[] vectorAction)
+    {
+        //steering, deltaTime is important!
+        if (usedFuel < fuelTank && Time.time - timeFromSpawn > 1)
+        {
+            var action = Mathf.FloorToInt(vectorAction[0]);
+
+            if (action == 1)
+            {
+                if (boostPassedTime > 7 && usedFuel + 40 <= fuelTank && atractedTo == -1 && Time.time - timeFromLastPlanet > 2)
+                {
+                    targetForceSteer += new Vector3(0, 50, 0);
+                    fromLastBoost = Time.time;
+                    scoreBoost = UnityEngine.Random.Range(0, 101);
+                    boostAddText.text = "+" + scoreBoost.ToString();
+                    boostAdd.SetActive(true);
+                    addScore += scoreBoost;
+                    scoreBoost = 0;
+                    usedFuel += 40;
+                }
+            }
+            else if (action == 2)
+            {
+                targetForceSteer += new Vector3(800 * Time.deltaTime + steerAddition, 0, 0);
+                shell.transform.Rotate(new Vector3(0, -1, 0) * 180 * Time.deltaTime);
+            }
+            else if (action == 3)
+            {
+                targetForceSteer += new Vector3(-800 * Time.deltaTime - steerAddition, 0, 0);
+                shell.transform.Rotate(new Vector3(0, 1, 0) * 180 * Time.deltaTime);
+            }
+        }
+    }
+
+    //przed rozpoczeciem iteracji
+    public override void OnEpisodeBegin()
+    {
+        //Reset srodowisko
+        transform.position = Vector3.zero;
+        score = 0;
+        lastScore = 0;
+        addScore = 0;
+        atractedTo = -1;
+        lastAtracttedTo = -1;
+        rb.isKinematic = false;
+        fuelEffect.SetActive(false);
+        fromLastBoost = Time.time;
+        timeFromSpawn = Time.time;
+        boostAdd.SetActive(false);
+        fuelWarning.SetActive(false);
+        timeFromLastPlanet = Time.time;
+        usedFuel = 0;
+
+        foreach(GameObject planet in GameObject.FindGameObjectsWithTag("Planet"))
+        {
+            GameObject.Destroy(planet);
+        }
+        foreach(GameObject asteroid in GameObject.FindGameObjectsWithTag("Asteroid"))
+        {
+            GameObject.Destroy(asteroid);
+        }
+    }
+
+
+    public override void CollectObservations(VectorSensor sensor)
+    {
+        //pozycja playera - 2 floaty 
+        sensor.AddObservation(transform.position.x);
+        sensor.AddObservation(transform.position.y);
+
+        //player predkosc 2 floaty
+        sensor.AddObservation(rb.velocity.x);
+        sensor.AddObservation(rb.velocity.y);
+
+        Vector3[] planetsPositions = { Vector3.zero, Vector3.zero };
+        float[] planetsSize = { 0f, 0f };
+
+        PlanetsCompare planetsCompare = new PlanetsCompare();
+        if (planets != null)
+        {
+            GameObject[] planetsCopy = new GameObject[planets.Length];
+            planets.CopyTo(planetsCopy, 0);
+            Array.Sort(planetsCopy, planetsCompare);
+
+            for (int i=0; i<planetsCopy.Length; i++)
+            {
+                planetsPositions[i] = planetsCopy[i].transform.position;
+                planetsSize[i] = planetsCopy[i].transform.localScale.x;
+                if (i == 1)
+                {
+                    break;
+                }
+            }
+        }
+
+        //pozycja i wielkosc 2 najblizszych planet 2*3=6 floatow
+        sensor.AddObservation(planetsPositions[0].x);
+        sensor.AddObservation(planetsPositions[0].y);
+        sensor.AddObservation(planetsSize[0]);
+
+        sensor.AddObservation(planetsPositions[1].x);
+        sensor.AddObservation(planetsPositions[1].y);
+        sensor.AddObservation(planetsSize[1]);
+
+
+
+        Vector3[] asteroidsPositions = { Vector3.zero, Vector3.zero };
+
+        if (asteroids != null)
+        {
+            GameObject[] asteroidsCopy = new GameObject[asteroids.Length];
+            asteroids.CopyTo(asteroidsCopy, 0);
+            Array.Sort(asteroidsCopy, planetsCompare);
+
+            for (int i=0; i<asteroidsCopy.Length; i++)
+            {
+                asteroidsPositions[i] = asteroidsCopy[i].transform.position;
+                if (i == 1)
+                {
+                    break;
+                }
+            }
+        }
+
+        //pozycja 2 najblizszych asteroid 2*2=4 floatow
+        sensor.AddObservation(asteroidsPositions[0].x);
+        sensor.AddObservation(asteroidsPositions[0].y);
+
+        sensor.AddObservation(asteroidsPositions[1].x);
+        sensor.AddObservation(asteroidsPositions[1].y);
+
+        //poziom paliwa
+        sensor.AddObservation(usedFuel);
+
+        //wynik
+        sensor.AddObservation(score);
+    }
+
+    public override void OnActionReceived(float[] vectorAction)
+    {
+        Steering(vectorAction);
+        int currentScore = Convert.ToInt32(score);
+        if (lastScore != currentScore)
+        {
+            AddReward((currentScore - lastScore) * 0.01f);
+            lastScore = currentScore;
+        }
+    }
+
+    public override void Heuristic(float[] actionsOut)
+    {
+        // MOJE STEROWANIE, test srodowiska
+        if (Input.GetKey("left"))
+        {
+            actionsOut[0] = 3;
+
+        } else if (Input.GetKey("right"))
+        {
+            actionsOut[0] = 2;
+
+        } else if (Input.GetKey("space"))
+        {
+            actionsOut[0] = 1;
+
+        } else
+        {
+            actionsOut[0] = 0;
+        }
+    }
 
     void Update()
     {
@@ -252,7 +443,7 @@ public class PlayerController : MonoBehaviour
         {
             desiredTimeScale = 1.6f;
         }
-        float boostPassedTime = Time.time - fromLastBoost;
+        boostPassedTime = Time.time - fromLastBoost;
         if (boostPassedTime < 7)
         {
             boostImage.fillAmount = boostPassedTime / 7;
@@ -332,6 +523,7 @@ public class PlayerController : MonoBehaviour
             if (Vector3.Distance(transform.position, planet.transform.position) < planet.transform.localScale.x * 2f) 
             {
                 atractedTo = Array.IndexOf(planets, planet);
+                aiOrbitTime = Time.time;
                 break;
             }
         }
@@ -357,6 +549,7 @@ public class PlayerController : MonoBehaviour
             {
                 cameraSize = slowdownCameraAngle;
             }
+
             float actualCameraSize = Camera.main.orthographicSize;
             if (actualCameraSize < cameraSize)
             {
@@ -396,46 +589,6 @@ public class PlayerController : MonoBehaviour
                 rotation = Quaternion.Euler(0, 0, coordinate - 90f);
             }
             transform.rotation = rotation;
-        }
-
-
-        //steering, deltaTime is important!
-        if (usedFuel < fuelTank && Time.time - timeFromSpawn > 1 && Input.touchCount > 0) 
-        {
-            Touch touch = Input.GetTouch(0);
-            Vector2 pos = touch.position;
-
-            if (Input.touchCount > 1)
-            {
-                Touch touch2 = Input.GetTouch(1);
-                Vector2 pos2 = touch2.position;
-
-                //boost if can use, min time not orbiting
-                if ((pos.x > Screen.width / 2 && pos2.x < Screen.width / 2) || (pos2.x > Screen.width / 2 && pos.x < Screen.width / 2))
-                {
-                    if (boostPassedTime > 7 && usedFuel + 40 <= fuelTank && atractedTo == -1 && Time.time - timeFromLastPlanet > 2)
-                    {
-                        targetForceSteer += new Vector3(0, 50, 0);
-                        fromLastBoost = Time.time;
-                        scoreBoost = UnityEngine.Random.Range(0, 101);
-                        boostAddText.text = "+" + scoreBoost.ToString();
-                        boostAdd.SetActive(true);
-                        addScore += scoreBoost;
-                        scoreBoost = 0;
-                        usedFuel += 40;
-                    }
-                }
-            }
-            else if (pos.x > Screen.width / 2)
-            {
-                targetForceSteer += new Vector3(90 * Time.deltaTime + steerAddition, 0, 0);
-                shell.transform.Rotate(new Vector3(0, -1, 0) * 90 * Time.deltaTime);
-            }
-            else if (pos.x < Screen.width / 2)
-            {
-                targetForceSteer += new Vector3(-90 * Time.deltaTime - steerAddition, 0, 0); 
-                shell.transform.Rotate(new Vector3(0, 1, 0) * 90 * Time.deltaTime);
-            }
         }
 
         //boost add text
@@ -516,16 +669,19 @@ public class PlayerController : MonoBehaviour
         //if asteroid
         else if (closestAsteroid != -1 && fuelTank - usedFuel > 0 && !exiting)
         {
-            Vector3 direction = asteroids[closestAsteroid].transform.position - transform.position;
-            if (Vector3.Angle(rb.velocity, direction) < 25f)
+            if (closestAsteroid < asteroids.Length)
             {
-                slowdownCameraAngle = 23;
-                Time.timeScale = 0.5f;
-                steerAddition = 80 * Time.deltaTime;
-            }
-            else
-            {
-                closestAsteroid = -1;
+                Vector3 direction = asteroids[closestAsteroid].transform.position - transform.position;
+                if (Vector3.Angle(rb.velocity, direction) < 25f)
+                {
+                    slowdownCameraAngle = 23;
+                    Time.timeScale = 0.5f;
+                    steerAddition = 80 * Time.deltaTime;
+                }
+                else
+                {
+                    closestAsteroid = -1;
+                }
             }
         }
         //if no slowdown
@@ -564,6 +720,12 @@ public class PlayerController : MonoBehaviour
             }
             targetForce = planetForce * strengthOfAttraction / Vector3.Distance(transform.position, planets[atractedTo].transform.position);
             timeFromLastPlanet = Time.time;
+
+            //jesli tylko orbituje przez 30 sekund
+            if (Time.time - aiOrbitTime > 30f)
+            {
+                EndEpisode();
+            }
         }
         //out of orbit
         else
@@ -613,24 +775,7 @@ public class PlayerController : MonoBehaviour
             rb.velocity -= rb.velocity * Time.deltaTime * 0.4f;
             if (rb.velocity.magnitude < 7 && atractedTo == -1) 
             {
-                endSequence();
-            }
-        }
-
-        //ad manager
-        if (exiting)
-        {
-            if (adNoClicked)
-            {
-                adManager.SetActive(false);
-                PlayerPrefs.SetInt("ADcounter", 0);
-                endSequenceFinal();
-            }
-            if (PlayerPrefs.GetInt("ADdisplayed", 0) == 1)
-            {
-                adManager.SetActive(false);
                 endReload();
-                PlayerPrefs.SetInt("ADdisplayed", 0);
             }
         }
     }
@@ -650,67 +795,32 @@ public class PlayerController : MonoBehaviour
     //collision
     void OnCollisionEnter(Collision collision)
     {
-        endSequence();
+        endReload();
     }
 
     void endReload()
     {
-        PlayerPrefs.SetInt("addScore", Convert.ToInt32(score));
-        
+        //exiting = true;
+        rb.isKinematic = true;
+
         if (!spawn.GetComponent<ParticleSystem>().isPlaying)
         {
             spawn.GetComponent<ParticleSystem>().Play();
         }
-
-        StartCoroutine(ReloadingCoroutine());
-    }
-
-    void endSequence()
-    {
-        if (!endSeguenceInvoked)
-        {
-            endSeguenceInvoked = true;
-            crashSound.Play();
-            exiting = true;
-            rb.isKinematic = true;
-            adManager.SetActive(true);
-
-            if (Application.internetReachability == NetworkReachability.NotReachable || (PlayerPrefs.GetInt("ADcounter", 0) == 1))
-            {
-                adNoRect.anchoredPosition = new Vector2(0, -6);
-            }
-        }
-    }
-
-    void endSequenceFinal()
-    {
-        if (score > highscore)
-        {
-            PlayerPrefs.SetInt("lastHighscore", highscore);
-            highscore = Convert.ToInt32(score);
-            PlayerPrefs.SetInt("highscore", highscore);
-            PlayerPrefs.SetInt("highscoreChanged", 1);
-        }
-        //important #18 issue
-        if (!spawn.GetComponent<ParticleSystem>().isPlaying) 
-        {
-            spawn.GetComponent<ParticleSystem>().Play();
-        }
-        StartCoroutine(ExitingCoroutine());
+        //rozbicie lub brak paliwa
+        AddReward(-1f);
+        EndEpisode();
     }
 
     IEnumerator ReloadingCoroutine()
     {
         desiredScale = new Vector3(0.0028f, 0.0094f, 0.0016f);
         yield return new WaitForSeconds(1.5f);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-
-    IEnumerator ExitingCoroutine()
-    {
-        desiredScale = new Vector3(0.0028f, 0.0094f, 0.0016f);
-        yield return new WaitForSeconds(1.5f);
-        SceneManager.LoadScene("Menu");
+        //rozbiecie lub brak paliwa
+        AddReward(-1f);
+        EndEpisode();
+        transform.position = Vector3.zero;
+        //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     IEnumerator StartingCoroutine()
@@ -718,11 +828,6 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(0.5f); 
         exiting = false;
         yield break;
-    }
-
-    void AdNoButtonClicked()
-    {
-        adNoClicked = true;
     }
 
     public int getAttractedTo()
