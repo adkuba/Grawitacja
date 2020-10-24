@@ -8,6 +8,8 @@
    - [Objects](#objects)   
    - [Other](#other)
 - [Second game version](#second-game-version)
+- [Machine learning](#machine-learning)
+- [Images](#images)
 
 # What I've learned
 * How to make my own **mobile game** in Unity with implemented ads and Play Store release. (**C#, Unity**)
@@ -46,4 +48,9 @@ The planets are random size within the given range, and the strength of gravity 
 # Second game version
 Add a coin collection system, thanks to which we will be able to buy better ships for a given flight, with a larger fuel tank, with greater possibility of acceleration, with higher maximum speed. <br><br>
 
-![PlayStore](store.jpg)
+# Machine learning
+On <code>unityML</code> branch you can find modified game for the machine learning. I'm using Unity mlagents - a package with evolutional training tools to learn my ML model how to play Gravity. I've used experience with mlagents from previous project - see OBJECT-Tracking repository on [UnityML_Testing](https://github.com/adkuba/OBJECT-Tracking/tree/UnityML_Testing) branch. Agent managed to achieve around 400 points. See the results on [1h replay](https://youtu.be/BKEhLcxirBg) video from original livestream on YouTube.
+
+# Images
+
+<img src="store.jpg" height="350">
